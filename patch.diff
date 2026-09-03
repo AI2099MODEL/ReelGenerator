@@ -1,0 +1,100 @@
+--- app/src/main/java/com/example/ui/components/BinderNavigation.kt
++++ app/src/main/java/com/example/ui/components/BinderNavigation.kt
+@@ -3,6 +3,7 @@
+ import androidx.compose.animation.animateColorAsState
+ import androidx.compose.animation.core.animateDpAsState
++import androidx.compose.animation.core.animateFloatAsState
+ import androidx.compose.animation.core.tween
+ import androidx.compose.foundation.background
+ import androidx.compose.foundation.border
+ import androidx.compose.foundation.clickable
+@@ -16,6 +17,8 @@
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.getValue
+ import androidx.compose.runtime.remember
++import androidx.compose.runtime.mutableStateOf
++import androidx.compose.runtime.LaunchedEffect
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.draw.clip
++import androidx.compose.ui.draw.alpha
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.graphics.vector.ImageVector
+@@ -32,6 +35,11 @@
+     onSectionSelected: (LedgerSection) -> Unit,
+     modifier: Modifier = Modifier
+ ) {
++    val visible = remember { mutableStateOf(false) }
++    LaunchedEffect(Unit) {
++        visible.value = true
++    }
++
+     Surface(
+         modifier = modifier
+             .fillMaxWidth()
+@@ -46,11 +54,23 @@
+             horizontalArrangement = Arrangement.SpaceBetween,
+             verticalAlignment = Alignment.CenterVertically
+         ) {
+-            LedgerSection.values().forEach { section ->
++            LedgerSection.values().forEachIndexed { index, section ->
+                 val isSelected = currentSection == section
++                
++                val animatedOffsetY by animateDpAsState(
++                    targetValue = if (visible.value) 0.dp else 20.dp,
++                    animationSpec = tween(durationMillis = 400, delayMillis = index * 100),
++                    label = "offsetY"
++                )
++                val animatedAlpha by animateFloatAsState(
++                    targetValue = if (visible.value) 1f else 0f,
++                    animationSpec = tween(durationMillis = 400, delayMillis = index * 100),
++                    label = "alpha"
++                )
++
+                 BinderTabItem(
+                     section = section,
+                     isSelected = isSelected,
+-                    onClick = { onSectionSelected(section) }
++                    onClick = { onSectionSelected(section) },
++                    modifier = Modifier.offset(y = animatedOffsetY).alpha(animatedAlpha)
+                 )
+             }
+         }
+@@ -107,6 +127,11 @@
+     onSectionSelected: (LedgerSection) -> Unit,
+     modifier: Modifier = Modifier
+ ) {
++    val visible = remember { mutableStateOf(false) }
++    LaunchedEffect(Unit) {
++        visible.value = true
++    }
++
+     Surface(
+         modifier = modifier
+             .fillMaxHeight()
+@@ -134,13 +159,26 @@
+                 )
+             }
+             Spacer(modifier = Modifier.height(24.dp))
+-            LedgerSection.values().forEach { section ->
++            LedgerSection.values().forEachIndexed { index, section ->
+                 val isSelected = currentSection == section
++                
++                val animatedOffsetX by animateDpAsState(
++                    targetValue = if (visible.value) 0.dp else (-20).dp,
++                    animationSpec = tween(durationMillis = 400, delayMillis = index * 100),
++                    label = "offsetX"
++                )
++                val animatedAlpha by animateFloatAsState(
++                    targetValue = if (visible.value) 1f else 0f,
++                    animationSpec = tween(durationMillis = 400, delayMillis = index * 100),
++                    label = "alpha"
++                )
++
+                 Surface(
+                     modifier = Modifier
++                        .offset(x = animatedOffsetX)
++                        .alpha(animatedAlpha)
+                         .fillMaxWidth()
+                         .clip(RoundedCornerShape(16.dp))
+                         .clickable { onSectionSelected(section) },

@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyLyfe Personal Organizer — Rose Quartz Archive</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=EB+Garamond:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-rose: #FFF8F0;
+            --surface-rose: #FFF8EF;
+            --rose-container-lowest: #FFFFFF;
+            --rose-container-low: #F9F3EA;
+            --rose-container: #F4EDE4;
+            --rose-container-high: #EEE7DE;
+            --rose-container-highest: #E8E2D9;
+            
+            --rose-primary: #D81B60;
+            --rose-primary-container: #FFD8E4;
+            --rose-primary-glow: #FCE4EC;
+            --rose-secondary: #934B19;
+            --rose-secondary-container: #FFDBC9;
+            
+            --text-primary: #1E1B16;
+            --text-secondary: #45474D;
+            --text-muted: #75777D;
+            --steel: #535F76;
+            --error: #BA1A1A;
+            --success: #2E6B34;
+            --border-dim: #E8E2D9;
+            
+            --font-serif: 'EB Garamond', 'Cinzel', serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-rose);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Ambient Water Flow Canvas */
+        #waterCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .phone-frame {
+            position: relative;
+            z-index: 10;
+            width: 412px;
+            height: 860px;
+            background: rgba(255, 248, 240, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 40px;
+            border: 2px solid var(--border-dim);
+            box-shadow: 0 25px 60px rgba(74, 30, 48, 0.12), 0 0 40px rgba(216, 27, 96, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .app-header {
+            padding: 20px 20px 14px;
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--rose-primary-container);
+            border: 1px solid var(--rose-primary);
+            color: var(--rose-primary);
+            font-family: var(--font-serif);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .header-titles h1 {
+            font-family: var(--font-serif);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+        }
+
+        .header-titles p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        .header-fab {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--rose-primary);
+            color: #FFFFFF;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .header-fab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(216, 27, 96, 0.4);
+        }
+
+        /* Screen Container */
+        .screen-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .screen-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .screen-container::-webkit-scrollbar-thumb {
+            background: var(--rose-container-highest);
+            border-radius: 4px;
+        }
+
+        /* Card Styling */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--border-dim);
+            border-radius: 12px;
+            padding: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        .card:hover {
+            border-color: rgba(216, 27, 96, 0.4);
+            box-shadow: 0 4px 12px rgba(216, 27, 96, 0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-rose {
+            background: var(--rose-primary-container);
+            border: 1px solid rgba(216, 27, 96, 0.4);
+            color: var(--rose-primary);
+        }
+
+        .badge-amber {
+            background: var(--rose-secondary-container);
+            border: 1px solid rgba(147, 75, 25, 0.3);
+            color: var(--rose-secondary);
+        }
+
+        .badge-high {
+            background: #FFDAD6;
+            border: 1px solid rgba(186, 26, 26, 0.4);
+            color: var(--error);
+        }
+
+        .card-title {
+            font-family: var(--font-serif);
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .card-body {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Chat bubbles */
+        .chat-bubble {
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 82%;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .chat-sent {
+            align-self: flex-end;
+            background: var(--rose-primary);
+            border: 1px solid var(--rose-primary);
+            color: #FFFFFF;
+            border-bottom-right-radius: 2px;
+            box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2);
+        }
+        .chat-received {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--border-dim);
+            color: var(--text-primary);
+            border-bottom-left-radius: 2px;
+        }
+
+        /* Filter Pills */
+        .filter-row {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .filter-pill {
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-dim);
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-pill.active {
+            background: var(--rose-primary-container);
+            color: var(--rose-primary);
+            font-weight: 700;
+            border-color: var(--rose-primary);
+        }
+
+        /* Inputs */
+        .input-box {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-dim);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+        .input-box:focus {
+            border-color: var(--rose-primary);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--rose-primary);
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 16px rgba(216, 27, 96, 0.35);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 4px 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--rose-primary);
+            font-weight: 700;
+            background: var(--rose-primary-container);
+        }
+
+        .nav-icon {
+            font-size: 16px;
+        }
+
+        /* Side Menu Drawer */
+        .drawer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .drawer-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .side-drawer {
+            position: absolute;
+            top: 0;
+            left: -320px;
+            bottom: 0;
+            width: 300px;
+            background: #FFFDFC;
+            border-right: 1px solid var(--border-dim);
+            box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+            z-index: 101;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .side-drawer.open {
+            left: 0;
+        }
+
+        .drawer-header {
+            padding: 18px 16px;
+            background: var(--rose-primary-container);
+            border-bottom: 1px solid var(--border-dim);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-section-title {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin: 14px 16px 6px;
+            text-transform: uppercase;
+        }
+
+        .drawer-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .drawer-nav-item:hover, .drawer-nav-item.active {
+            background: var(--rose-primary-container);
+            color: var(--rose-primary);
+            font-weight: 700;
+        }
+
+        .contact-entry-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border-dim);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 4px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="waterCanvas"></canvas>
+
+    <div class="phone-frame">
+        <!-- Side Drawer Overlay & Drawer -->
+        <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer(false)"></div>
+        <div class="side-drawer" id="sideDrawer">
+            <div class="drawer-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="header-badge" style="background: var(--rose-primary); color: #FFF;">M</div>
+                    <div>
+                        <div style="font-family: var(--font-serif); font-size: 16px; font-weight: 800; color: var(--text-primary);">MyLyfe</div>
+                        <div style="font-size: 10px; color: var(--rose-primary); font-weight: 600;">Rose Quartz Directory</div>
+                    </div>
+                </div>
+                <button onclick="toggleDrawer(false)" style="background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-secondary);">✕</button>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="drawer-section-title">Navigation</div>
+            <div class="drawer-nav-item" onclick="switchTab('CHAT'); toggleDrawer(false);">💬 Chat (Family, Work, Personal, Utility)</div>
+            <div class="drawer-nav-item" onclick="switchTab('DIARY'); toggleDrawer(false);">📖 Diary & Chronicle</div>
+            <div class="drawer-nav-item" onclick="switchTab('TASKS'); toggleDrawer(false);">✅ Tasks & Checklists</div>
+            <div class="drawer-nav-item" onclick="switchTab('EVENTS'); toggleDrawer(false);">📅 Schedule & Calendar</div>
+            <div class="drawer-nav-item" onclick="switchTab('VAULT'); toggleDrawer(false);">🔒 Vault & Documents</div>
+            <div class="drawer-nav-item" onclick="switchTab('SOCIAL'); toggleDrawer(false);">📡 Social Studio</div>
+
+            <!-- Mobile Numbers Section (Can be shown or hidden) -->
+            <div style="margin: 12px 14px 6px; padding: 12px; background: rgba(216,27,96,0.03); border: 1px solid var(--border-dim); border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 14px;">📞</span>
+                        <div>
+                            <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Mobile Numbers</div>
+                            <div style="font-size: 9px; color: var(--text-muted);" id="drawerCountText">8 contacts</div>
+                        </div>
+                    </div>
+                    <!-- Master Show / Hide Toggle Button -->
+                    <button class="filter-pill" id="btnToggleNumbers" style="padding: 4px 8px; font-size: 10px; font-weight: 700; cursor: pointer;" onclick="toggleNumbersVisibility()">
+                        👁 Hide Numbers
+                    </button>
+                </div>
+
+                <!-- Visible Contacts Container -->
+                <div id="drawerContactsBody">
+                    <input class="input-box" id="drawerSearch" placeholder="Search contacts..." style="font-size: 11px; padding: 6px 10px; margin-bottom: 8px;" oninput="filterDrawerContacts()"/>
+                    
+                    <div class="filter-row" style="margin-bottom: 8px;">
+                        <div class="filter-pill active" onclick="filterDrawerCat('All', this)">All</div>
+                        <div class="filter-pill" onclick="filterDrawerCat('Family', this)">🏡 Family</div>
+                        <div class="filter-pill" onclick="filterDrawerCat('Work', this)">💼 Work</div>
+                        <div class="filter-pill" onclick="filterDrawerCat('Personal', this)">🌿 Personal</div>
+                        <div class="filter-pill" onclick="filterDrawerCat('Utility', this)">⚡ Utility</div>
+                    </div>
+
+                    <div id="drawerContactsList" style="display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto;">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <button class="btn-primary" style="margin-top: 8px; padding: 6px; font-size: 11px;" onclick="promptAddContact()">+ Add Mobile Number</button>
+                </div>
+
+                <!-- Hidden State Container -->
+                <div id="drawerContactsHidden" style="display: none; text-align: center; padding: 14px 8px;">
+                    <div style="font-size: 24px; margin-bottom: 4px;">🔒</div>
+                    <div style="font-size: 12px; font-weight: 700; color: var(--text-primary);">Mobile Numbers Hidden</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-bottom: 8px;">Toggle switch or tap below to reveal numbers.</div>
+                    <button class="filter-pill active" style="font-size: 11px; padding: 6px 12px;" onclick="toggleNumbersVisibility()">👁 Show Mobile Numbers</button>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border-dim); font-size: 10px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                <span>🔒 Room Local Storage</span>
+                <span>v2.4 Rose Quartz</span>
+            </div>
+        </div>
+
+        <div class="app-header">
+            <div class="header-left">
+                <!-- Hamburger Menu Button -->
+                <button onclick="toggleDrawer(true)" style="background: var(--rose-primary-container); border: 1px solid var(--rose-primary); border-radius: 8px; width: 36px; height: 36px; color: var(--rose-primary); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">☰</button>
+                <div class="header-titles">
+                    <h1 id="headerTitle">MyLyfe Diary</h1>
+                    <p id="headerSubtitle">6 reflections • Rose Quartz Chronicle</p>
+                </div>
+            </div>
+            <button class="header-fab" id="headerFab" onclick="openNewModal()">+</button>
+        </div>
+
+        <div class="screen-container" id="screenContent">
+            <!-- Content injected via JS -->
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item" onclick="switchTab('CHAT')">
+                <div class="nav-icon">💬</div>
+                <div>Chat</div>
+            </div>
+            <div class="nav-item active" onclick="switchTab('DIARY')">
+                <div class="nav-icon">📖</div>
+                <div>Diary</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('TASKS')">
+                <div class="nav-icon">✅</div>
+                <div>Tasks</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('EVENTS')">
+                <div class="nav-icon">📅</div>
+                <div>Schedule</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('VAULT')">
+                <div class="nav-icon">🔒</div>
+                <div>Vault</div>
+            </div>
+            <div class="nav-item" onclick="switchTab('SOCIAL')">
+                <div class="nav-icon">📡</div>
+                <div>Studio</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Rose Quartz Living Water Wave Canvas
+        const canvas = document.getElementById('waterCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let step = 0;
+        function animateWater() {
+            step += 0.012;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Layer 1 - Rose Quartz Fluid Ribbon (#D81B60)
+            ctx.fillStyle = 'rgba(216, 27, 96, 0.04)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            for (let x = 0; x <= canvas.width; x += 10) {
+                let y = canvas.height * 0.45 + Math.sin(x * 0.003 + step) * 32;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Layer 2 - Terracotta Warm Amber Ribbon (#934B19)
+            ctx.fillStyle = 'rgba(147, 75, 25, 0.03)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            for (let x = 0; x <= canvas.width; x += 10) {
+                let y = canvas.height * 0.68 + Math.sin(x * 0.002 - step * 0.8) * 38;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            // Layer 3 - Light Glowing Rose Caustics
+            ctx.fillStyle = 'rgba(255, 182, 193, 0.035)';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            for (let x = 0; x <= canvas.width; x += 10) {
+                let y = canvas.height * 0.84 + Math.sin(x * 0.004 + step * 1.3) * 25;
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(canvas.width, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+
+            requestAnimationFrame(animateWater);
+        }
+        animateWater();
+
+        // Application State & Data
+        let currentTab = 'DIARY';
+
+        const screensData = {
+            CHAT: {
+                title: 'Chat',
+                subtitle: 'Family • Work • Personal • Utility',
+                render: () => `
+                    <div style="display: flex; flex-direction: column; gap: 8px; height: 100%;">
+                        <!-- Top Action Row & Category Tabs -->
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="filter-row" style="flex: 1;">
+                                <div class="filter-pill active" onclick="alert('Switched to Family')">🏡 Family</div>
+                                <div class="filter-pill" onclick="alert('Switched to Work')">💼 Work</div>
+                                <div class="filter-pill" onclick="alert('Switched to Personal')">🌿 Personal</div>
+                                <div class="filter-pill" onclick="alert('Switched to Utility')">⚡ Utility</div>
+                            </div>
+                            <div style="display: flex; gap: 4px;">
+                                <button class="filter-pill" title="5-Day AutoSync" onclick="alert('⚡ 5-Day AutoSync Active: Old chats (>5 days) automatically archived to local storage.')">⚡ Sync</button>
+                                <button class="filter-pill" style="background: var(--rose-primary-container); color: var(--rose-primary); font-weight: 700;" onclick="alert('☁️ Google Drive Backup: Ready to export full database.')">☁️ Backup</button>
+                                <button class="filter-pill" onclick="alert('📷 QR Code: Active 5-Day Transcript & Attachments Ready!')">📷 QR</button>
+                            </div>
+                        </div>
+
+                        <!-- 5-Day Auto-Sync & Rolling Chat Banner -->
+                        <div class="card" style="padding: 6px 12px; margin-bottom: 0px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.85);">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--rose-primary);"></div>
+                                <span style="font-size: 11px; font-weight: 700; color: var(--text-primary);">5-Day Rolling Chat (3 active)</span>
+                            </div>
+                            <button style="background: none; border: none; color: var(--rose-primary); font-size: 10px; font-weight: 700; cursor: pointer;" onclick="alert('📦 5-Day Archive: Showing 4 older messages safely saved offline.')">📦 View Archive (4)</button>
+                        </div>
+
+                        <!-- Messages (Latest on top) with Attachment previews -->
+                        <div style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto;">
+                            <div class="chat-bubble chat-sent">
+                                <div style="background: rgba(0,0,0,0.12); border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; font-size: 11px; display: flex; align-items: center; gap: 6px;">
+                                    <span>📎</span>
+                                    <div>
+                                        <div style="font-weight: 700;">brunch_recipes.pdf</div>
+                                        <div style="font-size: 9px; opacity: 0.8;">142 KB • PDF Document</div>
+                                    </div>
+                                </div>
+                                Sounds wonderful, I'll bring the fresh fruit & dessert.
+                                <div style="font-size: 9px; opacity: 0.8; margin-top: 4px; text-align: right;">Today, 2:45 PM</div>
+                            </div>
+                            <div class="chat-bubble chat-received">
+                                <strong style="color: var(--rose-primary); font-size: 10px;">DAD:</strong><br/>
+                                Yes! I will bring fresh sourdough!
+                                <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Today, 2:40 PM</div>
+                            </div>
+                            <div class="chat-bubble chat-received">
+                                <strong style="color: var(--rose-primary); font-size: 10px;">MOM:</strong><br/>
+                                Are we meeting for Sunday brunch at 11?
+                                <div style="font-size: 9px; color: var(--text-muted); margin-top: 4px;">Today, 2:35 PM</div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input with Attachment Button -->
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="filter-pill" style="padding: 10px 12px; font-size: 14px;" onclick="alert('📎 Choose Attachment: Photo / Image, Document / PDF, Audio Note')" title="Attach Media or Document">📎</button>
+                            <input class="input-box" placeholder="Message in Family..." id="chatInput" onkeydown="if(event.key==='Enter') sendChat()"/>
+                            <button class="header-fab" style="width: 40px;" onclick="sendChat()">➤</button>
+                        </div>
+                    </div>
+                `
+            },
+            DIARY: {
+                title: 'MyLyfe Diary',
+                subtitle: '6 reflections • Rose Quartz Chronicle',
+                render: () => `
+                    <div class="filter-row">
+                        <div class="filter-pill active">All (6)</div>
+                        <div class="filter-pill">Reflection</div>
+                        <div class="filter-pill">Milestone</div>
+                        <div class="filter-pill">Deep Thought</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="badge badge-rose">MILESTONE</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Aug 28, 2026</span>
+                        </div>
+                        <div class="card-title">Rose Quartz Archive Edition</div>
+                        <div class="card-body">Re-energized the entire organizer with vibrant Rose Quartz parchment aesthetics and living water ambient wave caustics.</div>
+                        <div class="card-meta">📌 Pinned Chronicle</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="badge badge-amber">DEEP THOUGHT</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Aug 27, 2026</span>
+                        </div>
+                        <div class="card-title">Tactile Living Software</div>
+                        <div class="card-body">The feeling of crisp cream parchment paired with fluid waves creates an inspiring environment for deep personal work.</div>
+                    </div>
+                `
+            },
+            TASKS: {
+                title: 'MyLyfe Tasks',
+                subtitle: '3 pending • 1 completed',
+                render: () => `
+                    <div class="filter-row">
+                        <div class="filter-pill active">All (4)</div>
+                        <div class="filter-pill">HIGH (1)</div>
+                        <div class="filter-pill">MED (2)</div>
+                        <div class="filter-pill">LOW (1)</div>
+                    </div>
+                    <div class="card" style="display: flex; gap: 10px; align-items: center;">
+                        <input type="checkbox" style="accent-color: var(--rose-primary); width: 18px; height: 18px;"/>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="card-title" style="font-size: 14px;">Audit annual financial balances</span>
+                                <span class="badge badge-high">HIGH</span>
+                            </div>
+                            <div class="card-meta">⏰ Due Aug 29 • 5:00 PM (Alarm Active)</div>
+                        </div>
+                    </div>
+                    <div class="card" style="display: flex; gap: 10px; align-items: center;">
+                        <input type="checkbox" style="accent-color: var(--rose-primary); width: 18px; height: 18px;"/>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="card-title" style="font-size: 14px;">Broadcast Social Studio clip</span>
+                                <span class="badge badge-rose">MED</span>
+                            </div>
+                            <div class="card-meta">📡 Ready for Dispatch</div>
+                        </div>
+                    </div>
+                `
+            },
+            EVENTS: {
+                title: 'MyLyfe Schedule',
+                subtitle: '2 upcoming • Reminders active',
+                render: () => `
+                    <div class="filter-row">
+                        <div class="filter-pill active">Upcoming (2)</div>
+                        <div class="filter-pill">Past (5)</div>
+                        <div class="filter-pill">All</div>
+                    </div>
+                    <div class="card" style="display: flex; gap: 12px; align-items: center;">
+                        <div style="background: var(--rose-primary-container); border: 1px solid rgba(216, 27, 96, 0.4); border-radius: 8px; width: 50px; height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div style="font-size: 9px; font-weight: 700; color: var(--rose-primary);">AUG</div>
+                            <div style="font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--rose-primary);">29</div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="card-title" style="font-size: 15px;">Executive Strategy Review</div>
+                            <div class="card-meta">🕒 10:00 AM • Main Boardroom / Zoom</div>
+                        </div>
+                    </div>
+                `
+            },
+            VAULT: {
+                title: 'MyLyfe Vault',
+                subtitle: '5 documents • Encrypted offline storage',
+                render: () => `
+                    <div class="filter-row">
+                        <div class="filter-pill active">All (5)</div>
+                        <div class="filter-pill">ID</div>
+                        <div class="filter-pill">Legal</div>
+                        <div class="filter-pill">Finance</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="card">
+                            <span class="badge badge-rose">ID</span>
+                            <div style="font-size: 28px; text-align: center; margin: 10px 0;">🪪</div>
+                            <div class="card-title" style="font-size: 13px;">Passport Scan 2026</div>
+                            <div style="font-size: 10px; color: var(--text-muted);">passport_hq.pdf</div>
+                        </div>
+                        <div class="card">
+                            <span class="badge badge-amber">LEGAL</span>
+                            <div style="font-size: 28px; text-align: center; margin: 10px 0;">📜</div>
+                            <div class="card-title" style="font-size: 13px;">Vault Agreement</div>
+                            <div style="font-size: 10px; color: var(--text-muted);">deed_signed.pdf</div>
+                        </div>
+                    </div>
+                `
+            },
+            SOCIAL: {
+                title: 'Social Studio',
+                subtitle: 'Multi-platform broadcasting & API publishing engine',
+                render: () => `
+                    <div class="card" style="border-color: var(--rose-primary); text-align: center; padding: 20px;">
+                        <div style="font-size: 32px; color: var(--rose-primary);">🎬</div>
+                        <div class="card-title" style="font-size: 14px; margin-top: 6px;">rose_quartz_reel.mp4</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">4K Ultra HD • Attached</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; font-weight: 700; margin-bottom: 4px;">Broadcast Caption:</div>
+                        <input class="input-box" value="✨ Experience the Rose Quartz Archive design system in MyLyfe!"/>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;">
+                            <span>𝕏 X / Twitter</span>
+                            <span class="badge badge-rose">API READY</span>
+                        </div>
+                        <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;">
+                            <span>▶ YouTube Shorts</span>
+                            <span class="badge badge-rose">API READY</span>
+                        </div>
+                        <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;">
+                            <span>🌐 Webhook / API</span>
+                            <span class="badge badge-rose">ENDPOINT 200</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="triggerBroadcast()">🚀 Broadcast to 3 Channels</button>
+                `
+            }
+        };
+
+        function switchTab(tabKey) {
+            currentTab = tabKey;
+            document.getElementById('headerTitle').innerText = screensData[tabKey].title;
+            document.getElementById('headerSubtitle').innerText = screensData[tabKey].subtitle;
+            document.getElementById('screenContent').innerHTML = screensData[tabKey].render();
+
+            document.querySelectorAll('.nav-item').forEach((el, index) => {
+                const keys = ['CHAT', 'DIARY', 'TASKS', 'EVENTS', 'VAULT', 'SOCIAL'];
+                if (keys[index] === tabKey) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            if (input && input.value.trim()) {
+                const container = document.getElementById('screenContent');
+                const bubble = document.createElement('div');
+                bubble.className = 'chat-bubble chat-sent';
+                bubble.innerText = input.value.trim();
+                input.value = '';
+                container.firstElementChild.firstElementChild.appendChild(bubble);
+            }
+        }
+
+        function triggerBroadcast() {
+            alert('Broadcasting across X (Twitter), YouTube Shorts, and Webhook API... HTTP 200 OK.');
+        }
+
+        function openNewModal() {
+            alert(`Opening creation modal for ${currentTab}...`);
+        }
+
+        // Side Drawer & Mobile Numbers State
+        let drawerOpen = false;
+        let showMobileNumbers = true;
+        let drawerCategory = 'All';
+        let drawerSearchQuery = '';
+
+        let contactsData = [
+            { id: 1, category: 'Family', name: 'Mom (Private)', phone: '+1 (555) 234-8901', note: 'Emergency primary' },
+            { id: 2, category: 'Family', name: 'Dad', phone: '+1 (555) 345-6789', note: 'Home line' },
+            { id: 3, category: 'Work', name: 'David Miller (Finance)', phone: '+1 (555) 908-1122', note: 'Auditor & CPA' },
+            { id: 4, category: 'Work', name: 'Sarah Connor', phone: '+1 (555) 876-5432', note: 'Project Manager' },
+            { id: 5, category: 'Personal', name: 'Dr. Evelyn Reed', phone: '+1 (555) 678-4321', note: 'Family physician' },
+            { id: 6, category: 'Personal', name: 'Elena Rostova', phone: '+1 (555) 765-4321', note: 'Studio Partner' },
+            { id: 7, category: 'Utility', name: 'City Power Dispatch', phone: '+1 (800) 555-0199', note: 'Account #4409' },
+            { id: 8, category: 'Utility', name: 'Metro Internet Fiber', phone: '+1 (888) 555-0144', note: 'Support Line' }
+        ];
+
+        function toggleDrawer(open) {
+            drawerOpen = open;
+            const drawer = document.getElementById('sideDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            if (open) {
+                drawer.classList.add('open');
+                overlay.classList.add('open');
+                renderDrawerContacts();
+            } else {
+                drawer.classList.remove('open');
+                overlay.classList.remove('open');
+            }
+        }
+
+        function toggleNumbersVisibility() {
+            showMobileNumbers = !showMobileNumbers;
+            const btn = document.getElementById('btnToggleNumbers');
+            const body = document.getElementById('drawerContactsBody');
+            const hidden = document.getElementById('drawerContactsHidden');
+
+            if (showMobileNumbers) {
+                btn.innerText = '👁 Hide Numbers';
+                btn.classList.remove('active');
+                body.style.display = 'block';
+                hidden.style.display = 'none';
+                renderDrawerContacts();
+            } else {
+                btn.innerText = '👁 Show Numbers';
+                btn.classList.add('active');
+                body.style.display = 'none';
+                hidden.style.display = 'block';
+            }
+        }
+
+        function filterDrawerCat(cat, el) {
+            drawerCategory = cat;
+            document.querySelectorAll('#drawerContactsBody .filter-pill').forEach(pill => pill.classList.remove('active'));
+            if (el) el.classList.add('active');
+            renderDrawerContacts();
+        }
+
+        function filterDrawerContacts() {
+            drawerSearchQuery = (document.getElementById('drawerSearch')?.value || '').toLowerCase();
+            renderDrawerContacts();
+        }
+
+        function renderDrawerContacts() {
+            const listEl = document.getElementById('drawerContactsList');
+            const countEl = document.getElementById('drawerCountText');
+            if (!listEl) return;
+
+            const filtered = contactsData.filter(c => {
+                const matchesCat = drawerCategory === 'All' || c.category.toLowerCase() === drawerCategory.toLowerCase();
+                const matchesQuery = !drawerSearchQuery || 
+                    c.name.toLowerCase().includes(drawerSearchQuery) || 
+                    c.phone.toLowerCase().includes(drawerSearchQuery) ||
+                    c.note.toLowerCase().includes(drawerSearchQuery);
+                return matchesCat && matchesQuery;
+            });
+
+            if (countEl) countEl.innerText = `${contactsData.length} contacts (${filtered.length} shown)`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 12px;">No contacts found.</div>';
+                return;
+            }
+
+            const catEmoji = { 'Family': '🏡', 'Work': '💼', 'Personal': '🌿', 'Utility': '⚡' };
+
+            listEl.innerHTML = filtered.map(c => `
+                <div class="card" style="padding: 8px 10px; margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; color: var(--text-primary);">
+                                ${catEmoji[c.category] || '🏷'} ${c.name}
+                            </div>
+                            <div style="font-size: 10px; font-weight: 600; color: var(--rose-primary); font-family: monospace;">
+                                ${c.phone}
+                            </div>
+                            <div style="font-size: 9px; color: var(--text-muted);">${c.note}</div>
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <button onclick="dialNumber('${c.phone}')" style="background: var(--rose-primary-container); border: 1px solid var(--rose-primary); border-radius: 4px; padding: 2px 6px; font-size: 10px; cursor: pointer; color: var(--rose-primary);">📞</button>
+                            <button onclick="deleteContact(${c.id})" style="background: rgba(200,50,50,0.1); border: 1px solid rgba(200,50,50,0.3); border-radius: 4px; padding: 2px 6px; font-size: 10px; cursor: pointer; color: #B00020;">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function dialNumber(phone) {
+            alert(`Dialing ${phone} via Android telephony intent...`);
+        }
+
+        function deleteContact(id) {
+            contactsData = contactsData.filter(c => c.id !== id);
+            renderDrawerContacts();
+        }
+
+        function promptAddContact() {
+            const name = prompt("Contact Name:");
+            if (!name) return;
+            const phone = prompt("Mobile Number (e.g. +1 555 123 4567):");
+            if (!phone) return;
+            const cat = prompt("Category (Family, Work, Personal, Utility):", "Personal") || "Personal";
+            const note = prompt("Note / Relationship (Optional):") || "";
+
+            contactsData.push({
+                id: Date.now(),
+                category: cat,
+                name: name,
+                phone: phone,
+                note: note
+            });
+            renderDrawerContacts();
+        }
+
+        // Initialize with default tab
+        switchTab('DIARY');
+        renderDrawerContacts();
+    </script>
+</body>
+</html>

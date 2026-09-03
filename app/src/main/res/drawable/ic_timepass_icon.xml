@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="66dp"
+    android:height="66dp"
+    android:viewportWidth="66"
+    android:viewportHeight="66">
+
+    <!-- Clapperboard Outline / Base -->
+    <path
+        android:fillColor="#1A202C"
+        android:pathData="M 12 18 L 54 18 L 54 48 C 54 51.313 51.313 54 48 54 L 18 54 C 14.687 54 12 51.313 12 48 L 12 18 Z" />
+
+    <!-- Clapper Top Piece Base -->
+    <path
+        android:fillColor="#1A202C"
+        android:pathData="M 12 12 L 54 12 L 54 16 L 12 16 Z" />
+
+    <!-- Clapper Top Piece White Stripes -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 16 12 L 20 16 L 24 16 L 20 12 Z M 28 12 L 32 16 L 36 16 L 32 12 Z M 40 12 L 44 16 L 48 16 L 44 12 Z" />
+
+    <!-- Play Button Outer Circle -->
+    <path
+        android:fillColor="#E94C2C"
+        android:pathData="M 33 22 C 39.075 22 44 26.925 44 33 C 44 39.075 39.075 44 33 44 C 26.925 44 22 39.075 22 33 C 22 26.925 26.925 22 33 22 Z" />
+
+    <!-- Play Button Triangle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 30 28 L 38 33 L 30 38 Z" />
+
+    <!-- Film strip dot decorations on the clapper board -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 16 20 h 2 v 2 h -2 z M 16 26 h 2 v 2 h -2 z M 16 32 h 2 v 2 h -2 z M 16 38 h 2 v 2 h -2 z M 16 44 h 2 v 2 h -2 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 48 20 h 2 v 2 h -2 z M 48 26 h 2 v 2 h -2 z M 48 32 h 2 v 2 h -2 z M 48 38 h 2 v 2 h -2 z M 48 44 h 2 v 2 h -2 z" />
+
+    <!-- Popcorn box outline (small, to the side) -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M 46 42 h 12 l -2 12 h -8 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 49 42 h 2 l -0.5 12 h -2 z M 53 42 h 2 l -0.5 12 h -2 z" />
+
+    <!-- Popcorn pieces -->
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="M 48 42 C 48 40 46 40 46 38 C 48 38 48 36 50 38 C 51 36 53 36 53 38 C 55 38 56 40 54 42 C 55 42 54 44 52 44 C 52 46 50 46 49 44 C 47 46 46 44 47 42 Z" />
+
+</vector>

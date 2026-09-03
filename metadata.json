@@ -1,0 +1,8 @@
+{
+  "name": "Timepass",
+  "description": "TImepass AI App with Music, Video, Ringtones ",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,350 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Ledger Threads - Messaging</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"EB Garamond"', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        rose: {
+                            custom: '#d81b60',
+                        },
+                        glass: {
+                            border: 'rgba(255, 255, 255, 0.4)',
+                            bg: 'rgba(255, 255, 255, 0.2)',
+                            bgAccent: 'rgba(216, 27, 96, 0.8)',
+                            bgAccentLight: 'rgba(216, 27, 96, 0.2)',
+                        }
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style data-purpose="glassmorphism">
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .glass-bubble-received {
+            background: rgba(255, 228, 230, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .glass-bubble-sent {
+            background: rgba(216, 27, 96, 0.85);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-nav-active {
+            background: rgba(216, 27, 96, 0.15);
+            color: #d81b60;
+        }
+        
+        /* Custom scrollbar for categories */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Animations */
+        .msg-enter-1 { opacity: 0; animation: fadeInUp 0.5s ease-out 0.1s forwards; }
+        .msg-enter-2 { opacity: 0; animation: fadeInUp 0.5s ease-out 0.3s forwards; }
+        .msg-enter-3 { opacity: 0; animation: fadeInUp 0.5s ease-out 0.5s forwards; }
+        
+        .tab-hover { transition: all 0.2s ease; }
+        .tab-hover:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(216, 27, 96, 0.2); }
+        .tab-hover:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="bg-rose-50 text-gray-800 font-sans h-screen flex flex-col antialiased overflow-hidden selection:bg-rose-custom/30">
+<!-- BEGIN: Main App Container -->
+<main class="flex-1 flex flex-col h-full relative max-w-md mx-auto w-full shadow-2xl bg-transparent overflow-hidden">
+<!-- BEGIN: Shader Background -->
+<div class="absolute inset-0 z-0 w-full h-full pointer-events-none">
+<canvas height="884" id="shader-canvas-ANIMATION_39" style="display:block;width:100%;height:100%" width="390"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_39');
+
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+
+varying vec2 v_texCoord;
+
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+
+// Rose Quartz Palette (Parchment Scholar / Rose Quartz Archive)
+const vec3 c_bg = vec3(1.0, 0.97, 0.94);     // Surface
+const vec3 c_rose = vec3(0.85, 0.11, 0.38);   // Rose accent
+const vec3 c_glow = vec3(0.98, 0.85, 0.88);   // Light glow
+const vec3 c_secondary = vec3(0.11, 0.15, 0.23); // Dark text/contrast (Parchment Scholar primary)
+
+float noise(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float smoothNoise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    
+    float a = noise(i);
+    float b = noise(i + vec2(1.0, 0.0));
+    float c = noise(i + vec2(0.0, 1.0));
+    float d = noise(i + vec2(1.0, 1.0));
+    
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; i++) {
+        v += a * smoothNoise(p);
+        p *= 2.0;
+        a *= 0.5;
+    }
+    return v;
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 p = uv * 3.0;
+    
+    // SLOWER flowing motion (u_time * 0.05 instead of 0.15)
+    float t = u_time * 0.05;
+    vec2 flow = vec2(
+        fbm(p + t),
+        fbm(p - t * 0.8)
+    );
+    
+    p += flow * 0.5;
+    float n = fbm(p);
+    
+    // Gradient mix
+    vec3 color = mix(c_bg, c_glow, n);
+    
+    // Soft rose swirls - also slowed down mask movement
+    float rose_mask = fbm(p * 1.2 + flow * 0.5);
+    color = mix(color, c_rose, smoothstep(0.4, 0.8, rose_mask) * 0.12);
+    
+    // Vignette
+    float vignette = smoothstep(1.5, 0.5, length(uv - 0.5));
+    color *= mix(0.97, 1.0, vignette);
+    
+    gl_FragColor = vec4(color, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- END: Shader Background -->
+<!-- BEGIN: Header Section -->
+<header class="pt-12 pb-4 px-4 glass-panel z-10 border-b border-white/40 relative rounded-b-2xl bg-white/80">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-rose-custom/10 text-rose-custom flex items-center justify-center border border-rose-custom/20 font-serif font-bold shadow-sm transition-transform hover:scale-110">
+                        L
+                    </div>
+<div>
+<h1 class="font-serif text-2xl font-semibold text-gray-900 tracking-wide">Ledger Threads</h1>
+<p class="text-xs text-gray-600 font-mono opacity-80 tracking-wider">Encrypted local messaging • Room SQLite</p>
+</div>
+</div>
+<button class="text-rose-custom hover:bg-black/5 p-2 rounded-lg transition-colors hover:scale-110 active:scale-95">
+<i class="fa-solid fa-message-plus text-xl"></i>
+</button>
+</div>
+<!-- Categories Scroll -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar py-2 items-center">
+<button class="tab-hover flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-custom/10 border border-rose-custom/30 text-rose-custom font-medium text-sm whitespace-nowrap shadow-sm">
+<i class="fa-solid fa-house-chimney text-xs"></i>
+                    Family
+                </button>
+<button class="tab-hover flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel text-gray-600 font-medium text-sm hover:text-gray-900 whitespace-nowrap shadow-sm">
+<i class="fa-solid fa-briefcase text-xs opacity-70"></i>
+                    Work
+                </button>
+<button class="tab-hover flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel text-gray-600 font-medium text-sm hover:text-gray-900 whitespace-nowrap shadow-sm">
+<i class="fa-solid fa-leaf text-xs opacity-70"></i>
+                    Personal
+                </button>
+<button class="tab-hover flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel text-gray-600 font-medium text-sm hover:text-gray-900 whitespace-nowrap shadow-sm">
+<i class="fa-solid fa-mug-hot text-xs opacity-70"></i>
+                    General
+                </button>
+</div>
+<!-- Thread Info Bar -->
+<div class="flex justify-between items-center mt-3 pt-3 border-t border-black/5 text-xs font-mono text-gray-600">
+<span class="">Active: Family (Family)</span>
+<span class="text-rose-custom font-medium">3 msgs</span>
+</div>
+</header>
+<!-- END: Header Section -->
+<!-- BEGIN: Chat History Section -->
+<section class="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-6 relative z-10 pt-[80px]">
+<!-- Decorative background element -->
+<div class="absolute inset-0 bg-gradient-to-b from-transparent to-white/20 pointer-events-none"></div>
+<!-- Received Message -->
+<div class="msg-enter-1 flex flex-col gap-1 items-start w-full relative z-10">
+<span class="text-[12px] font-semibold text-gray-600 ml-2 font-serif tracking-wider">Mom</span>
+<div class="glass-bubble-received px-4 py-3 rounded-2xl rounded-tl-sm max-w-[85%] text-[15px] leading-relaxed text-gray-900 shadow-sm transition-transform hover:-translate-y-0.5">
+                    Are we meeting for Sunday brunch at 11?
+                    <div class="text-[10px] text-right mt-1 opacity-60 font-mono text-gray-700">12:10 PM</div>
+</div>
+</div>
+<!-- Received Message 2 -->
+<div class="msg-enter-2 flex flex-col gap-1 items-start w-full relative z-10">
+<span class="text-[12px] font-semibold text-gray-600 ml-2 font-serif tracking-wider">Dad</span>
+<div class="glass-bubble-received px-4 py-3 rounded-2xl rounded-tl-sm max-w-[85%] text-[15px] leading-relaxed text-gray-900 shadow-sm transition-transform hover:-translate-y-0.5">
+                    Yes! I will bring fresh sourdough!
+                    <div class="text-[10px] text-right mt-1 opacity-60 font-mono text-gray-700">12:15 PM</div>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="msg-enter-3 flex flex-col gap-1 items-end w-full mt-2 relative z-10">
+<div class="glass-bubble-sent px-4 py-3 rounded-2xl rounded-tr-sm max-w-[85%] text-[15px] leading-relaxed text-white font-medium shadow-md shadow-rose-custom/20 transition-transform hover:-translate-y-0.5">
+                    Sounds wonderful. I'll bring the fresh fruit &amp; dessert.
+                    <div class="text-[10px] text-right mt-1 opacity-80 font-mono flex items-center justify-end gap-1 text-white">
+                        12:20 PM
+                        <i class="fa-solid fa-check-double text-[8px]"></i>
+</div>
+</div>
+</div>
+<!-- Spacer for bottom input -->
+<div class="h-8"></div>
+</section>
+<!-- END: Chat History Section -->
+<!-- BEGIN: Input Area Section -->
+<section class="p-4 bg-gradient-to-t from-white/40 via-white/20 to-transparent relative z-20">
+<div class="glass-panel rounded-full flex items-center p-1.5 pl-4 pr-1.5 shadow-sm transition-shadow focus-within:shadow-md focus-within:shadow-rose-custom/20">
+<input class="bg-transparent border-none focus:ring-0 text-gray-900 placeholder-gray-500 flex-1 text-[15px] py-2 w-full outline-none transition-all" placeholder="Write in Family..." type="text">
+<button class="animate-pulse-slow bg-rose-custom hover:bg-rose-600 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95 flex-shrink-0 shadow-md shadow-rose-custom/30">
+<i class="fa-solid fa-paper-plane text-sm ml-[-2px]"></i>
+</button>
+</div>
+</section>
+<!-- END: Input Area Section -->
+<!-- BEGIN: Bottom Navigation -->
+<nav class="glass-panel rounded-t-2xl pb-8 pt-3 px-6 border-t border-white/40 flex justify-between items-center relative z-20"><button class="flex flex-col items-center gap-1 min-w-[64px] relative group transition-transform hover:-translate-y-1">
+<div class="absolute -top-3 w-8 h-1 bg-rose-custom rounded-b-full animate-pulse-slow"></div>
+<div class="glass-nav-active px-5 py-2 rounded-2xl flex flex-col items-center gap-1 shadow-sm transition-all group-hover:shadow-md group-hover:shadow-rose-custom/20">
+<span class="material-symbols-outlined text-lg text-rose-custom transition-transform group-hover:scale-110">chat</span>
+<span class="text-[10px] font-semibold text-rose-custom">Chat</span>
+</div>
+</button>
+<button class="flex flex-col items-center gap-1 min-w-[64px] text-gray-500 hover:text-gray-800 transition-all hover:-translate-y-1 group">
+<span class="material-symbols-outlined text-lg mb-1 transition-transform group-hover:scale-110 group-hover:text-rose-custom/80">menu_book</span>
+<span class="text-[10px] font-medium transition-colors group-hover:text-gray-900">Diary</span>
+</button>
+<button class="flex flex-col items-center gap-1 min-w-[64px] text-gray-500 hover:text-gray-800 transition-all hover:-translate-y-1 group">
+<span class="material-symbols-outlined text-lg mb-1 transition-transform group-hover:scale-110 group-hover:text-rose-custom/80">calendar_month</span>
+<span class="text-[10px] font-medium transition-colors group-hover:text-gray-900">Events</span>
+</button>
+<button class="flex flex-col items-center gap-1 min-w-[64px] text-gray-500 hover:text-gray-800 transition-all hover:-translate-y-1 group">
+<span class="material-symbols-outlined text-lg mb-1 transition-transform group-hover:scale-110 group-hover:text-rose-custom/80">folder_open</span>
+<span class="text-[10px] font-medium transition-colors group-hover:text-gray-900">Vault</span>
+</button>
+<button class="flex flex-col items-center gap-1 min-w-[64px] text-gray-500 hover:text-gray-800 transition-all hover:-translate-y-1 group">
+<span class="material-symbols-outlined text-lg mb-1 transition-transform group-hover:scale-110 group-hover:text-rose-custom/80">check_circle</span>
+<span class="text-[10px] font-medium transition-colors group-hover:text-gray-900">Tasks</span>
+</button></nav>
+<!-- END: Bottom Navigation -->
+<!-- Home Indicator -->
+<div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-black/30 rounded-full z-50"></div>
+</main>
+<!-- END: Main App Container -->
+
+
+</body></html>

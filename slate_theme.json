@@ -1,0 +1,292 @@
+{
+  "screenshot": {
+    "name": "projects/15672949592124108526/files/3462373630962386185",
+    "downloadUrl": "https://lh3.googleusercontent.com/aida/AEtjO1UkPbX3AsCAlkAsUxEXWLbMbTlmdyZdO9HjGKHi7zRZH8wMS6chzbJlTO5OqR4t3p4caBzYQ_-IRS-12iQ5rEhGlrpFFryvvXPZVtbomg1uQfZFo6q2_3IgNv5suvZQ28XsUWn6Xv_t66BGVNQ6Ll1V3ZQB6L8JLNfAEBneEG9T6cTCDEo8y9XRcaV32xx3NSh2N6e8VUR6XLmh2OgJUvJ4CA6DNyuWh-117ZJg2mWLtnlXWoU76i5wxlk"
+  },
+  "htmlCode": {
+    "name": "projects/15672949592124108526/files/5770890759118210050",
+    "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1OWRjMWVlYmZkNWQwMzM4NWM4Nzg2MWJjZjM3EgsSBxC_ksm6vgsYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTY3Mjk0OTU5MjEyNDEwODUyNg&filename=&opi=89354086",
+    "mimeType": "text/html"
+  },
+  "id": "71cd56a62a664ca584d876168712a54c",
+  "generatedBy": "figaro_agent",
+  "width": "780",
+  "height": "1994",
+  "title": "Modern Slate Theme Preview",
+  "prompt": "Create a 'Modern Slate' theme preview for The Archivist. A high-clarity, minimalist research view using slate gray and cool off-white. Showcase a clean 'Task Checklist'. The bottom navigation should be light and embedded with a modern icon style.",
+  "name": "projects/15672949592124108526/screens/71cd56a62a664ca584d876168712a54c",
+  "theme": {
+    "colorMode": "LIGHT",
+    "font": "EB_GARAMOND",
+    "roundness": "ROUND_FOUR",
+    "customColor": "#455a64",
+    "headlineFont": "EB_GARAMOND",
+    "bodyFont": "SOURCE_SANS_3",
+    "labelFont": "SOURCE_SANS_3",
+    "namedColors": {
+      "surface_bright": "#f8fafb",
+      "surface_container_high": "#e6e8e9",
+      "surface_dim": "#d8dadb",
+      "surface_variant": "#e1e3e4",
+      "tertiary_fixed_dim": "#bfc8cc",
+      "tertiary_container": "#4f585c",
+      "on_tertiary_fixed": "#141d20",
+      "on_primary_fixed": "#071e27",
+      "on_error": "#ffffff",
+      "on_secondary_container": "#506873",
+      "outline_variant": "#c2c7ca",
+      "primary_fixed_dim": "#b4cad6",
+      "secondary": "#4a626d",
+      "on_primary_fixed_variant": "#354a53",
+      "on_secondary_fixed_variant": "#334a55",
+      "tertiary": "#384144",
+      "error_container": "#ffdad6",
+      "on_secondary_fixed": "#051e28",
+      "on_tertiary": "#ffffff",
+      "primary": "#2e434c",
+      "secondary_container": "#cde6f4",
+      "outline": "#73787b",
+      "on_primary": "#ffffff",
+      "on_surface_variant": "#42474a",
+      "on_tertiary_fixed_variant": "#3f484c",
+      "surface": "#f8fafb",
+      "background": "#f8fafb",
+      "surface_container_lowest": "#ffffff",
+      "on_error_container": "#93000a",
+      "primary_fixed": "#cfe6f2",
+      "surface_container_low": "#f2f4f5",
+      "on_surface": "#191c1d",
+      "secondary_fixed": "#cde6f4",
+      "on_primary_container": "#bad0dc",
+      "tertiary_fixed": "#dbe4e8",
+      "inverse_on_surface": "#eff1f2",
+      "surface_container_highest": "#e1e3e4",
+      "inverse_primary": "#b4cad6",
+      "surface_tint": "#4c616c",
+      "primary_container": "#455a64",
+      "secondary_fixed_dim": "#b1cad7",
+      "on_background": "#191c1d",
+      "on_secondary": "#ffffff",
+      "error": "#ba1a1a",
+      "surface_container": "#eceeef",
+      "on_tertiary_container": "#c5ced2",
+      "inverse_surface": "#2e3132"
+    },
+    "colorVariant": "FIDELITY",
+    "overridePrimaryColor": "#455a64",
+    "overrideSecondaryColor": "#78909c",
+    "overrideTertiaryColor": "#cfd8dc",
+    "overrideNeutralColor": "#f5f7f8",
+    "spacingScale": 2,
+    "typography": {
+      "headline-lg": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "32px",
+        "fontWeight": "500",
+        "lineHeight": "1.2"
+      },
+      "headline-md": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "24px",
+        "fontWeight": "500",
+        "lineHeight": "1.3"
+      },
+      "body-md": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "1.5"
+      },
+      "body-lg": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "lineHeight": "1.6"
+      },
+      "headline-lg-mobile": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "28px",
+        "fontWeight": "500",
+        "lineHeight": "1.2"
+      },
+      "label-sm": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "1.4"
+      },
+      "headline-xl": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "48px",
+        "fontWeight": "600",
+        "lineHeight": "1.1",
+        "letterSpacing": "-0.01em"
+      },
+      "label-md": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "lineHeight": "1.4",
+        "letterSpacing": "0.02em"
+      }
+    },
+    "spacing": {
+      "lg": "24px",
+      "base": "8px",
+      "xl": "48px",
+      "container-max": "1280px",
+      "gutter": "24px",
+      "md": "16px",
+      "sm": "8px",
+      "xs": "4px"
+    },
+    "headlineFontFamily": "Eb Garamond",
+    "bodyFontFamily": "Source Sans 3",
+    "labelFontFamily": "Source Sans 3"
+  },
+  "deviceType": "MOBILE",
+  "screenType": "DESIGN",
+  "screenMetadata": {
+    "agentType": "PRO_AGENT",
+    "status": "COMPLETE",
+    "displayMode": "HTML"
+  },
+  "designSystem": {
+    "name": "assets/5e5b62272a5740b698019466cbd57657",
+    "designSystem": {
+      "displayName": "Modern Slate",
+      "styleGuidelines": "### 🎨 Visual Identity: Safe\n- **Palette & Typography:** Uses a highly legible, standard sans-serif to ground the classical serif headlines, creating a balanced and familiar academic interface.\n\n## Brand & Style\n\nThe design system embodies the identity of a modern research institution: intellectual, precise, and highly legible. It bridges the gap between historical archival importance and contemporary digital efficiency. The target audience includes academics, researchers, and curators who require a high-clarity environment for deep work and information retrieval.\n\nThe aesthetic is a refined mix of **Minimalism** and **Academic Sophistication**. It uses generous whitespace to reduce cognitive load while employing classical serif typography to anchor the content in tradition. The interface should evoke a sense of calm authority and quiet permanence, avoiding fleeting trends in favor of functional elegance.\n\n## Layout & Spacing\n\nThe layout philosophy follows a **Fixed Grid** approach for desktop to mirror the structured nature of a printed manuscript or a curated archive. \n\n- **Grid:** A 12-column grid system is used for large screens with a 1280px maximum container width. \n- **Rhythm:** An 8px linear scale (the \"Base\") dictates all margins and padding. \n- **Negative Space:** Generous vertical spacing is prioritized to separate distinct research sections and documents, allowing the content to \"breathe\" like a well-designed book.\n- **Adaptation:** On mobile, the margins tighten to 16px, and content reflows into a single-column stack, prioritizing reading flow over horizontal density.\n\n## Elevation & Depth\n\nTo maintain a clean and scholarly appearance, depth is conveyed through **Tonal Layers** and **Low-Contrast Outlines** rather than heavy shadows.\n\n- **Layering:** The primary background is the neutral cool gray. Interactive surfaces (like cards or inputs) sit on pure white (#FFFFFF) to subtly lift them from the background.\n- **Borders:** Soft, 1px borders in tertiary slate (#CFD8DC) define boundaries without adding visual noise.\n- **Subtle Elevation:** When shadows are used for floating elements (like dropdowns), they are \"Ambient Shadows\"—highly diffused, low-opacity, and tinted with the primary slate blue to ensure they feel part of the environment rather than a separate layer.\n\n## Components\n\n- **Buttons:** Primary buttons use the Slate Blue-Gray background with white Source Sans 3 text. Secondary buttons are outlined with a 1px slate border.\n- **Cards:** Cards feature a pure white surface, an 8px corner radius, and a 1px #CFD8DC border. No shadow is present in the resting state.\n- **Input Fields:** Use a subtle neutral fill (#F5F7F8) with a bottom-only border or a light 1px stroke. Focus states use the primary color for the border.\n- **Chips/Tags:** Used for categorization. These are rectangular with the 4px radius, using low-saturation background tints of the primary color.\n- **Metadata Lists:** Metadata is styled in Source Sans 3, Label-sm, using the secondary slate color to keep it subordinate to the EB Garamond headlines.\n- **The \"Archivist\" Component:** A specialized document viewer component that uses a paper-white background and maximized margins for the best possible reading experience.",
+      "theme": {
+        "colorMode": "LIGHT",
+        "font": "EB_GARAMOND",
+        "roundness": "ROUND_FOUR",
+        "customColor": "#455a64",
+        "headlineFont": "EB_GARAMOND",
+        "bodyFont": "SOURCE_SANS_3",
+        "labelFont": "SOURCE_SANS_3",
+        "namedColors": {
+          "secondary_fixed_dim": "#b1cad7",
+          "surface": "#f8fafb",
+          "on_background": "#191c1d",
+          "outline_variant": "#c2c7ca",
+          "on_primary": "#ffffff",
+          "on_secondary_fixed_variant": "#334a55",
+          "tertiary": "#384144",
+          "surface_dim": "#d8dadb",
+          "primary": "#2e434c",
+          "on_primary_fixed_variant": "#354a53",
+          "outline": "#73787b",
+          "background": "#f8fafb",
+          "surface_bright": "#f8fafb",
+          "surface_variant": "#e1e3e4",
+          "on_error": "#ffffff",
+          "on_secondary": "#ffffff",
+          "primary_fixed": "#cfe6f2",
+          "primary_fixed_dim": "#b4cad6",
+          "inverse_on_surface": "#eff1f2",
+          "on_tertiary": "#ffffff",
+          "on_tertiary_fixed": "#141d20",
+          "error_container": "#ffdad6",
+          "surface_tint": "#4c616c",
+          "surface_container_lowest": "#ffffff",
+          "surface_container_highest": "#e1e3e4",
+          "secondary_container": "#cde6f4",
+          "on_surface_variant": "#42474a",
+          "on_primary_fixed": "#071e27",
+          "tertiary_fixed": "#dbe4e8",
+          "surface_container": "#eceeef",
+          "on_secondary_fixed": "#051e28",
+          "secondary_fixed": "#cde6f4",
+          "on_error_container": "#93000a",
+          "surface_container_low": "#f2f4f5",
+          "primary_container": "#455a64",
+          "on_tertiary_container": "#c5ced2",
+          "surface_container_high": "#e6e8e9",
+          "tertiary_container": "#4f585c",
+          "tertiary_fixed_dim": "#bfc8cc",
+          "inverse_surface": "#2e3132",
+          "on_tertiary_fixed_variant": "#3f484c",
+          "on_primary_container": "#bad0dc",
+          "on_secondary_container": "#506873",
+          "inverse_primary": "#b4cad6",
+          "secondary": "#4a626d",
+          "error": "#ba1a1a",
+          "on_surface": "#191c1d"
+        },
+        "designMd": "---\nname: Modern Slate\ncolors:\n  surface: '#f8fafb'\n  surface-dim: '#d8dadb'\n  surface-bright: '#f8fafb'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#f2f4f5'\n  surface-container: '#eceeef'\n  surface-container-high: '#e6e8e9'\n  surface-container-highest: '#e1e3e4'\n  on-surface: '#191c1d'\n  on-surface-variant: '#42474a'\n  inverse-surface: '#2e3132'\n  inverse-on-surface: '#eff1f2'\n  outline: '#73787b'\n  outline-variant: '#c2c7ca'\n  surface-tint: '#4c616c'\n  primary: '#2e434c'\n  on-primary: '#ffffff'\n  primary-container: '#455a64'\n  on-primary-container: '#bad0dc'\n  inverse-primary: '#b4cad6'\n  secondary: '#4a626d'\n  on-secondary: '#ffffff'\n  secondary-container: '#cde6f4'\n  on-secondary-container: '#506873'\n  tertiary: '#384144'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#4f585c'\n  on-tertiary-container: '#c5ced2'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#cfe6f2'\n  primary-fixed-dim: '#b4cad6'\n  on-primary-fixed: '#071e27'\n  on-primary-fixed-variant: '#354a53'\n  secondary-fixed: '#cde6f4'\n  secondary-fixed-dim: '#b1cad7'\n  on-secondary-fixed: '#051e28'\n  on-secondary-fixed-variant: '#334a55'\n  tertiary-fixed: '#dbe4e8'\n  tertiary-fixed-dim: '#bfc8cc'\n  on-tertiary-fixed: '#141d20'\n  on-tertiary-fixed-variant: '#3f484c'\n  background: '#f8fafb'\n  on-background: '#191c1d'\n  surface-variant: '#e1e3e4'\ntypography:\n  headline-xl:\n    fontFamily: EB Garamond\n    fontSize: 48px\n    fontWeight: '600'\n    lineHeight: '1.1'\n    letterSpacing: -0.01em\n  headline-lg:\n    fontFamily: EB Garamond\n    fontSize: 32px\n    fontWeight: '500'\n    lineHeight: '1.2'\n  headline-md:\n    fontFamily: EB Garamond\n    fontSize: 24px\n    fontWeight: '500'\n    lineHeight: '1.3'\n  body-lg:\n    fontFamily: Source Sans 3\n    fontSize: 18px\n    fontWeight: '400'\n    lineHeight: '1.6'\n  body-md:\n    fontFamily: Source Sans 3\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: '1.5'\n  label-md:\n    fontFamily: Source Sans 3\n    fontSize: 14px\n    fontWeight: '600'\n    lineHeight: '1.4'\n    letterSpacing: 0.02em\n  label-sm:\n    fontFamily: Source Sans 3\n    fontSize: 12px\n    fontWeight: '400'\n    lineHeight: '1.4'\n  headline-lg-mobile:\n    fontFamily: EB Garamond\n    fontSize: 28px\n    fontWeight: '500'\n    lineHeight: '1.2'\nrounded:\n  sm: 0.125rem\n  DEFAULT: 0.25rem\n  md: 0.375rem\n  lg: 0.5rem\n  xl: 0.75rem\n  full: 9999px\nspacing:\n  base: 8px\n  xs: 4px\n  sm: 8px\n  md: 16px\n  lg: 24px\n  xl: 48px\n  container-max: 1280px\n  gutter: 24px\n---\n\n## Brand & Style\n\nThe design system embodies the identity of a modern research institution: intellectual, precise, and highly legible. It bridges the gap between historical archival importance and contemporary digital efficiency. The target audience includes academics, researchers, and curators who require a high-clarity environment for deep work and information retrieval.\n\nThe aesthetic is a refined mix of **Minimalism** and **Academic Sophistication**. It uses generous whitespace to reduce cognitive load while employing classical serif typography to anchor the content in tradition. The interface should evoke a sense of calm authority and quiet permanence, avoiding fleeting trends in favor of functional elegance.\n\n## Colors\n\nThe palette is centered around the slate blue-gray primary tone, chosen for its stability and professional weight. \n\n- **Primary (#455A64):** Used for key actions, active states, and structural branding elements.\n- **Surface (#F5F7F8):** This cool gray provides the foundation for the background, creating a soft, non-glare environment for extended reading sessions.\n- **Secondary & Tertiary:** These tints and shades of slate are reserved for metadata, borders, and subtle UI cues to maintain a monochromatic, focused atmosphere.\n- **High Clarity:** Contrast is strictly maintained between the primary text and the neutral backgrounds to ensure accessibility and long-term readability.\n\n## Typography\n\nThis design system utilizes a \"Safe\" visual identity, grounding the poetic and historical nature of **EB Garamond** with the pragmatic clarity of **Source Sans 3**.\n\n- **EB Garamond** is used exclusively for headlines and significant pull-quotes. It provides an academic soul to the interface.\n- **Source Sans 3** handles all body text, metadata, and functional labels. Its neutral, systematic nature ensures that dense data and research notes remain legible and easy to scan.\n- **Scale:** A tight typographic scale is used to ensure hierarchy without being overly loud. Letter spacing is slightly widened on labels for better legibility at small sizes.\n\n## Layout & Spacing\n\nThe layout philosophy follows a **Fixed Grid** approach for desktop to mirror the structured nature of a printed manuscript or a curated archive. \n\n- **Grid:** A 12-column grid system is used for large screens with a 1280px maximum container width. \n- **Rhythm:** An 8px linear scale (the \"Base\") dictates all margins and padding. \n- **Negative Space:** Generous vertical spacing is prioritized to separate distinct research sections and documents, allowing the content to \"breathe\" like a well-designed book.\n- **Adaptation:** On mobile, the margins tighten to 16px, and content reflows into a single-column stack, prioritizing reading flow over horizontal density.\n\n## Elevation & Depth\n\nTo maintain a clean and scholarly appearance, depth is conveyed through **Tonal Layers** and **Low-Contrast Outlines** rather than heavy shadows.\n\n- **Layering:** The primary background is the neutral cool gray. Interactive surfaces (like cards or inputs) sit on pure white (#FFFFFF) to subtly lift them from the background.\n- **Borders:** Soft, 1px borders in tertiary slate (#CFD8DC) define boundaries without adding visual noise.\n- **Subtle Elevation:** When shadows are used for floating elements (like dropdowns), they are \"Ambient Shadows\"—highly diffused, low-opacity, and tinted with the primary slate blue to ensure they feel part of the environment rather than a separate layer.\n\n## Shapes\n\nThe shape language is \"Soft,\" utilizing a 4px (0.25rem) base radius. This provides a modern, approachable feel while remaining disciplined enough for a professional scholastic tool.\n\n- **Small elements:** Buttons, checkboxes, and input fields use the 4px base radius.\n- **Large elements:** Cards and containers use 8px (rounded-lg) to frame content more prominently.\n- **Consistency:** Roundness is never extreme; it is intended to take the edge off the \"brutality\" of a pure grid without becoming playful or bubbly.\n\n## Components\n\n- **Buttons:** Primary buttons use the Slate Blue-Gray background with white Source Sans 3 text. Secondary buttons are outlined with a 1px slate border.\n- **Cards:** Cards feature a pure white surface, an 8px corner radius, and a 1px #CFD8DC border. No shadow is present in the resting state.\n- **Input Fields:** Use a subtle neutral fill (#F5F7F8) with a bottom-only border or a light 1px stroke. Focus states use the primary color for the border.\n- **Chips/Tags:** Used for categorization. These are rectangular with the 4px radius, using low-saturation background tints of the primary color.\n- **Metadata Lists:** Metadata is styled in Source Sans 3, Label-sm, using the secondary slate color to keep it subordinate to the EB Garamond headlines.\n- **The \"Archivist\" Component:** A specialized document viewer component that uses a paper-white background and maximized margins for the best possible reading experience.",
+        "colorVariant": "FIDELITY",
+        "overridePrimaryColor": "#455a64",
+        "overrideSecondaryColor": "#78909c",
+        "overrideTertiaryColor": "#cfd8dc",
+        "overrideNeutralColor": "#f5f7f8",
+        "spacingScale": 2,
+        "typography": {
+          "headline-lg": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "32px",
+            "fontWeight": "500",
+            "lineHeight": "1.2"
+          },
+          "headline-md": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "24px",
+            "fontWeight": "500",
+            "lineHeight": "1.3"
+          },
+          "label-sm": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "12px",
+            "fontWeight": "400",
+            "lineHeight": "1.4"
+          },
+          "body-lg": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "18px",
+            "fontWeight": "400",
+            "lineHeight": "1.6"
+          },
+          "label-md": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "14px",
+            "fontWeight": "600",
+            "lineHeight": "1.4",
+            "letterSpacing": "0.02em"
+          },
+          "body-md": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "lineHeight": "1.5"
+          },
+          "headline-lg-mobile": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "28px",
+            "fontWeight": "500",
+            "lineHeight": "1.2"
+          },
+          "headline-xl": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "48px",
+            "fontWeight": "600",
+            "lineHeight": "1.1",
+            "letterSpacing": "-0.01em"
+          }
+        },
+        "spacing": {
+          "base": "8px",
+          "lg": "24px",
+          "container-max": "1280px",
+          "xl": "48px",
+          "gutter": "24px",
+          "sm": "8px",
+          "xs": "4px",
+          "md": "16px"
+        },
+        "headlineFontFamily": "Eb Garamond",
+        "bodyFontFamily": "Source Sans 3",
+        "labelFontFamily": "Source Sans 3"
+      }
+    },
+    "version": "1"
+  }
+}

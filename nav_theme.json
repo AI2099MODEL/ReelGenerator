@@ -1,0 +1,287 @@
+{
+  "screenshot": {
+    "name": "projects/15672949592124108526/screens/9eaf38d35de848d48173ff27df0bc89e/fileEntries/screenshot",
+    "downloadUrl": "https://lh3.googleusercontent.com/aida/AEtjO1VX-kACFW41NE6Z6xpu8AVw_LFFt9bvEP4zeWhEbfREbWRx6UqKnGEwibF8aTYd8H0QFnlnrw318FC7Vtci-IkTKavYWUmebziAvuyIZFuHxOuXubRsn-1kqFP83Jc_LOKrwTKYiCvnA3-Xr8tpj6x4yzc4KdtfmJIVLP4yPf0NeE6qPQYoYBFEJk7IBJj59C5_vihO_9IQY1PC26BzqD3Nu2haCeXswpA_BJ6NSk6pOkfKbReQ9MSxMWmf"
+  },
+  "htmlCode": {
+    "name": "projects/15672949592124108526/screens/9eaf38d35de848d48173ff27df0bc89e/fileEntries/html",
+    "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1OWRiZWFmZTM5YjYwMzM4NWM4Nzg2MWJjZjM3EgsSBxC_ksm6vgsYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTY3Mjk0OTU5MjEyNDEwODUyNg&filename=&opi=89354086",
+    "mimeType": "text/html"
+  },
+  "id": "9eaf38d35de848d48173ff27df0bc89e",
+  "generatedBy": "figaro_agent",
+  "width": "780",
+  "height": "1776",
+  "title": "Vibrant Spectrum Navigation Theme",
+  "prompt": "A high-fidelity navigation theme showcase for 'The Archivist'. The screen should focus on displaying the 'Vibrant Spectrum' navigation bar at the bottom. The bar is a light, glassmorphic recessed strip. The icons are multi-colored with soft glows: Chat (Blue), Diary (Gold), Events (Emerald), Vault (Crimson), and Tasks (Violet). The background of the screen is a soft, minimal frost with a subtle multi-colored flowing gradient that matches the icon spectrum. The central content area shows a 'Vibrant Navigation Preview' title.",
+  "name": "projects/15672949592124108526/screens/9eaf38d35de848d48173ff27df0bc89e",
+  "theme": {
+    "colorMode": "LIGHT",
+    "font": "EB_GARAMOND",
+    "roundness": "ROUND_EIGHT",
+    "customColor": "#2e5bff",
+    "headlineFont": "EB_GARAMOND",
+    "bodyFont": "SOURCE_SANS_3",
+    "labelFont": "SOURCE_SANS_3",
+    "namedColors": {
+      "surface_container_high": "#e7e7f4",
+      "on_surface_variant": "#434656",
+      "surface_variant": "#e2e1ef",
+      "error": "#ba1a1a",
+      "surface_container": "#ededfa",
+      "diary-gold": "#D4AF37",
+      "outline": "#747688",
+      "inverse_on_surface": "#f0effd",
+      "tertiary_fixed_dim": "#ffb59b",
+      "chat-blue": "#2E5BFF",
+      "tasks-violet": "#8B5CF6",
+      "on_error": "#ffffff",
+      "on_tertiary_fixed": "#380d00",
+      "on_primary_fixed": "#001356",
+      "events-emerald": "#10B981",
+      "on_tertiary_fixed_variant": "#812800",
+      "tertiary_container": "#c24100",
+      "secondary_fixed": "#d4e3ff",
+      "on_primary_container": "#efefff",
+      "primary": "#0040e0",
+      "vault-crimson": "#DC2626",
+      "tertiary_fixed": "#ffdbcf",
+      "surface_bright": "#fbf8ff",
+      "surface_container_lowest": "#ffffff",
+      "on_primary_fixed_variant": "#0035be",
+      "surface": "#fbf8ff",
+      "surface_container_low": "#f3f2ff",
+      "surface_container_highest": "#e2e1ef",
+      "tertiary": "#993100",
+      "primary_fixed_dim": "#b8c3ff",
+      "frost-surface": "#F9F9FF",
+      "background": "#fbf8ff",
+      "inverse_primary": "#b8c3ff",
+      "inverse_surface": "#2e303a",
+      "primary_container": "#2e5bff",
+      "outline_variant": "#c4c5d9",
+      "secondary": "#505f76",
+      "on_tertiary_container": "#ffece6",
+      "on_secondary": "#ffffff",
+      "on_primary": "#ffffff",
+      "on_surface": "#191b24",
+      "on_background": "#191b24",
+      "glass-border": "rgba(255, 255, 255, 0.4)",
+      "error_container": "#ffdad6",
+      "primary_fixed": "#dde1ff",
+      "on_secondary_fixed": "#0c1c30",
+      "surface_tint": "#124af0",
+      "on_tertiary": "#ffffff",
+      "on_secondary_fixed_variant": "#39485e",
+      "on_secondary_container": "#56657c",
+      "secondary_container": "#d4e3ff",
+      "secondary_fixed_dim": "#b8c7e2",
+      "surface_dim": "#d9d9e6",
+      "on_error_container": "#93000a"
+    },
+    "colorVariant": "FIDELITY",
+    "overridePrimaryColor": "#2e5bff",
+    "overrideSecondaryColor": "#505f76",
+    "spacingScale": 2,
+    "typography": {
+      "headline-md": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "32px",
+        "fontWeight": "500",
+        "lineHeight": "40px"
+      },
+      "nav-label": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "11px",
+        "fontWeight": "600",
+        "lineHeight": "16px",
+        "letterSpacing": "0.05em"
+      },
+      "body-md": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px"
+      },
+      "label-caps": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "lineHeight": "16px",
+        "letterSpacing": "0.1em"
+      },
+      "display-lg": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "48px",
+        "fontWeight": "500",
+        "lineHeight": "56px"
+      },
+      "body-lg": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "lineHeight": "28px"
+      },
+      "headline-sm": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "24px",
+        "fontWeight": "500",
+        "lineHeight": "32px"
+      }
+    },
+    "spacing": {
+      "nav-height": "64px",
+      "margin-desktop": "32px",
+      "unit": "4px",
+      "gutter": "16px",
+      "element-gap-md": "16px",
+      "element-gap-sm": "8px",
+      "margin-mobile": "16px"
+    },
+    "headlineFontFamily": "Eb Garamond",
+    "bodyFontFamily": "Source Sans 3",
+    "labelFontFamily": "Source Sans 3"
+  },
+  "deviceType": "MOBILE",
+  "screenType": "DESIGN",
+  "screenMetadata": {
+    "agentType": "PRO_AGENT",
+    "status": "COMPLETE"
+  },
+  "designSystem": {
+    "name": "assets/452e2a9e049047c8b87545d437eb31fe",
+    "designSystem": {
+      "displayName": "Vibrant Spectrum Frost",
+      "styleGuidelines": "### 🎨 Visual Identity: Safe\n- **Palette & Typography:** Maintains the existing scholarly 'Frost' aesthetic while conservatively applying the multi-colored palette only to icons and subtle glow indicators.\n\n## Brand & Style\n\nThis design system evolves the scholarly aesthetic into a more dynamic and identifiable interface. It maintains a clean, light, and \"frosty\" foundation—prioritizing clarity and intellectual order—but introduces a sophisticated multi-colored icon palette to provide immediate visual categorization.\n\nThe style is **Minimalist** with a **Glassmorphic** twist. It uses heavy whitespace and quality typography to ensure a high-signal environment, while \"glass-recessed\" navigation and \"soft-glow\" indicators add a layer of modern depth. The emotional response is one of organized vitality: the interface feels reliable and quiet, yet the strategic use of color ensures that functional zones (Chat, Diary, Events, Vault, Tasks) are instantly recognizable.\n\n## Layout & Spacing\n\nThis design system uses a **fixed grid** layout for content containers, centered on larger screens, while remaining fluid between breakpoints.\n\n- **The 8px Rhythm:** All spacing (padding, margins, gaps) is derived from an 8px base unit to ensure mathematical harmony.\n- **Navigation:** The 5-tab navigation bar is fixed at 64px in height.\n- **Breakpoints:**\n  - **Mobile:** 16px side margins, single-column content.\n  - **Tablet:** 24px side margins, 12-column grid.\n  - **Desktop:** Max-width container of 1280px with 32px margins.\n- **Recessed Areas:** Elements using \"glass-recessed\" logic should include 12px of internal padding to ensure content does not touch the subtle border edges.\n\n## Elevation & Depth\n\nHierarchy is established through transparency and subtle chromatic glows rather than traditional heavy shadows.\n\n- **Glass-Recessed Layer:** Navigation bars and container overlays use a `backdrop-filter: blur(16px)` with a 70% white fill and a 1px internal stroke of `glass-border`. This creates an \"etched\" look that feels recessed into the surface.\n- **Soft-Glow Indicators:** Active states are highlighted by a \"glow\" rather than a lift. For example, the active icon in the navigation bar emits a 12px soft shadow in its specific spectrum color (e.g., the Events icon emits an Emerald glow).\n- **Surface Tiers:**\n  - **Level 0 (Base):** Frost Surface (#F9F9FF).\n  - **Level 1 (Cards):** Pure White with 1px hairline stroke.\n  - **Level 2 (Modals/Nav):** Glass-recessed with backdrop blur.\n\n## Components\n\n### Navigation Bar (Glass-Recessed)\nThe primary navigation uses the glass-recessed effect with a 1px top border. It features 5 equidistant tabs:\n- **Chat:** Blue icon; Blue soft-glow when active.\n- **Diary:** Gold icon; Gold soft-glow when active.\n- **Events:** Emerald icon; Emerald soft-glow when active.\n- **Vault:** Crimson icon; Crimson soft-glow when active.\n- **Tasks:** Violet icon; Violet soft-glow when active.\n\n### Buttons\n- **Primary:** Filled with Sapphire Blue (#2E5BFF), white text, 8px corner radius.\n- **Secondary:** Transparent background with a 1px Sapphire Blue stroke.\n- **Spectrum Buttons:** For module-specific actions (e.g., \"Add Event\"), use the specific spectrum color as the fill.\n\n### Input Fields\nMinimalist frost styling: pure white background, 1px light gray border. On focus, the border changes to Sapphire Blue and gains a subtle 4px blue glow at 10% opacity.\n\n### Chips & Tags\nSmall, 0.5rem rounded elements. Use spectrum colors at 10% opacity for the background and 100% opacity for the text to categorize information by module.\n\n### Cards\nCards sit on Level 1 elevation. They are white with an 8px or 16px radius and a light hairline stroke. When a card is associated with a module (e.g., a Task Card), a 4px vertical accent bar of the spectrum color is placed on the left edge.",
+      "theme": {
+        "colorMode": "LIGHT",
+        "font": "EB_GARAMOND",
+        "roundness": "ROUND_EIGHT",
+        "customColor": "#2e5bff",
+        "headlineFont": "EB_GARAMOND",
+        "bodyFont": "SOURCE_SANS_3",
+        "labelFont": "SOURCE_SANS_3",
+        "namedColors": {
+          "on_secondary_fixed_variant": "#39485e",
+          "on_primary_container": "#efefff",
+          "error_container": "#ffdad6",
+          "diary-gold": "#D4AF37",
+          "secondary": "#505f76",
+          "vault-crimson": "#DC2626",
+          "events-emerald": "#10B981",
+          "primary_container": "#2e5bff",
+          "surface": "#fbf8ff",
+          "surface_bright": "#fbf8ff",
+          "tertiary_fixed": "#ffdbcf",
+          "tertiary": "#993100",
+          "primary_fixed_dim": "#b8c3ff",
+          "on_secondary_fixed": "#0c1c30",
+          "error": "#ba1a1a",
+          "on_secondary": "#ffffff",
+          "surface_container_low": "#f3f2ff",
+          "on_tertiary_fixed_variant": "#812800",
+          "glass-border": "rgba(255, 255, 255, 0.4)",
+          "on_primary_fixed_variant": "#0035be",
+          "secondary_container": "#d4e3ff",
+          "secondary_fixed_dim": "#b8c7e2",
+          "on_error_container": "#93000a",
+          "inverse_surface": "#2e303a",
+          "outline_variant": "#c4c5d9",
+          "inverse_primary": "#b8c3ff",
+          "surface_container_high": "#e7e7f4",
+          "surface_tint": "#124af0",
+          "on_primary_fixed": "#001356",
+          "on_tertiary_container": "#ffece6",
+          "tertiary_fixed_dim": "#ffb59b",
+          "outline": "#747688",
+          "chat-blue": "#2E5BFF",
+          "on_error": "#ffffff",
+          "secondary_fixed": "#d4e3ff",
+          "on_background": "#191b24",
+          "surface_container_highest": "#e2e1ef",
+          "on_tertiary_fixed": "#380d00",
+          "primary_fixed": "#dde1ff",
+          "on_secondary_container": "#56657c",
+          "surface_container_lowest": "#ffffff",
+          "tasks-violet": "#8B5CF6",
+          "background": "#fbf8ff",
+          "on_surface_variant": "#434656",
+          "surface_container": "#ededfa",
+          "inverse_on_surface": "#f0effd",
+          "primary": "#0040e0",
+          "surface_variant": "#e2e1ef",
+          "on_primary": "#ffffff",
+          "on_surface": "#191b24",
+          "surface_dim": "#d9d9e6",
+          "on_tertiary": "#ffffff",
+          "frost-surface": "#F9F9FF",
+          "tertiary_container": "#c24100"
+        },
+        "designMd": "---\nname: Vibrant Spectrum Frost\ncolors:\n  surface: '#fbf8ff'\n  surface-dim: '#d9d9e6'\n  surface-bright: '#fbf8ff'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#f3f2ff'\n  surface-container: '#ededfa'\n  surface-container-high: '#e7e7f4'\n  surface-container-highest: '#e2e1ef'\n  on-surface: '#191b24'\n  on-surface-variant: '#434656'\n  inverse-surface: '#2e303a'\n  inverse-on-surface: '#f0effd'\n  outline: '#747688'\n  outline-variant: '#c4c5d9'\n  surface-tint: '#124af0'\n  primary: '#0040e0'\n  on-primary: '#ffffff'\n  primary-container: '#2e5bff'\n  on-primary-container: '#efefff'\n  inverse-primary: '#b8c3ff'\n  secondary: '#505f76'\n  on-secondary: '#ffffff'\n  secondary-container: '#d4e3ff'\n  on-secondary-container: '#56657c'\n  tertiary: '#993100'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#c24100'\n  on-tertiary-container: '#ffece6'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#dde1ff'\n  primary-fixed-dim: '#b8c3ff'\n  on-primary-fixed: '#001356'\n  on-primary-fixed-variant: '#0035be'\n  secondary-fixed: '#d4e3ff'\n  secondary-fixed-dim: '#b8c7e2'\n  on-secondary-fixed: '#0c1c30'\n  on-secondary-fixed-variant: '#39485e'\n  tertiary-fixed: '#ffdbcf'\n  tertiary-fixed-dim: '#ffb59b'\n  on-tertiary-fixed: '#380d00'\n  on-tertiary-fixed-variant: '#812800'\n  background: '#fbf8ff'\n  on-background: '#191b24'\n  surface-variant: '#e2e1ef'\n  chat-blue: '#2E5BFF'\n  diary-gold: '#D4AF37'\n  events-emerald: '#10B981'\n  vault-crimson: '#DC2626'\n  tasks-violet: '#8B5CF6'\n  frost-surface: '#F9F9FF'\n  glass-border: rgba(255, 255, 255, 0.4)\ntypography:\n  display-lg:\n    fontFamily: EB Garamond\n    fontSize: 48px\n    fontWeight: '500'\n    lineHeight: 56px\n  headline-md:\n    fontFamily: EB Garamond\n    fontSize: 32px\n    fontWeight: '500'\n    lineHeight: 40px\n  headline-sm:\n    fontFamily: EB Garamond\n    fontSize: 24px\n    fontWeight: '500'\n    lineHeight: 32px\n  body-lg:\n    fontFamily: Source Sans 3\n    fontSize: 18px\n    fontWeight: '400'\n    lineHeight: 28px\n  body-md:\n    fontFamily: Source Sans 3\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: 24px\n  label-caps:\n    fontFamily: Source Sans 3\n    fontSize: 12px\n    fontWeight: '700'\n    lineHeight: 16px\n    letterSpacing: 0.1em\n  nav-label:\n    fontFamily: Source Sans 3\n    fontSize: 11px\n    fontWeight: '600'\n    lineHeight: 16px\n    letterSpacing: 0.05em\nrounded:\n  sm: 0.25rem\n  DEFAULT: 0.5rem\n  md: 0.75rem\n  lg: 1rem\n  xl: 1.5rem\n  full: 9999px\nspacing:\n  unit: 4px\n  gutter: 16px\n  margin-mobile: 16px\n  margin-desktop: 32px\n  nav-height: 64px\n  element-gap-sm: 8px\n  element-gap-md: 16px\n---\n\n## Brand & Style\n\nThis design system evolves the scholarly aesthetic into a more dynamic and identifiable interface. It maintains a clean, light, and \"frosty\" foundation—prioritizing clarity and intellectual order—but introduces a sophisticated multi-colored icon palette to provide immediate visual categorization.\n\nThe style is **Minimalist** with a **Glassmorphic** twist. It uses heavy whitespace and quality typography to ensure a high-signal environment, while \"glass-recessed\" navigation and \"soft-glow\" indicators add a layer of modern depth. The emotional response is one of organized vitality: the interface feels reliable and quiet, yet the strategic use of color ensures that functional zones (Chat, Diary, Events, Vault, Tasks) are instantly recognizable.\n\n## Colors\n\nThe color strategy centers on the \"Vibrant Spectrum\" palette, where specific hues are tethered to core application modules.\n\n- **Primary (#2E5BFF):** Used for global actions, active primary states, and the Chat module.\n- **Spectrum Palette:** \n  - **Chat:** Blue (#2E5BFF)\n  - **Diary:** Gold (#D4AF37)\n  - **Events:** Emerald (#10B981)\n  - **Vault:** Crimson (#DC2626)\n  - **Tasks:** Violet (#8B5CF6)\n- **Soft-Glow Effects:** Each spectrum color has an associated glow state, defined as the base color at 15% opacity with a 12px blur radius.\n- **Neutral / Surface:** The background remains a cool `#F9F9FF`, while navigation elements use a \"glass-recessed\" treatment—a semi-transparent white base that allows background colors to subtly bleed through.\n\n## Typography\n\nTypography maintains a \"Scholarly Voice\" through a disciplined pairing of serif and sans-serif faces.\n\n**EB Garamond** is utilized for editorial moments, page titles, and high-level headings. It provides a sense of history and prestige.\n\n**Source Sans 3** handles all functional requirements. It is used for body text, interactive labels, and data visualization. \n\nOn mobile devices, headlines scale down to ensure readability (e.g., `display-lg` moves to 36px). Navigation labels specifically utilize `label-caps` or `nav-label` styles to maintain a clean, rhythmic appearance across the bottom tab bar.\n\n## Layout & Spacing\n\nThis design system uses a **fixed grid** layout for content containers, centered on larger screens, while remaining fluid between breakpoints.\n\n- **The 8px Rhythm:** All spacing (padding, margins, gaps) is derived from an 8px base unit to ensure mathematical harmony.\n- **Navigation:** The 5-tab navigation bar is fixed at 64px in height.\n- **Breakpoints:**\n  - **Mobile:** 16px side margins, single-column content.\n  - **Tablet:** 24px side margins, 12-column grid.\n  - **Desktop:** Max-width container of 1280px with 32px margins.\n- **Recessed Areas:** Elements using \"glass-recessed\" logic should include 12px of internal padding to ensure content does not touch the subtle border edges.\n\n## Elevation & Depth\n\nHierarchy is established through transparency and subtle chromatic glows rather than traditional heavy shadows.\n\n- **Glass-Recessed Layer:** Navigation bars and container overlays use a `backdrop-filter: blur(16px)` with a 70% white fill and a 1px internal stroke of `glass-border`. This creates an \"etched\" look that feels recessed into the surface.\n- **Soft-Glow Indicators:** Active states are highlighted by a \"glow\" rather than a lift. For example, the active icon in the navigation bar emits a 12px soft shadow in its specific spectrum color (e.g., the Events icon emits an Emerald glow).\n- **Surface Tiers:**\n  - **Level 0 (Base):** Frost Surface (#F9F9FF).\n  - **Level 1 (Cards):** Pure White with 1px hairline stroke.\n  - **Level 2 (Modals/Nav):** Glass-recessed with backdrop blur.\n\n## Shapes\n\nThe shape language is refined and consistent, leaning into the **Rounded (2)** preset to maintain a professional yet accessible feel.\n\n- **Standard Elements:** Buttons, input fields, and tags use `rounded` (0.5rem / 8px).\n- **Containers:** Content cards and standard modals use `rounded-lg` (1rem / 16px).\n- **Oversized Elements:** Floating navigation docks and large feature cards use `rounded-xl` (1.5rem / 24px).\n- **Search Bars:** Should utilize the `full` (pill) setting to distinguish them from standard text inputs.\n\n## Components\n\n### Navigation Bar (Glass-Recessed)\nThe primary navigation uses the glass-recessed effect with a 1px top border. It features 5 equidistant tabs:\n- **Chat:** Blue icon; Blue soft-glow when active.\n- **Diary:** Gold icon; Gold soft-glow when active.\n- **Events:** Emerald icon; Emerald soft-glow when active.\n- **Vault:** Crimson icon; Crimson soft-glow when active.\n- **Tasks:** Violet icon; Violet soft-glow when active.\n\n### Buttons\n- **Primary:** Filled with Sapphire Blue (#2E5BFF), white text, 8px corner radius.\n- **Secondary:** Transparent background with a 1px Sapphire Blue stroke.\n- **Spectrum Buttons:** For module-specific actions (e.g., \"Add Event\"), use the specific spectrum color as the fill.\n\n### Input Fields\nMinimalist frost styling: pure white background, 1px light gray border. On focus, the border changes to Sapphire Blue and gains a subtle 4px blue glow at 10% opacity.\n\n### Chips & Tags\nSmall, 0.5rem rounded elements. Use spectrum colors at 10% opacity for the background and 100% opacity for the text to categorize information by module.\n\n### Cards\nCards sit on Level 1 elevation. They are white with an 8px or 16px radius and a light hairline stroke. When a card is associated with a module (e.g., a Task Card), a 4px vertical accent bar of the spectrum color is placed on the left edge.",
+        "colorVariant": "FIDELITY",
+        "overridePrimaryColor": "#2e5bff",
+        "overrideSecondaryColor": "#505f76",
+        "spacingScale": 2,
+        "typography": {
+          "body-lg": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "18px",
+            "fontWeight": "400",
+            "lineHeight": "28px"
+          },
+          "headline-md": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "32px",
+            "fontWeight": "500",
+            "lineHeight": "40px"
+          },
+          "headline-sm": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "24px",
+            "fontWeight": "500",
+            "lineHeight": "32px"
+          },
+          "display-lg": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "48px",
+            "fontWeight": "500",
+            "lineHeight": "56px"
+          },
+          "label-caps": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "12px",
+            "fontWeight": "700",
+            "lineHeight": "16px",
+            "letterSpacing": "0.1em"
+          },
+          "body-md": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "lineHeight": "24px"
+          },
+          "nav-label": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "11px",
+            "fontWeight": "600",
+            "lineHeight": "16px",
+            "letterSpacing": "0.05em"
+          }
+        },
+        "spacing": {
+          "element-gap-md": "16px",
+          "margin-mobile": "16px",
+          "nav-height": "64px",
+          "unit": "4px",
+          "margin-desktop": "32px",
+          "gutter": "16px",
+          "element-gap-sm": "8px"
+        },
+        "headlineFontFamily": "Eb Garamond",
+        "bodyFontFamily": "Source Sans 3",
+        "labelFontFamily": "Source Sans 3"
+      }
+    },
+    "version": "1"
+  }
+}

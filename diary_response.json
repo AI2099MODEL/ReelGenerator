@@ -1,0 +1,291 @@
+{
+  "screenshot": {
+    "name": "projects/15672949592124108526/screens/519248d69e634d9a939ea3611b50a827/fileEntries/screenshot",
+    "downloadUrl": "https://lh3.googleusercontent.com/aida/AEtjO1WgSQxatTKfK29KEJ3DLM81GgmNQoIR8fC9unQCxy61ii6f9Ps5vSdJVpWDuWwGaeXXyQ5aOvLn0ct7wtj5Kad0VW0xSefAUcjrGkVYYNi7c8rwEaYDYQ1VpKCHTgikZdC_MHCkv4KZLqpCAmYlZSLP0kZfUQWgUp1OUKOidPp4BizB-BQlvwX_oAcbTXSnVh-1TzwEJGlcxJ4v0IVy1S-vNiReDch5AJcPu1Qfpg8PH8JEjrVH"
+  },
+  "htmlCode": {
+    "name": "projects/15672949592124108526/screens/519248d69e634d9a939ea3611b50a827/fileEntries/html",
+    "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1OWQwZWQzZTkwYjUwN2M0ZDE4NmU0MTRhNDgxEgsSBxC_ksm6vgsYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTY3Mjk0OTU5MjEyNDEwODUyNg&filename=&opi=89354086",
+    "mimeType": "text/html"
+  },
+  "id": "519248d69e634d9a939ea3611b50a827",
+  "generatedBy": "HatterAgent",
+  "width": "780",
+  "height": "3282",
+  "title": "Ledger Diary - Living Water View",
+  "prompt": "Integrate the flowing water shader {{DATA:ANIMATION:ANIMATION_52}} as a full-screen background. \n1. Add `\u003cwebgl-shader src=\"{{DATA:ANIMATION:ANIMATION_52}}\" class=\"fixed inset-0 w-full h-full -z-10\"\u003e\u003c/webgl-shader\u003e` at the beginning of the body.\n2. Update the main background to be transparent or semi-transparent so the shader is visible.\n3. Apply 'backdrop-blur-md' and a semi-transparent surface color (e.g., bg-surface/60 or bg-white/40) to the diary entry cards to create a glassmorphic effect. \n4. Ensure all text remains highly legible against the moving background.\n5. Keep the EB Garamond typography and the 5-tab navigation.",
+  "name": "projects/15672949592124108526/screens/519248d69e634d9a939ea3611b50a827",
+  "theme": {
+    "colorMode": "LIGHT",
+    "font": "EB_GARAMOND",
+    "roundness": "ROUND_FOUR",
+    "customColor": "#1b263b",
+    "headlineFont": "EB_GARAMOND",
+    "bodyFont": "SOURCE_SANS_3",
+    "labelFont": "SOURCE_SANS_3",
+    "namedColors": {
+      "secondary": "#934b19",
+      "on_primary_fixed": "#101b30",
+      "secondary_fixed": "#ffdbc9",
+      "on_primary_fixed_variant": "#3c475d",
+      "surface": "#fff8ef",
+      "surface_variant": "#e9e2d3",
+      "on_secondary_fixed_variant": "#753401",
+      "primary_fixed_dim": "#bbc6e2",
+      "on_primary": "#ffffff",
+      "on_secondary_container": "#783603",
+      "surface_container": "#f5edde",
+      "on_tertiary": "#ffffff",
+      "tertiary_fixed_dim": "#b8c8db",
+      "on_secondary": "#ffffff",
+      "tertiary": "#021220",
+      "on_error_container": "#93000a",
+      "inverse_primary": "#bbc6e2",
+      "primary_container": "#1b263b",
+      "on_tertiary_container": "#7e8ea0",
+      "outline": "#75777d",
+      "on_primary_container": "#828da7",
+      "on_error": "#ffffff",
+      "surface_container_lowest": "#ffffff",
+      "error_container": "#ffdad6",
+      "on_background": "#1e1b13",
+      "surface_container_low": "#fbf3e4",
+      "surface_container_highest": "#e9e2d3",
+      "surface_bright": "#fff8ef",
+      "on_secondary_fixed": "#321200",
+      "background": "#fff8ef",
+      "secondary_fixed_dim": "#ffb68c",
+      "on_surface_variant": "#45474d",
+      "surface_tint": "#545e76",
+      "on_surface": "#1e1b13",
+      "inverse_surface": "#343026",
+      "tertiary_container": "#172736",
+      "outline_variant": "#c5c6cd",
+      "primary": "#051125",
+      "surface_dim": "#e1d9cb",
+      "secondary_container": "#ffa26a",
+      "error": "#ba1a1a",
+      "primary_fixed": "#d7e2ff",
+      "inverse_on_surface": "#f8f0e1",
+      "surface_container_high": "#efe7d9",
+      "on_tertiary_fixed_variant": "#394858",
+      "on_tertiary_fixed": "#0c1d2b",
+      "tertiary_fixed": "#d3e4f8"
+    },
+    "colorVariant": "FIDELITY",
+    "overridePrimaryColor": "#1b263b",
+    "overrideSecondaryColor": "#8b4513",
+    "overrideTertiaryColor": "#5d6d7e",
+    "overrideNeutralColor": "#fdf5e6",
+    "spacingScale": 2,
+    "typography": {
+      "headline-md": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "24px",
+        "fontWeight": "500",
+        "lineHeight": "1.3"
+      },
+      "headline-lg-mobile": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "28px",
+        "fontWeight": "500",
+        "lineHeight": "1.2"
+      },
+      "display-lg": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "48px",
+        "fontWeight": "600",
+        "lineHeight": "1.1",
+        "letterSpacing": "-0.02em"
+      },
+      "label-md": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "12px",
+        "fontWeight": "600",
+        "lineHeight": "1",
+        "letterSpacing": "0.05em"
+      },
+      "body-sm": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "1.4"
+      },
+      "headline-lg": {
+        "fontFamily": "EB Garamond",
+        "fontSize": "32px",
+        "fontWeight": "500",
+        "lineHeight": "1.2"
+      },
+      "body-md": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "1.5"
+      },
+      "body-lg": {
+        "fontFamily": "Source Sans 3",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "lineHeight": "1.6"
+      }
+    },
+    "spacing": {
+      "md": "24px",
+      "lg": "40px",
+      "gutter": "24px",
+      "base": "8px",
+      "sm": "12px",
+      "xl": "64px",
+      "margin": "32px",
+      "xs": "4px"
+    },
+    "headlineFontFamily": "Eb Garamond",
+    "bodyFontFamily": "Source Sans 3",
+    "labelFontFamily": "Source Sans 3"
+  },
+  "deviceType": "MOBILE",
+  "screenType": "DESIGN",
+  "screenMetadata": {
+    "agentType": "PRO_AGENT",
+    "status": "COMPLETE"
+  },
+  "designSystem": {
+    "name": "assets/f67bc4600b88496085f03decf4d9c22d",
+    "designSystem": {
+      "displayName": "Parchment Scholar",
+      "styleGuidelines": "### 🎨 Visual Identity: Safe\n- **Palette & Typography:** A balanced interpretation of the classic ledger aesthetic using highly legible sans-serif for long-form utility.\n\n## Brand & Style\n\nThis design system draws inspiration from the tactile and intellectual world of vintage ledgers, botanical journals, and classical archives. It evokes a sense of permanence, meticulous record-keeping, and academic rigor. The brand personality is scholarly, disciplined, and refined, targeting users who value depth, history, and clear documentation.\n\nThe visual style is a **Safe** interpretation of the classic ledger aesthetic. It rejects the cold sterility of modern corporate minimalism in favor of a warm, paper-like utility. By blending the organic textures of parchment with the structured clarity of archival ink, the UI feels both traditional and highly functional. It prioritizes legibility and information density, suggesting that every piece of data is a meaningful entry in a physical tome.\n\n## Layout & Spacing\n\nThis design system employs a **Fixed Grid** philosophy on desktop to maintain the feel of a physical page, transitioning to a fluid model on smaller devices.\n\nThe layout is governed by a 12-column grid with a substantial 24px gutter, ensuring that content feels airy and organized. Margins are intentionally wide (32px minimum) to mimic the \"gutter\" and \"margin\" of a book, creating a frame that focuses the eye on the central narrative.\n\nVertical rhythm is strictly maintained using multiples of 8px. Large sections of content are separated by `lg` (40px) or `xl` (64px) blocks of whitespace to prevent the information-dense ledger aesthetic from feeling overwhelming. On mobile, gutters reduce to 16px and margins to 20px to maximize the narrow real estate while retaining the framed aesthetic.\n\n## Elevation & Depth\n\nDepth in this design system is achieved through **Tonal Layers** rather than heavy shadows. In keeping with the parchment theme, we treat the UI as a series of stacked physical papers.\n\n1.  **Base Layer:** The global background (`#FDF5E6`).\n2.  **Surface Layer:** Elevated cards or containers use a slightly darker, more saturated paper tone (`#FAF0E6`).\n3.  **Outline Depth:** Instead of ambient shadows, surfaces are defined by thin, low-contrast borders (`#DCD0C0`). \n4.  **Interactive Depth:** A very subtle, \"pressed\" effect (inner shadow) may be used for active states of buttons or inputs, suggesting a physical stamp on paper. \n\nAvoid backdrop blurs or vibrant glows. The goal is a flat, matte finish that feels dry and archival.\n\n## Components\n\n- **Buttons:** Primary buttons use the Ink Blue background with white or light parchment text. They are flat, using only a slight color shift on hover. No heavy gradients or shadows.\n- **Input Fields:** Styled as \"ruled lines\" or boxes with a thin bottom border or a full 1px border in `#DCD0C0`. The focus state uses a secondary Leather Brown border to signify the active \"nib\" position.\n- **Cards:** Use the `#FAF0E6` surface color. They are defined by their borders rather than shadows. Headers within cards should use `label-md` for a categorized, indexed look.\n- **Chips & Tags:** Small, rectangular tags with 1px borders. They should look like physical archival labels or \"tab\" inserts.\n- **Lists:** Items are separated by subtle horizontal rules (0.5px), mimicking a ruled ledger page. Use the Primary Ink color for list item titles.\n- **Checkboxes/Radios:** Square-shaped for checkboxes to match the grid-like nature of ledgers. Use the Secondary Brown for the \"check\" mark to provide a warm highlight.\n- **Dividers:** Use thin, solid lines in `#DCD0C0`. In some editorial sections, a double-rule (one thick, one thin) can be used to denote the end of a major chapter or section.",
+      "theme": {
+        "colorMode": "LIGHT",
+        "font": "EB_GARAMOND",
+        "roundness": "ROUND_FOUR",
+        "customColor": "#1b263b",
+        "headlineFont": "EB_GARAMOND",
+        "bodyFont": "SOURCE_SANS_3",
+        "labelFont": "SOURCE_SANS_3",
+        "namedColors": {
+          "on_tertiary_fixed": "#0c1d2b",
+          "tertiary_container": "#172736",
+          "surface": "#fff8ef",
+          "surface_dim": "#e1d9cb",
+          "on_secondary_fixed": "#321200",
+          "on_surface_variant": "#45474d",
+          "surface_bright": "#fff8ef",
+          "on_secondary_container": "#783603",
+          "outline": "#75777d",
+          "tertiary_fixed": "#d3e4f8",
+          "surface_container_highest": "#e9e2d3",
+          "inverse_surface": "#343026",
+          "on_primary_container": "#828da7",
+          "outline_variant": "#c5c6cd",
+          "on_background": "#1e1b13",
+          "on_secondary_fixed_variant": "#753401",
+          "on_primary": "#ffffff",
+          "inverse_on_surface": "#f8f0e1",
+          "error": "#ba1a1a",
+          "surface_tint": "#545e76",
+          "on_tertiary": "#ffffff",
+          "error_container": "#ffdad6",
+          "tertiary_fixed_dim": "#b8c8db",
+          "secondary": "#934b19",
+          "inverse_primary": "#bbc6e2",
+          "on_primary_fixed_variant": "#3c475d",
+          "tertiary": "#021220",
+          "primary": "#051125",
+          "primary_container": "#1b263b",
+          "on_tertiary_container": "#7e8ea0",
+          "primary_fixed": "#d7e2ff",
+          "surface_container_high": "#efe7d9",
+          "surface_container_lowest": "#ffffff",
+          "background": "#fff8ef",
+          "on_tertiary_fixed_variant": "#394858",
+          "on_secondary": "#ffffff",
+          "primary_fixed_dim": "#bbc6e2",
+          "secondary_container": "#ffa26a",
+          "surface_container": "#f5edde",
+          "on_error": "#ffffff",
+          "on_error_container": "#93000a",
+          "on_surface": "#1e1b13",
+          "on_primary_fixed": "#101b30",
+          "secondary_fixed_dim": "#ffb68c",
+          "secondary_fixed": "#ffdbc9",
+          "surface_variant": "#e9e2d3",
+          "surface_container_low": "#fbf3e4"
+        },
+        "designMd": "---\nname: Parchment Scholar\ncolors:\n  surface: '#fff8ef'\n  surface-dim: '#e1d9cb'\n  surface-bright: '#fff8ef'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#fbf3e4'\n  surface-container: '#f5edde'\n  surface-container-high: '#efe7d9'\n  surface-container-highest: '#e9e2d3'\n  on-surface: '#1e1b13'\n  on-surface-variant: '#45474d'\n  inverse-surface: '#343026'\n  inverse-on-surface: '#f8f0e1'\n  outline: '#75777d'\n  outline-variant: '#c5c6cd'\n  surface-tint: '#545e76'\n  primary: '#051125'\n  on-primary: '#ffffff'\n  primary-container: '#1b263b'\n  on-primary-container: '#828da7'\n  inverse-primary: '#bbc6e2'\n  secondary: '#934b19'\n  on-secondary: '#ffffff'\n  secondary-container: '#ffa26a'\n  on-secondary-container: '#783603'\n  tertiary: '#021220'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#172736'\n  on-tertiary-container: '#7e8ea0'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#d7e2ff'\n  primary-fixed-dim: '#bbc6e2'\n  on-primary-fixed: '#101b30'\n  on-primary-fixed-variant: '#3c475d'\n  secondary-fixed: '#ffdbc9'\n  secondary-fixed-dim: '#ffb68c'\n  on-secondary-fixed: '#321200'\n  on-secondary-fixed-variant: '#753401'\n  tertiary-fixed: '#d3e4f8'\n  tertiary-fixed-dim: '#b8c8db'\n  on-tertiary-fixed: '#0c1d2b'\n  on-tertiary-fixed-variant: '#394858'\n  background: '#fff8ef'\n  on-background: '#1e1b13'\n  surface-variant: '#e9e2d3'\ntypography:\n  display-lg:\n    fontFamily: EB Garamond\n    fontSize: 48px\n    fontWeight: '600'\n    lineHeight: '1.1'\n    letterSpacing: -0.02em\n  headline-lg:\n    fontFamily: EB Garamond\n    fontSize: 32px\n    fontWeight: '500'\n    lineHeight: '1.2'\n  headline-md:\n    fontFamily: EB Garamond\n    fontSize: 24px\n    fontWeight: '500'\n    lineHeight: '1.3'\n  body-lg:\n    fontFamily: Source Sans 3\n    fontSize: 18px\n    fontWeight: '400'\n    lineHeight: '1.6'\n  body-md:\n    fontFamily: Source Sans 3\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: '1.5'\n  body-sm:\n    fontFamily: Source Sans 3\n    fontSize: 14px\n    fontWeight: '400'\n    lineHeight: '1.4'\n  label-md:\n    fontFamily: Source Sans 3\n    fontSize: 12px\n    fontWeight: '600'\n    lineHeight: '1'\n    letterSpacing: 0.05em\n  headline-lg-mobile:\n    fontFamily: EB Garamond\n    fontSize: 28px\n    fontWeight: '500'\n    lineHeight: '1.2'\nrounded:\n  sm: 0.125rem\n  DEFAULT: 0.25rem\n  md: 0.375rem\n  lg: 0.5rem\n  xl: 0.75rem\n  full: 9999px\nspacing:\n  base: 8px\n  xs: 4px\n  sm: 12px\n  md: 24px\n  lg: 40px\n  xl: 64px\n  gutter: 24px\n  margin: 32px\n---\n\n## Brand & Style\n\nThis design system draws inspiration from the tactile and intellectual world of vintage ledgers, botanical journals, and classical archives. It evokes a sense of permanence, meticulous record-keeping, and academic rigor. The brand personality is scholarly, disciplined, and refined, targeting users who value depth, history, and clear documentation.\n\nThe visual style is a **Safe** interpretation of the classic ledger aesthetic. It rejects the cold sterility of modern corporate minimalism in favor of a warm, paper-like utility. By blending the organic textures of parchment with the structured clarity of archival ink, the UI feels both traditional and highly functional. It prioritizes legibility and information density, suggesting that every piece of data is a meaningful entry in a physical tome.\n\n## Colors\n\nThe palette is rooted in the \"Parchment Scholar\" aesthetic, utilizing high-contrast ink on warm, natural substrates.\n\n- **Primary (Ink Blue):** A deep, authoritative blue used for primary typography and essential structural elements. It provides the weight of a fountain pen stroke.\n- **Secondary (Leather Brown):** Used sparingly for accents, highlights, and specialized call-to-actions, mimicking the leather binding of a premium ledger.\n- **Tertiary (Slate):** A desaturated tone for auxiliary information and meta-data, ensuring hierarchy without clutter.\n- **Neutral (Parchment & Paper):** The foundation of the system. The seed color (`#FDF5E6`) serves as the global background, while a slightly deeper tone (`#FAF0E6`) defines surface containers and cards.\n- **Borders:** Subtle, warm-grey lines that mimic the faint ruling of a ledger page, providing structure without visual noise.\n\n## Typography\n\nThe typography system relies on a sharp contrast between **EB Garamond** and **Source Sans 3**. \n\n**EB Garamond** is reserved for headlines and editorial moments. It should be treated with classical typesetting principles: generous line height and slight negative letter-spacing for large display sizes to emphasize its elegant serifs.\n\n**Source Sans 3** handles all utilitarian tasks. It provides a clean, neutral counterpoint to the decorative nature of the serif. Labels are often set in small-caps or uppercase with increased tracking to mimic the stamped or indexed labels found in historical archives. For long-form reading, `body-lg` is preferred to maintain the \"scholar\" persona.\n\n## Layout & Spacing\n\nThis design system employs a **Fixed Grid** philosophy on desktop to maintain the feel of a physical page, transitioning to a fluid model on smaller devices.\n\nThe layout is governed by a 12-column grid with a substantial 24px gutter, ensuring that content feels airy and organized. Margins are intentionally wide (32px minimum) to mimic the \"gutter\" and \"margin\" of a book, creating a frame that focuses the eye on the central narrative.\n\nVertical rhythm is strictly maintained using multiples of 8px. Large sections of content are separated by `lg` (40px) or `xl` (64px) blocks of whitespace to prevent the information-dense ledger aesthetic from feeling overwhelming. On mobile, gutters reduce to 16px and margins to 20px to maximize the narrow real estate while retaining the framed aesthetic.\n\n## Elevation & Depth\n\nDepth in this design system is achieved through **Tonal Layers** rather than heavy shadows. In keeping with the parchment theme, we treat the UI as a series of stacked physical papers.\n\n1.  **Base Layer:** The global background (`#FDF5E6`).\n2.  **Surface Layer:** Elevated cards or containers use a slightly darker, more saturated paper tone (`#FAF0E6`).\n3.  **Outline Depth:** Instead of ambient shadows, surfaces are defined by thin, low-contrast borders (`#DCD0C0`). \n4.  **Interactive Depth:** A very subtle, \"pressed\" effect (inner shadow) may be used for active states of buttons or inputs, suggesting a physical stamp on paper. \n\nAvoid backdrop blurs or vibrant glows. The goal is a flat, matte finish that feels dry and archival.\n\n## Shapes\n\nThe shape language is conservative and structural. A roundedness level of `1` (0.25rem) is applied to most UI components to soften the edges of the \"ledger\" without making it feel modern or \"bubbly.\"\n\nCorners should feel like cut cardstock rather than molded plastic. Large containers (like cards) may use `rounded-lg` (0.5rem) to suggest the slightly worn edges of an old manuscript. Interactive elements like buttons and input fields stay strictly at the base 0.25rem to maintain a professional, grid-aligned appearance.\n\n## Components\n\n- **Buttons:** Primary buttons use the Ink Blue background with white or light parchment text. They are flat, using only a slight color shift on hover. No heavy gradients or shadows.\n- **Input Fields:** Styled as \"ruled lines\" or boxes with a thin bottom border or a full 1px border in `#DCD0C0`. The focus state uses a secondary Leather Brown border to signify the active \"nib\" position.\n- **Cards:** Use the `#FAF0E6` surface color. They are defined by their borders rather than shadows. Headers within cards should use `label-md` for a categorized, indexed look.\n- **Chips & Tags:** Small, rectangular tags with 1px borders. They should look like physical archival labels or \"tab\" inserts.\n- **Lists:** Items are separated by subtle horizontal rules (0.5px), mimicking a ruled ledger page. Use the Primary Ink color for list item titles.\n- **Checkboxes/Radios:** Square-shaped for checkboxes to match the grid-like nature of ledgers. Use the Secondary Brown for the \"check\" mark to provide a warm highlight.\n- **Dividers:** Use thin, solid lines in `#DCD0C0`. In some editorial sections, a double-rule (one thick, one thin) can be used to denote the end of a major chapter or section.",
+        "colorVariant": "FIDELITY",
+        "overridePrimaryColor": "#1b263b",
+        "overrideSecondaryColor": "#8b4513",
+        "overrideTertiaryColor": "#5d6d7e",
+        "overrideNeutralColor": "#fdf5e6",
+        "spacingScale": 2,
+        "typography": {
+          "body-lg": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "18px",
+            "fontWeight": "400",
+            "lineHeight": "1.6"
+          },
+          "body-sm": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "1.4"
+          },
+          "headline-md": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "24px",
+            "fontWeight": "500",
+            "lineHeight": "1.3"
+          },
+          "display-lg": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "48px",
+            "fontWeight": "600",
+            "lineHeight": "1.1",
+            "letterSpacing": "-0.02em"
+          },
+          "body-md": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "16px",
+            "fontWeight": "400",
+            "lineHeight": "1.5"
+          },
+          "label-md": {
+            "fontFamily": "Source Sans 3",
+            "fontSize": "12px",
+            "fontWeight": "600",
+            "lineHeight": "1",
+            "letterSpacing": "0.05em"
+          },
+          "headline-lg-mobile": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "28px",
+            "fontWeight": "500",
+            "lineHeight": "1.2"
+          },
+          "headline-lg": {
+            "fontFamily": "EB Garamond",
+            "fontSize": "32px",
+            "fontWeight": "500",
+            "lineHeight": "1.2"
+          }
+        },
+        "spacing": {
+          "xl": "64px",
+          "gutter": "24px",
+          "base": "8px",
+          "xs": "4px",
+          "sm": "12px",
+          "margin": "32px",
+          "lg": "40px",
+          "md": "24px"
+        },
+        "headlineFontFamily": "Eb Garamond",
+        "bodyFontFamily": "Source Sans 3",
+        "labelFontFamily": "Source Sans 3"
+      }
+    },
+    "version": "1"
+  }
+}

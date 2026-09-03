@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ledger Diary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Source+Sans+3:ital,wght@0,200..900;1,200..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/webgl-shader-element@0.1.0" type="module"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#1e1b13",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#45474d",
+                        "inverse-surface": "#343026",
+                        "inverse-on-surface": "#f8f0e1",
+                        "inverse-primary": "#bbc6e2",
+                        "tertiary": "#021220",
+                        "surface-container-highest": "#e9e2d3",
+                        "on-primary-container": "#828da7",
+                        "primary-fixed": "#d7e2ff",
+                        "surface-dim": "#e1d9cb",
+                        "secondary": "#934b19",
+                        "on-secondary-fixed-variant": "#753401",
+                        "outline-variant": "#c5c6cd",
+                        "on-tertiary-fixed": "#0c1d2b",
+                        "surface-container": "#f5edde",
+                        "on-tertiary-container": "#7e8ea0",
+                        "surface-container-low": "#fbf3e4",
+                        "outline": "#75777d",
+                        "secondary-fixed-dim": "#ffb68c",
+                        "on-surface": "#1e1b13",
+                        "surface": "#fff8ef",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#ffdbc9",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#783603",
+                        "primary-fixed-dim": "#bbc6e2",
+                        "on-primary-fixed-variant": "#3c475d",
+                        "surface-bright": "#fff8ef",
+                        "secondary-container": "#ffa26a",
+                        "on-secondary-fixed": "#321200",
+                        "surface-container-high": "#efe7d9",
+                        "surface-variant": "#e9e2d3",
+                        "primary-container": "#1b263b",
+                        "tertiary-container": "#172736",
+                        "primary": "#051125",
+                        "on-primary-fixed": "#101b30",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed-dim": "#b8c8db",
+                        "background": "#fff8ef",
+                        "on-tertiary-fixed-variant": "#394858",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#d3e4f8",
+                        "surface-tint": "#545e76",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "40px",
+                        "margin": "32px",
+                        "md": "24px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "sm": "12px",
+                        "xl": "64px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["\"Source Sans 3\""],
+                        "body-md": ["\"Source Sans 3\""],
+                        "label-md": ["\"Source Sans 3\""],
+                        "body-sm": ["\"Source Sans 3\""],
+                        "headline-md": ["EB Garamond"],
+                        "headline-lg": ["EB Garamond"],
+                        "headline-lg-mobile": ["EB Garamond"],
+                        "display-lg": ["EB Garamond"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-md": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            border: 1px solid rgba(220, 208, 192, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-transparent text-on-background min-h-screen flex flex-col font-body-md pb-24 md:pb-0 relative">
+<!-- STITCH_SHADER_START:ANIMATION_52 class="fixed inset-0 w-full h-full -z-10" -->
+<div class="fixed inset-0 w-full h-full -z-10" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_52" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_52');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+varying vec2 v_texCoord;
+
+// Simplified noise function for water-like ripples
+float hash(vec2 p) {
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    
+    // Adjust aspect ratio
+    float aspect = u_resolution.x / u_resolution.y;
+    vec2 p = uv * vec2(aspect, 1.0);
+    
+    // Create multiple layers of "water" movement
+    float t = u_time * 0.3;
+    
+    // Ripple effect based on noise and time
+    float n = noise(p * 3.0 + vec2(t * 0.2, t * 0.15));
+    n += 0.5 * noise(p * 6.0 - vec2(t * 0.1, t * 0.3));
+    n += 0.25 * noise(p * 12.0 + vec2(t * 0.4, t * 0.05));
+    
+    // Distort coordinates for a "flowing" look
+    vec2 distort = vec2(
+        noise(p * 2.0 + t),
+        noise(p * 2.0 - t)
+    ) * 0.05;
+    
+    // Mouse interaction: gentle ripples near the cursor
+    vec2 m = u_mouse / u_resolution;
+    m.x *= aspect;
+    float dist = distance(p, m * vec2(aspect, 1.0));
+    float mouseRipple = exp(-dist * 8.0) * sin(dist * 20.0 - u_time * 5.0) * 0.02;
+    
+    // Combine noise and distortion
+    float water = noise(p * 4.0 + distort + n * 0.1) + mouseRipple;
+    
+    // Map to "Parchment Scholar" palette stops
+    // Background (Parchment): #fff8ef -> vec3(1.0, 0.97, 0.94)
+    // Primary (Navy): #1b263b -> vec3(0.11, 0.15, 0.23)
+    // Surface Dim: #e1d9cb -> vec3(0.88, 0.85, 0.8)
+    
+    vec3 colorA = vec3(1.0, 0.97, 0.94); // Light Parchment
+    vec3 colorB = vec3(0.96, 0.92, 0.87); // Slightly darker parchment for ripples
+    vec3 highlight = vec3(1.0, 1.0, 1.0); // Light reflections
+    
+    // Mix colors based on water density
+    vec3 finalColor = mix(colorA, colorB, clamp(water * 0.8, 0.0, 1.0));
+    
+    // Add subtle caustic highlights
+    float caustics = pow(clamp(water, 0.0, 1.0), 10.0) * 0.3;
+    finalColor += caustics * highlight;
+    
+    gl_FragColor = vec4(finalColor, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_52 -->
+<!-- TopAppBar -->
+<header class="bg-surface/60 dark:bg-surface/60 backdrop-blur-md w-full top-0 sticky border-b border-outline-variant dark:border-outline flat no shadows flex items-center justify-between px-margin py-base z-40 transition-colors duration-200">
+<div class="flex items-center gap-sm cursor-pointer hover:bg-surface-container-high/60 rounded-full p-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">menu</span>
+</div>
+<div class="font-headline-md text-headline-md-mobile md:text-headline-md text-primary dark:text-primary-fixed italic font-bold tracking-tight">
+            Ledger Diary
+        </div>
+<div class="flex items-center gap-sm cursor-pointer hover:bg-surface-container-high/60 rounded-full p-2">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed">history_edu</span>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow px-4 md:px-margin max-w-5xl mx-auto w-full pt-md">
+<!-- Header Section -->
+<section class="mb-lg">
+<h1 class="font-display-lg text-display-lg text-primary mb-xs">Chronicles</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">A meticulous record of thoughts, observations, and milestones, preserved for posteriority.</p>
+</section>
+<!-- Bento Grid Layout for Entries -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md md:gap-gutter">
+<!-- Featured Entry (Large) -->
+<article class="glass-card bg-surface/60 backdrop-blur-md rounded-xl p-md md:col-span-8 flex flex-col justify-between min-h-[300px] relative overflow-hidden group cursor-pointer hover:bg-surface-container-low/80 transition-colors duration-300">
+<div class="absolute inset-0 opacity-10 pointer-events-none" data-alt="A subtle, vintage botanical illustration of a fern leaf, rendered in fine ink lines, blending seamlessly into a warm parchment background, evoking a sense of classic academic journaling." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDSuXjlBPdmM2WeDaA4GhzDP3aVpXJ_7dDRjHXExLtkdHpZB634m6I18fbsdusgHVFEibaYWeoW3WJPH9w-FhJ8AcaegRTDgmQhRkZLeMNDAWUCgH26A5ESEOfajkJh-2Dj_CZqiiNn_q3lQxtU1BXbtA6gN2lgB64dNooOFseaozKJpvBk2vfO2vLfEK4BbY7QHHUUz28_T_uPfVm4zHV89pqqV4menIttL0QR3MvDbR15BsotfdNhLQ')"></div>
+<div class="relative z-10 flex justify-between items-start mb-md">
+<span class="inline-flex items-center border border-outline-variant text-on-surface-variant px-2 py-1 rounded-sm font-label-md text-label-md uppercase bg-surface/80">Reflection</span>
+<time class="font-label-md text-label-md text-on-surface-variant flex items-center gap-xs"><span class="material-symbols-outlined text-[16px]">calendar_today</span> Oct 24, 1893</time>
+</div>
+<div class="relative z-10">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-sm group-hover:text-secondary transition-colors">Midnight Reflections on the Aether</h2>
+<p class="font-body-lg text-body-lg text-on-surface line-clamp-3 md:line-clamp-4">The air tonight carries a peculiar stillness, an almost tangible quiet that begs to be recorded. As I sat by the window, observing the slow transit of the celestial bodies, I could not help but wonder about the unseen forces that bind us to this terrestrial sphere. The ledger of my mind is full, yet words seem insufficient to capture the vastness of the silent void above.</p>
+</div>
+<div class="mt-md relative z-10 flex justify-end">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">arrow_forward</span>
+</div>
+</article>
+<!-- Secondary Entry -->
+<article class="glass-card bg-surface/60 backdrop-blur-md rounded-xl p-md md:col-span-4 flex flex-col justify-between min-h-[300px] group cursor-pointer hover:bg-surface-container-low/80 transition-colors duration-300">
+<div class="flex justify-between items-start mb-md">
+<span class="inline-flex items-center border border-outline-variant text-on-surface-variant px-2 py-1 rounded-sm font-label-md text-label-md uppercase bg-surface/80">Observation</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary mb-xs group-hover:text-secondary transition-colors">The Behavior of Starlings</h3>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-4">A murmuration observed at dusk over the eastern fields. The coordination is staggering, moving as a single, fluid organism against the fading light. Must dedicate further study to this phenomenon.</p>
+</div>
+<div class="mt-md flex justify-between items-end border-t border-outline-variant pt-sm">
+<time class="font-label-md text-label-md text-on-surface-variant">Oct 22, 1893</time>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]">menu_book</span>
+</div>
+</article>
+<!-- Tertiary Entries Row -->
+<article class="glass-card bg-surface/60 backdrop-blur-md rounded-lg p-md md:col-span-4 flex flex-col gap-sm hover:bg-surface-container-low/80 transition-colors duration-300 cursor-pointer">
+<div class="flex justify-between items-center">
+<span class="inline-flex items-center border border-outline-variant text-on-surface-variant px-2 py-1 rounded-sm font-label-md text-label-md uppercase bg-surface/80">Milestone</span>
+<time class="font-label-md text-label-md text-on-surface-variant">Oct 15, 1893</time>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary leading-tight">Completion of the First Volume</h3>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-2">Finally bound the preliminary sketches and notes into a cohesive volume. The leather feels sturdy.</p>
+</article>
+<article class="glass-card bg-surface/60 backdrop-blur-md rounded-lg p-md md:col-span-4 flex flex-col gap-sm hover:bg-surface-container-low/80 transition-colors duration-300 cursor-pointer">
+<div class="flex justify-between items-center">
+<span class="inline-flex items-center border border-outline-variant text-on-surface-variant px-2 py-1 rounded-sm font-label-md text-label-md uppercase bg-surface/80">Field Note</span>
+<time class="font-label-md text-label-md text-on-surface-variant">Oct 10, 1893</time>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary leading-tight">Flora of the Northern Ridge</h3>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-2">Collected specimens of an unfamiliar moss clinging to the damp limestone outcroppings.</p>
+</article>
+<article class="glass-card bg-surface-container-low/60 backdrop-blur-md rounded-lg p-md md:col-span-4 flex flex-col gap-sm hover:bg-surface-container-low/80 transition-colors duration-300 cursor-pointer border-secondary/30">
+<div class="flex justify-between items-center">
+<span class="inline-flex items-center border border-secondary text-secondary px-2 py-1 rounded-sm font-label-md text-label-md uppercase bg-surface/80">Draft</span>
+<time class="font-label-md text-label-md text-on-surface-variant">Today</time>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary leading-tight italic">Untitled Thoughts on...</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">Waiting to be penned. The ink is fresh.</p>
+</article>
+</div>
+<!-- Bottom spacing for FAB and Nav -->
+<div class="h-32"></div>
+</main>
+<!-- Floating Action Button (FAB) -->
+<button class="fixed bottom-24 right-4 md:right-8 lg:right-margin bg-primary/90 backdrop-blur-md text-on-primary rounded-xl p-4 shadow-[0_4px_12px_rgba(5,17,37,0.15)] hover:bg-tertiary-container transition-all duration-300 transform hover:scale-105 z-40 active:shadow-inner flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+<!-- BottomNavBar (Mobile Only per Shell Logic) -->
+<nav class="md:hidden bg-surface-container/60 dark:bg-surface-container/60 backdrop-blur-md fixed bottom-0 left-0 w-full z-50 border-t border-outline-variant dark:border-outline flat no shadows flex justify-around items-center px-2 py-3">
+<!-- Chat (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-2 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">chat_bubble</span>
+<span class="font-label-md text-label-md">Chat</span>
+</a>
+<!-- Diary (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container/80 dark:bg-secondary-container/80 backdrop-blur-sm text-on-secondary-container dark:text-on-secondary-container rounded-full px-4 py-1 Active: scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-label-md text-label-md">Diary</span>
+</a>
+<!-- Events (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-2 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">event_note</span>
+<span class="font-label-md text-label-md">Events</span>
+</a>
+<!-- Vault (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-2 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">inventory_2</span>
+<span class="font-label-md text-label-md">Vault</span>
+</a>
+<!-- Tasks (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant p-2 hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">assignment</span>
+<span class="font-label-md text-label-md">Tasks</span>
+</a>
+</nav>
+</body></html>
