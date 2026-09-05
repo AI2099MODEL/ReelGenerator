@@ -3,6 +3,7 @@ package com.example.ui.screens
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -23,10 +24,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -43,25 +47,19 @@ import java.util.*
 enum class DateScreenMode(
     val title: String,
     val subtitle: String,
-    val emptyTitle: String,
-    val emptySubtitle: String,
     val addButtonText: String,
     val defaultEventType: String
 ) {
     IMPORTANT_DATES(
         title = "Important Dates",
         subtitle = "Birthdays & Anniversaries",
-        emptyTitle = "No Important Dates Yet",
-        emptySubtitle = "Keep track of upcoming birthdays, anniversaries, and milestones.",
-        addButtonText = "Add Date",
+        addButtonText = "+ Add Date",
         defaultEventType = "IMPORTANT_DATE"
     ),
     REMIND_ME(
         title = "Remind Me",
         subtitle = "Coming Tasks & Daily Reminders",
-        emptyTitle = "No Reminders Yet",
-        emptySubtitle = "Never miss coming tasks, daily duties, or personal reminders.",
-        addButtonText = "Add Task",
+        addButtonText = "+ Add Task",
         defaultEventType = "REMIND_ME"
     )
 }
@@ -72,11 +70,45 @@ data class CategoryOption(
     val color: Color
 )
 
+// -------------------------------------------------------------------------------------------------
+// GOLDEN LUXURY & SUNSET THEME PALETTE (MATCHING TEXT TO IMAGE STUDIO)
+// -------------------------------------------------------------------------------------------------
+private val GoldHighlight = Color(0xFFFFF8D6)
+private val GoldLight = Color(0xFFFFE082)
+private val GoldPrimary = Color(0xFFFFD700)
+private val GoldAccent = Color(0xFFD4AF37)
+private val GoldDark = Color(0xFFAA771C)
+private val GoldDeep = Color(0xFF4A3206)
+
+private val MetallicGoldBrush = Brush.linearGradient(
+    listOf(
+        Color(0xFFFFDF73),
+        Color(0xFFD4AF37),
+        Color(0xFFFFF5B8),
+        Color(0xFFAA771C),
+        Color(0xFFFFE57F),
+        Color(0xFFC59B27),
+        Color(0xFF8C6212)
+    )
+)
+
+private val SunsetPhoneWallpaperGradient = Brush.verticalGradient(
+    listOf(
+        Color(0xFF131628),
+        Color(0xFF1C1F38),
+        Color(0xFF2E2644),
+        Color(0xFF4E2D4E),
+        Color(0xFF783955),
+        Color(0xFFA64A4E),
+        Color(0xFFCD6742),
+        Color(0xFFE8914F),
+        Color(0xFF382230)
+    )
+)
+
 /**
- * Clean, modern screen with the app background showing through,
- * + button to add, identical rich UI for adding, and tailored for:
- * - Important Dates (birthdays & anniversaries)
- * - Remind Me (coming tasks & daily tasks)
+ * Clean main page with items list and a Floating Action Button (+ Add Date / + Add Task)
+ * that opens the Golden Phone Mockup dialog for Data Entry.
  */
 @Composable
 fun RemindMeDatesScreen(
@@ -103,10 +135,11 @@ fun RemindMeDatesScreen(
     val displayItems = remember(events, mode) {
         when (mode) {
             DateScreenMode.IMPORTANT_DATES -> {
+                // Keep strictly only Birthday and Anniversary
                 events.filter {
-                    it.eventType == "IMPORTANT_DATE" ||
                     it.category.equals("Birthday", ignoreCase = true) ||
-                    it.category.equals("Anniversary", ignoreCase = true)
+                    it.category.equals("Anniversary", ignoreCase = true) ||
+                    (it.eventType == "IMPORTANT_DATE" && !it.category.equals("Coming Task", ignoreCase = true) && !it.category.equals("Daily Task", ignoreCase = true))
                 }.sortedBy { it.eventTimestamp }
             }
             DateScreenMode.REMIND_ME -> {
@@ -129,181 +162,95 @@ fun RemindMeDatesScreen(
             LedgerTopHeader(
                 title = mode.title,
                 onHomeClick = onHomeClick,
-                onMenuClick = onMenuClick
+                onMenuClick = onMenuClick,
+                actionIcon = if (mode == DateScreenMode.IMPORTANT_DATES) Icons.Filled.Cake else Icons.Filled.NotificationsActive,
+                onActionClick = { showAddDialog = true }
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(20.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
-                modifier = Modifier.padding(bottom = 16.dp, end = 8.dp)
+                containerColor = GoldPrimary,
+                contentColor = Color(0xFF241400),
+                shape = RoundedCornerShape(16.dp),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
+                modifier = Modifier.padding(bottom = 12.dp, end = 4.dp)
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
-                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Add",
+                    tint = Color(0xFF241400),
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = mode.addButtonText,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp
+                    fontSize = 14.sp,
+                    color = Color(0xFF241400)
                 )
             }
         }
     ) { innerPadding ->
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 14.dp),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            if (displayItems.isEmpty()) {
-                // Initial page: Clean background page showing through with centered frosted + button prompt
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Card(
+            if (displayItems.isNotEmpty()) {
+                item {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp, vertical = 32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                        Text(
+                            text = "✨ Saved ${mode.title} (${displayItems.size})",
+                            color = GoldHighlight,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = GoldDeep.copy(alpha = 0.8f),
+                            border = BorderStroke(0.8.dp, GoldAccent)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(72.dp)
-                                    .background(
-                                        brush = Brush.radialGradient(
-                                            listOf(
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
-                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
-                                            )
-                                        ),
-                                        shape = CircleShape
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (mode == DateScreenMode.IMPORTANT_DATES) Icons.Filled.Cake else Icons.Filled.NotificationsActive,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(38.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
                             Text(
-                                text = mode.emptyTitle,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Center
+                                text = "${displayItems.size} ${if (displayItems.size == 1) "entry" else "entries"}",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                color = GoldLight,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
                             )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = mode.emptySubtitle,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                                lineHeight = 20.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            Button(
-                                onClick = { showAddDialog = true },
-                                shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary
-                                ),
-                                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = mode.addButtonText,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
-                                )
-                            }
                         }
                     }
                 }
-            } else {
-                // List of items cleanly displayed over the background page
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item {
-                        // Header summary row
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp, horizontal = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = mode.subtitle,
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
-                            ) {
-                                Text(
-                                    text = "${displayItems.size} ${if (displayItems.size == 1) "item" else "items"}",
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            }
-                        }
-                    }
 
-                    items(displayItems, key = { it.id }) { item ->
-                        ItemCard(
-                            item = item,
-                            mode = mode,
-                            onToggleComplete = { onToggleComplete?.invoke(item) },
-                            onDelete = { eventToDelete = item }
-                        )
-                    }
+                items(displayItems, key = { it.id }) { item ->
+                    ItemCardGold(
+                        item = item,
+                        mode = mode,
+                        onToggleComplete = { onToggleComplete?.invoke(item) },
+                        onDelete = { eventToDelete = item }
+                    )
                 }
             }
         }
     }
 
-    // Add Date / Add Task Dialog (Identical Rich UI of Adding)
+    // ---------------------------------------------------------------------------------------------
+    // DATA ENTRY IN GOLDEN PHONE MOCKUP WITH SUNSET THEME (OPENED VIA ADD BUTTON)
+    // ---------------------------------------------------------------------------------------------
     if (showAddDialog) {
-        AddDateOrTaskDialog(
+        GoldenDataEntryDialog(
             mode = mode,
             onDismiss = { showAddDialog = false },
-            onConfirm = { title, note, notify, includeYear, timestamp, category ->
+            onSave = { title, note, notify, includeYear, timestamp, category ->
                 onAddEvent(
                     title,
                     note,
@@ -345,32 +292,705 @@ fun RemindMeDatesScreen(
 }
 
 /**
- * Item Card showing Category, Title, Date, Countdown, Notes, Alert, and Complete Checkbox (for Remind Me)
+ * Data Entry Form inside the Golden Mobile Phone Mockup with Sunset Wallpaper
+ * (No Calendar widget, Strictly Birthday & Anniversary for Important Dates, No Year displayed)
  */
 @Composable
-private fun ItemCard(
+private fun GoldenDataEntryDialog(
+    mode: DateScreenMode,
+    onDismiss: () -> Unit,
+    onSave: (
+        title: String,
+        note: String,
+        notify: Boolean,
+        includeYear: Boolean,
+        timestamp: Long,
+        category: String
+    ) -> Unit
+) {
+    val context = LocalContext.current
+    var selectedCategory by remember(mode) {
+        mutableStateOf(if (mode == DateScreenMode.IMPORTANT_DATES) "Birthday" else "Coming Task")
+    }
+    var titleInput by remember { mutableStateOf("") }
+    var noteInput by remember { mutableStateOf("") }
+    var notifyAlert by remember { mutableStateOf(true) }
+
+    // For Important Dates: Year is NEVER included
+    val includeYearFlag = mode != DateScreenMode.IMPORTANT_DATES
+
+    val pickedCalendar = remember {
+        mutableStateOf(Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 9)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+        })
+    }
+
+    // Strictly Birthday and Anniversary for Important Dates
+    val categories = remember(mode) {
+        if (mode == DateScreenMode.IMPORTANT_DATES) {
+            listOf(
+                CategoryOption("Birthday", Icons.Filled.Cake, Color(0xFFF43F5E)),
+                CategoryOption("Anniversary", Icons.Filled.Favorite, Color(0xFFEC4899))
+            )
+        } else {
+            listOf(
+                CategoryOption("Coming Task", Icons.Filled.Schedule, Color(0xFF38BDF8)),
+                CategoryOption("Daily Task", Icons.Filled.CheckCircle, Color(0xFF34D399)),
+                CategoryOption("Reminder", Icons.Filled.NotificationsActive, Color(0xFFFBBF24))
+            )
+        }
+    }
+
+    // Date formatting WITHOUT YEAR for Important Dates
+    val dateFormatNoYear = remember { SimpleDateFormat("EEEE, MMMM d", Locale.getDefault()) }
+    val dateFormatWithYear = remember { SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()) }
+    val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+
+    val formattedSelectedDate = remember(pickedCalendar.value.timeInMillis, mode) {
+        if (mode == DateScreenMode.IMPORTANT_DATES) {
+            dateFormatNoYear.format(pickedCalendar.value.time)
+        } else {
+            dateFormatWithYear.format(pickedCalendar.value.time)
+        }
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .wrapContentHeight()
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            // Outer Phone Chassis with Metallic Golden Bezel
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .shadow(
+                        elevation = 24.dp,
+                        shape = RoundedCornerShape(36.dp),
+                        ambientColor = GoldAccent.copy(alpha = 0.5f),
+                        spotColor = GoldPrimary.copy(alpha = 0.6f)
+                    ),
+                shape = RoundedCornerShape(36.dp),
+                color = Color(0xFF0F0F14),
+                border = BorderStroke(5.dp, MetallicGoldBrush)
+            ) {
+                // Inner Screen Bezel & Wallpaper Screen
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(3.dp)
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(SunsetPhoneWallpaperGradient)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Top Speaker / Dynamic Island Notch with Close Button
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 4.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "9:41",
+                                    color = GoldLight,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                // Notch pill
+                                Box(
+                                    modifier = Modifier
+                                        .width(70.dp)
+                                        .height(16.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(Color(0xFF070709)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(5.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFF1E293B))
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .width(18.dp)
+                                                .height(3.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(Color(0xFF334155))
+                                        )
+                                    }
+                                }
+                                IconButton(
+                                    onClick = onDismiss,
+                                    modifier = Modifier.size(26.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = "Close",
+                                        tint = GoldLight,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Golden Header Doodles & Typography
+                        item {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(text = "☀️", fontSize = 22.sp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "✦ ✨",
+                                        color = GoldPrimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                Text(
+                                    text = if (mode == DateScreenMode.IMPORTANT_DATES) "Special Dates" else "Organize Today",
+                                    color = GoldPrimary,
+                                    fontSize = 24.sp,
+                                    fontStyle = FontStyle.Italic,
+                                    fontFamily = FontFamily.Cursive,
+                                    textAlign = TextAlign.Center
+                                )
+
+                                Text(
+                                    text = "♡",
+                                    color = GoldLight,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Text(
+                                    text = if (mode == DateScreenMode.IMPORTANT_DATES)
+                                        "BIRTHDAYS & ANNIVERSARIES"
+                                    else
+                                        "A MORE ORGANIZED YOU • A BRIGHTER TOMORROW",
+                                    color = GoldLight.copy(alpha = 0.85f),
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+
+                        // Data Entry Container inside the phone screen
+                        item {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(18.dp),
+                                color = Color(0xEE1E182A),
+                                border = BorderStroke(1.2.dp, GoldAccent.copy(alpha = 0.65f)),
+                                shadowElevation = 6.dp
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(14.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    // Card Title
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(28.dp)
+                                                    .clip(CircleShape)
+                                                    .background(GoldPrimary.copy(alpha = 0.2f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (mode == DateScreenMode.IMPORTANT_DATES) Icons.Filled.Cake else Icons.Filled.NotificationsActive,
+                                                    contentDescription = null,
+                                                    tint = GoldPrimary,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = if (mode == DateScreenMode.IMPORTANT_DATES) "Add Date" else "Add Task",
+                                                color = GoldHighlight,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = GoldDeep.copy(alpha = 0.8f),
+                                            border = BorderStroke(0.6.dp, GoldAccent)
+                                        ) {
+                                            Text(
+                                                text = if (mode == DateScreenMode.IMPORTANT_DATES) "Annual" else "Tasks",
+                                                color = GoldLight,
+                                                fontSize = 9.5.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                    }
+
+                                    // Category Selection Chips (Strictly Birthday & Anniversary for Important Dates)
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(
+                                            text = "Category:",
+                                            color = GoldLight,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            categories.forEach { cat ->
+                                                val isSelected = selectedCategory == cat.title
+                                                Surface(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .height(40.dp)
+                                                        .clip(RoundedCornerShape(10.dp))
+                                                        .clickable { selectedCategory = cat.title },
+                                                    shape = RoundedCornerShape(10.dp),
+                                                    color = if (isSelected) GoldPrimary else Color(0xFF13101E),
+                                                    border = BorderStroke(
+                                                        1.2.dp,
+                                                        if (isSelected) GoldHighlight else GoldAccent.copy(alpha = 0.35f)
+                                                    )
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxSize()
+                                                            .padding(horizontal = 8.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.Center
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = cat.icon,
+                                                            contentDescription = null,
+                                                            tint = if (isSelected) Color(0xFF241400) else cat.color,
+                                                            modifier = Modifier.size(16.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(6.dp))
+                                                        Text(
+                                                            text = cat.title,
+                                                            fontSize = 12.sp,
+                                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                            color = if (isSelected) Color(0xFF241400) else GoldLight
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Title Input Field
+                                    OutlinedTextField(
+                                        value = titleInput,
+                                        onValueChange = { titleInput = it },
+                                        label = {
+                                            Text(
+                                                text = if (mode == DateScreenMode.IMPORTANT_DATES)
+                                                    (if (selectedCategory == "Birthday") "Name / Person's Birthday *" else "Couple / Anniversary Title *")
+                                                else
+                                                    "Task / Reminder Title *",
+                                                color = GoldLight.copy(alpha = 0.8f),
+                                                fontSize = 11.5.sp
+                                            )
+                                        },
+                                        placeholder = {
+                                            Text(
+                                                text = when (selectedCategory) {
+                                                    "Birthday" -> "e.g. Papa's Birthday, Sarah"
+                                                    "Anniversary" -> "e.g. Mom & Dad's Anniversary"
+                                                    else -> "e.g. Important reminder"
+                                                },
+                                                color = GoldLight.copy(alpha = 0.45f),
+                                                fontSize = 11.sp
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = if (selectedCategory == "Birthday") Icons.Filled.Cake else Icons.Filled.Favorite,
+                                                contentDescription = null,
+                                                tint = GoldPrimary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        },
+                                        singleLine = true,
+                                        shape = RoundedCornerShape(10.dp),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedTextColor = GoldHighlight,
+                                            unfocusedTextColor = GoldLight,
+                                            focusedBorderColor = GoldPrimary,
+                                            unfocusedBorderColor = GoldAccent.copy(alpha = 0.5f),
+                                            focusedContainerColor = Color(0xFF13101E),
+                                            unfocusedContainerColor = Color(0xFF13101E)
+                                        )
+                                    )
+
+                                    // Selected Date & Time Controls (No Year displayed)
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(10.dp),
+                                        color = Color(0xFF13101E),
+                                        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.4f))
+                                    ) {
+                                        Column(modifier = Modifier.padding(10.dp)) {
+                                            // Date Row (Showing Month & Day only, no year)
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(28.dp)
+                                                            .clip(CircleShape)
+                                                            .background(GoldPrimary.copy(alpha = 0.2f)),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Filled.CalendarMonth,
+                                                            contentDescription = null,
+                                                            tint = GoldPrimary,
+                                                            modifier = Modifier.size(16.dp)
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Column {
+                                                        Text(
+                                                            text = if (mode == DateScreenMode.IMPORTANT_DATES) "Date (Day & Month)" else "Selected Date",
+                                                            fontSize = 9.sp,
+                                                            color = GoldLight.copy(alpha = 0.7f),
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                        Text(
+                                                            text = formattedSelectedDate,
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = GoldHighlight
+                                                        )
+                                                    }
+                                                }
+                                                Surface(
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(6.dp))
+                                                        .clickable {
+                                                            showDatePickerDialog(context, pickedCalendar.value.timeInMillis) { newTs ->
+                                                                val cal = Calendar.getInstance().apply { timeInMillis = newTs }
+                                                                cal.set(Calendar.HOUR_OF_DAY, pickedCalendar.value.get(Calendar.HOUR_OF_DAY))
+                                                                cal.set(Calendar.MINUTE, pickedCalendar.value.get(Calendar.MINUTE))
+                                                                pickedCalendar.value = cal
+                                                            }
+                                                        },
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    color = GoldDeep,
+                                                    border = BorderStroke(0.6.dp, GoldAccent)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(Icons.Filled.CalendarToday, contentDescription = null, tint = GoldLight, modifier = Modifier.size(11.dp))
+                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                        Text("Change", color = GoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                    }
+                                                }
+                                            }
+
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            // Time Row
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(28.dp)
+                                                            .clip(CircleShape)
+                                                            .background(GoldAccent.copy(alpha = 0.2f)),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Filled.AccessTime,
+                                                            contentDescription = null,
+                                                            tint = GoldLight,
+                                                            modifier = Modifier.size(16.dp)
+                                                        )
+                                                    }
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Column {
+                                                        Text(
+                                                            text = "Reminder Time",
+                                                            fontSize = 9.sp,
+                                                            color = GoldLight.copy(alpha = 0.7f),
+                                                            fontWeight = FontWeight.Bold
+                                                        )
+                                                        Text(
+                                                            text = timeFormat.format(pickedCalendar.value.time),
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = GoldHighlight
+                                                        )
+                                                    }
+                                                }
+                                                Surface(
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(6.dp))
+                                                        .clickable {
+                                                            showTimePickerDialog(
+                                                                context,
+                                                                pickedCalendar.value.get(Calendar.HOUR_OF_DAY),
+                                                                pickedCalendar.value.get(Calendar.MINUTE)
+                                                            ) { h, m ->
+                                                                val cal = pickedCalendar.value.clone() as Calendar
+                                                                cal.set(Calendar.HOUR_OF_DAY, h)
+                                                                cal.set(Calendar.MINUTE, m)
+                                                                pickedCalendar.value = cal
+                                                            }
+                                                        },
+                                                    shape = RoundedCornerShape(6.dp),
+                                                    color = GoldDeep,
+                                                    border = BorderStroke(0.6.dp, GoldAccent)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(Icons.Filled.Schedule, contentDescription = null, tint = GoldLight, modifier = Modifier.size(11.dp))
+                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                        Text("Set Time", color = GoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Notes / Details Input
+                                    OutlinedTextField(
+                                        value = noteInput,
+                                        onValueChange = { noteInput = it },
+                                        label = {
+                                            Text(
+                                                "Notes / Gift Ideas (Optional)",
+                                                color = GoldLight.copy(alpha = 0.7f),
+                                                fontSize = 11.sp
+                                            )
+                                        },
+                                        placeholder = {
+                                            Text(
+                                                "e.g. Gift ideas, dinner plans, favorite cake",
+                                                color = GoldLight.copy(alpha = 0.35f),
+                                                fontSize = 10.5.sp
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                Icons.AutoMirrored.Filled.Notes,
+                                                contentDescription = null,
+                                                tint = GoldLight.copy(alpha = 0.7f),
+                                                modifier = Modifier.size(15.dp)
+                                            )
+                                        },
+                                        singleLine = true,
+                                        shape = RoundedCornerShape(10.dp),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedTextColor = GoldHighlight,
+                                            unfocusedTextColor = GoldLight,
+                                            focusedBorderColor = GoldPrimary,
+                                            unfocusedBorderColor = GoldAccent.copy(alpha = 0.5f),
+                                            focusedContainerColor = Color(0xFF13101E),
+                                            unfocusedContainerColor = Color(0xFF13101E)
+                                        )
+                                    )
+
+                                    // Notification Alert Card
+                                    Surface(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .clickable { notifyAlert = !notifyAlert },
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (notifyAlert) GoldDeep.copy(alpha = 0.6f) else Color(0xFF13101E),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            if (notifyAlert) GoldAccent else GoldAccent.copy(alpha = 0.3f)
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Checkbox(
+                                                checked = notifyAlert,
+                                                onCheckedChange = { notifyAlert = it },
+                                                colors = CheckboxDefaults.colors(
+                                                    checkedColor = GoldPrimary,
+                                                    checkmarkColor = Color(0xFF241400),
+                                                    uncheckedColor = GoldLight.copy(alpha = 0.5f)
+                                                )
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Column {
+                                                Text(
+                                                    text = "Annual reminder alert",
+                                                    fontSize = 10.5.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = GoldHighlight
+                                                )
+                                                Text(
+                                                    text = "Receive scheduled notification every year",
+                                                    fontSize = 9.sp,
+                                                    color = GoldLight.copy(alpha = 0.7f)
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    // Save Date Button in Gold Gradient
+                                    Button(
+                                        onClick = {
+                                            if (titleInput.isBlank()) {
+                                                Toast.makeText(context, "Please enter a title for the entry", Toast.LENGTH_SHORT).show()
+                                                return@Button
+                                            }
+                                            onSave(
+                                                titleInput.trim(),
+                                                noteInput.trim(),
+                                                notifyAlert,
+                                                includeYearFlag,
+                                                pickedCalendar.value.timeInMillis,
+                                                selectedCategory
+                                            )
+                                            Toast.makeText(context, "Saved $selectedCategory!", Toast.LENGTH_SHORT).show()
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(46.dp)
+                                            .shadow(
+                                                elevation = 6.dp,
+                                                shape = RoundedCornerShape(10.dp),
+                                                ambientColor = GoldPrimary,
+                                                spotColor = GoldHighlight
+                                            ),
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = GoldPrimary,
+                                            contentColor = Color(0xFF241400)
+                                        )
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = Color(0xFF241400)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = if (mode == DateScreenMode.IMPORTANT_DATES) "Save Date" else "Save Task",
+                                            color = Color(0xFF241400),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Item Card in exact style of the user screenshot:
+ * - Rounded pill card with Sunset Landscape background gradient
+ * - "Organize Today" sun & leaf brand badge on the left
+ * - Title with Gold pill badge ("Today ✨", "Tomorrow ✨", countdown)
+ * - Subtitle / note ("A more organized you awaits")
+ * - Date & Time row with Calendar icon ("September 5 • 09:00 AM")
+ * - "Better Days Ahead ♡" cursive script & Notification Bell on the right
+ */
+@Composable
+private fun ItemCardGold(
     item: EventEntity,
     mode: DateScreenMode,
     onToggleComplete: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val (categoryIcon, categoryColor) = when (item.category.lowercase()) {
-        "birthday" -> Pair(Icons.Filled.Cake, Color(0xFFF43F5E))
-        "anniversary" -> Pair(Icons.Filled.Favorite, Color(0xFFE11D48))
-        "daily task" -> Pair(Icons.Filled.CheckCircle, Color(0xFF10B981))
-        "coming task" -> Pair(Icons.Filled.Schedule, Color(0xFF0284C7))
-        "reminder" -> Pair(Icons.Filled.NotificationsActive, Color(0xFFF59E0B))
-        else -> Pair(Icons.Filled.Event, Color(0xFF6366F1))
-    }
-
-    val dateFormat = remember { SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()) }
+    // Format without year for Important Dates
+    val dateFormatNoYear = remember { SimpleDateFormat("MMMM d", Locale.getDefault()) }
+    val dateFormatWithYear = remember { SimpleDateFormat("MMMM d, yyyy", Locale.getDefault()) }
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
-    val formattedDate = remember(item.eventTimestamp) {
+
+    val formattedDate = remember(item.eventTimestamp, mode) {
         val d = Date(item.eventTimestamp)
-        "${dateFormat.format(d)} • ${timeFormat.format(d)}"
+        if (mode == DateScreenMode.IMPORTANT_DATES) {
+            "${dateFormatNoYear.format(d)} • ${timeFormat.format(d)}"
+        } else {
+            "${dateFormatWithYear.format(d)} • ${timeFormat.format(d)}"
+        }
     }
 
-    // Calculate days until event
+    // Calculate days until upcoming occurrence
     val daysUntil = remember(item.eventTimestamp, item.includeYear) {
         val nowCal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -384,7 +1004,7 @@ private fun ItemCard(
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            if (!item.includeYear && mode == DateScreenMode.IMPORTANT_DATES) {
+            if (mode == DateScreenMode.IMPORTANT_DATES) {
                 set(Calendar.YEAR, nowCal.get(Calendar.YEAR))
                 if (before(nowCal)) {
                     add(Calendar.YEAR, 1)
@@ -395,773 +1015,225 @@ private fun ItemCard(
         (diffMillis / (1000 * 60 * 60 * 24)).toInt()
     }
 
-    val countdownText = when {
-        daysUntil == 0 -> "Today! 🎉"
-        daysUntil == 1 -> "Tomorrow!"
-        daysUntil in 2..365 -> "In $daysUntil days"
-        daysUntil < 0 -> "${-daysUntil} days ago"
-        else -> ""
+    val badgeLabel = when {
+        daysUntil == 0 -> "Today ✨"
+        daysUntil == 1 -> "Tomorrow ✨"
+        daysUntil in 2..365 -> "In $daysUntil days ✨"
+        daysUntil < 0 -> "${-daysUntil}d ago"
+        else -> "Special ✨"
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(
-                alpha = if (item.isCompleted) 0.75f else 0.94f
-            )
-        ),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (item.isCompleted) MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-                    else categoryColor.copy(alpha = 0.3f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    val cardBackgroundGradient = Brush.horizontalGradient(
+        listOf(
+            Color(0xFF1E1D22),
+            Color(0xFF26242C),
+            Color(0xFF332932),
+            Color(0xFF4C2A33),
+            Color(0xFF7A3E31),
+            Color(0xFFB55D30),
+            Color(0xFFD47C3B),
+            Color(0xFFE59C4A)
+        )
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(26.dp),
+                ambientColor = Color(0xFFD47C3B).copy(alpha = 0.35f),
+                spotColor = Color(0xFFFFD700).copy(alpha = 0.4f)
+            ),
+        shape = RoundedCornerShape(26.dp),
+        color = Color(0xFF1B1A20),
+        border = BorderStroke(1.2.dp, Color(0xFF8C5832).copy(alpha = 0.7f))
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .background(cardBackgroundGradient)
         ) {
-            // In Remind Me mode: completion checkbox
-            if (mode == DateScreenMode.REMIND_ME) {
-                Checkbox(
-                    checked = item.isCompleted,
-                    onCheckedChange = { onToggleComplete() },
-                    modifier = Modifier.padding(end = 6.dp)
-                )
-            }
-
-            // Category Icon Badge
-            Box(
+            // Background Canvas overlay for sunset rays and foliage bokeh
+            androidx.compose.foundation.Canvas(
                 modifier = Modifier
-                    .size(46.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(categoryColor.copy(alpha = if (item.isCompleted) 0.10f else 0.18f)),
-                contentAlignment = Alignment.Center
+                    .matchParentSize()
             ) {
-                Icon(
-                    imageVector = categoryIcon,
-                    contentDescription = null,
-                    tint = if (item.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant else categoryColor,
-                    modifier = Modifier.size(24.dp)
+                val width = size.width
+                val height = size.height
+
+                // Glowing sun burst on the right side
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFFFFFDE0),
+                            Color(0xFFFFDF73),
+                            Color(0xFFFF9E3D).copy(alpha = 0.6f),
+                            Color.Transparent
+                        ),
+                        center = androidx.compose.ui.geometry.Offset(width * 0.82f, height * 0.38f),
+                        radius = height * 0.9f
+                    )
+                )
+
+                // Subtle foliage silhouette / leaf shapes on right side
+                drawCircle(
+                    color = Color(0x33101E14),
+                    center = androidx.compose.ui.geometry.Offset(width * 0.72f, height * 0.65f),
+                    radius = height * 0.45f
                 )
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
+            // Foreground Content Layout
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 1. Organize Today Sun & Foliage Logo Badge
+                OrganizeTodayBrandBadge()
 
-            // Details Column
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Spacer(modifier = Modifier.width(14.dp))
+
+                // 2. Middle Content (Title + Pill, Subtitle, Date Row)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)
                 ) {
-                    Text(
-                        text = item.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (item.isCompleted) MaterialTheme.colorScheme.onSurfaceVariant
-                               else MaterialTheme.colorScheme.onSurface,
-                        textDecoration = if (item.isCompleted) TextDecoration.LineThrough else TextDecoration.None,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    if (countdownText.isNotBlank() && !item.isCompleted) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = categoryColor.copy(alpha = 0.15f)
-                        ) {
-                            Text(
-                                text = countdownText,
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = categoryColor
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Date & Time
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Filled.CalendarToday,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(13.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = formattedDate,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                // Note / Location (if entered)
-                if (item.locationOrNote.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(3.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Notes,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
+                    // Title + Today Badge Row
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(
-                            text = item.locationOrNote,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = item.title,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFFFFF),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+
+                        // Golden pill badge (e.g. Today ✨)
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = Color(0xFF7A4A0A),
+                            border = BorderStroke(1.dp, Color(0xFFFFD56B))
+                        ) {
+                            Text(
+                                text = badgeLabel,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFFF4D0),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+
+                    // Subtitle / Note
+                    Text(
+                        text = if (item.locationOrNote.isNotBlank()) item.locationOrNote else "A more organized you awaits",
+                        fontSize = 12.5.sp,
+                        color = Color(0xFFD6D1DF),
+                        fontWeight = FontWeight.Normal,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    // Date & Time Row with Calendar icon
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CalendarToday,
+                            contentDescription = "Date",
+                            tint = Color(0xFFF1EDE6),
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = formattedDate,
+                            fontSize = 12.5.sp,
+                            color = Color(0xFFF1EDE6),
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
 
-                // Alert notification indicator & category label
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // 3. Right Side: "Better Days Ahead ♡" in golden cursive & Notification Bell
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(6.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = item.category,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                            text = "Better",
+                            color = Color(0xFFFFEAA7),
+                            fontSize = 13.sp,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Cursive,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 13.sp
+                        )
+                        Text(
+                            text = "Days",
+                            color = Color(0xFFFFEAA7),
+                            fontSize = 13.sp,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Cursive,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 13.sp
+                        )
+                        Text(
+                            text = "Ahead",
+                            color = Color(0xFFFFEAA7),
+                            fontSize = 13.sp,
+                            fontStyle = FontStyle.Italic,
+                            fontFamily = FontFamily.Cursive,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 13.sp
+                        )
+                        Text(
+                            text = "♡",
+                            color = Color(0xFFFFDF73),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
 
-                    if (item.notifyMe) {
-                        Surface(
-                            shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.NotificationsActive,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(10.dp)
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(
-                                    text = "Alert On",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 10.sp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Delete Action Button
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
-    }
-}
-
-/**
- * Add Date / Add Task Dialog
- * Preserves the exact same UI of adding:
- * - Header with title & close button
- * - Category Chips
- * - Title input
- * - Date Card with picker and interactive calendar + quick adjusters
- * - Time picker row
- * - Notes input
- * - Reminder alert toggle
- * - Cancel and Save buttons
- */
-@Composable
-private fun AddDateOrTaskDialog(
-    mode: DateScreenMode,
-    onDismiss: () -> Unit,
-    onConfirm: (
-        title: String,
-        note: String,
-        notify: Boolean,
-        includeYear: Boolean,
-        timestamp: Long,
-        category: String
-    ) -> Unit
-) {
-    val context = LocalContext.current
-    val categories = remember(mode) {
-        when (mode) {
-            DateScreenMode.IMPORTANT_DATES -> listOf(
-                CategoryOption("Birthday", Icons.Filled.Cake, Color(0xFFE11D48)),
-                CategoryOption("Anniversary", Icons.Filled.Favorite, Color(0xFFDB2777))
-            )
-            DateScreenMode.REMIND_ME -> listOf(
-                CategoryOption("Coming Task", Icons.Filled.Schedule, Color(0xFF0284C7)),
-                CategoryOption("Daily Task", Icons.Filled.CheckCircle, Color(0xFF10B981)),
-                CategoryOption("Reminder", Icons.Filled.Notifications, Color(0xFFF59E0B)),
-                CategoryOption("General", Icons.Filled.Assignment, Color(0xFF6366F1))
-            )
-        }
-    }
-
-    var selectedCategory by remember { mutableStateOf(categories.first().title) }
-    var title by remember { mutableStateOf("") }
-    var note by remember { mutableStateOf("") }
-    var notify by remember { mutableStateOf(true) }
-    val includeYear by remember { mutableStateOf(true) }
-
-    // Calendar state
-    val pickedCalendar = remember {
-        mutableStateOf(Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 9)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        })
-    }
-
-    val dateFormat = remember { SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()) }
-    val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.92f),
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 8.dp
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Dialog Header
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    // Bell / Action Icons
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .background(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                        CircleShape
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (mode == DateScreenMode.IMPORTANT_DATES) Icons.Filled.Cake else Icons.Filled.NotificationsActive,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = if (mode == DateScreenMode.IMPORTANT_DATES) "Add Important Date" else "Add to Remind Me",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = if (mode == DateScreenMode.IMPORTANT_DATES) "Store a birthday or anniversary" else "Add coming tasks or daily reminders",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
                         IconButton(
-                            onClick = onDismiss,
+                            onClick = onToggleComplete,
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
-                                Icons.Filled.Close,
-                                contentDescription = "Close",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                imageVector = if (item.notifyMe) Icons.Outlined.Notifications else Icons.Outlined.NotificationsOff,
+                                contentDescription = "Notification",
+                                tint = if (item.notifyMe) Color(0xFFFFFFFF) else Color(0x99FFFFFF),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
-                    }
-                    HorizontalDivider(
-                        modifier = Modifier.padding(top = 12.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
-                }
 
-                // Category Selection Chips
-                item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "Category:",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-
-                        val chunkedCategories = categories.chunked(2)
-                        chunkedCategories.forEach { rowCategories ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                rowCategories.forEach { cat ->
-                                    val isSelected = selectedCategory == cat.title
-                                    Surface(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(44.dp)
-                                            .clip(RoundedCornerShape(12.dp))
-                                            .clickable { selectedCategory = cat.title },
-                                        shape = RoundedCornerShape(12.dp),
-                                        color = if (isSelected) cat.color else cat.color.copy(alpha = 0.10f),
-                                        border = BorderStroke(
-                                            1.dp,
-                                            if (isSelected) cat.color else cat.color.copy(alpha = 0.25f)
-                                        )
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(horizontal = 10.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = cat.icon,
-                                                contentDescription = null,
-                                                tint = if (isSelected) Color.White else cat.color,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text(
-                                                text = cat.title,
-                                                fontSize = 13.sp,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
-                                            )
-                                        }
-                                    }
-                                }
-                                if (rowCategories.size == 1) {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Title Input
-                item {
-                    OutlinedTextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        label = { Text(if (mode == DateScreenMode.IMPORTANT_DATES) "Title *" else "Task / Reminder Title *") },
-                        placeholder = {
-                            Text(
-                                when (selectedCategory) {
-                                    "Birthday" -> "e.g. Papa's Birthday"
-                                    "Anniversary" -> "e.g. Wedding Anniversary"
-                                    "Coming Task" -> "e.g. Pay electricity bill / Submit taxes"
-                                    "Daily Task" -> "e.g. Morning medication / Workout"
-                                    "Reminder" -> "e.g. Doctor appointment"
-                                    else -> "e.g. Important item"
-                                }
-                            )
-                        },
-                        leadingIcon = {
+                        IconButton(
+                            onClick = onDelete,
+                            modifier = Modifier.size(24.dp)
+                        ) {
                             Icon(
-                                Icons.Filled.EditCalendar,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
-                        )
-                    )
-                }
-
-                // Selected Date & Time Card (with date picker, time picker, and quick adjusters)
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-                        ),
-                        shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
-                    ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            // Date Row
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(36.dp)
-                                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f), CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.CalendarMonth,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(
-                                            text = "Selected Date",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            text = dateFormat.format(pickedCalendar.value.time),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                }
-                                FilledTonalButton(
-                                    onClick = {
-                                        showDatePickerDialog(context, pickedCalendar.value.timeInMillis) { newTs ->
-                                            val cal = Calendar.getInstance().apply { timeInMillis = newTs }
-                                            cal.set(Calendar.HOUR_OF_DAY, pickedCalendar.value.get(Calendar.HOUR_OF_DAY))
-                                            cal.set(Calendar.MINUTE, pickedCalendar.value.get(Calendar.MINUTE))
-                                            pickedCalendar.value = cal
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(10.dp),
-                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
-                                ) {
-                                    Icon(Icons.Filled.CalendarToday, contentDescription = null, modifier = Modifier.size(14.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Change", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // Time Row
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(36.dp)
-                                            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f), CircleShape),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.AccessTime,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.secondary,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
-                                        Text(
-                                            text = "Scheduled Time",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.secondary,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            text = timeFormat.format(pickedCalendar.value.time),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                }
-                                FilledTonalButton(
-                                    onClick = {
-                                        showTimePickerDialog(
-                                            context,
-                                            pickedCalendar.value.get(Calendar.HOUR_OF_DAY),
-                                            pickedCalendar.value.get(Calendar.MINUTE)
-                                        ) { h, m ->
-                                            val cal = pickedCalendar.value.clone() as Calendar
-                                            cal.set(Calendar.HOUR_OF_DAY, h)
-                                            cal.set(Calendar.MINUTE, m)
-                                            pickedCalendar.value = cal
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(10.dp),
-                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
-                                ) {
-                                    Icon(Icons.Filled.Schedule, contentDescription = null, modifier = Modifier.size(14.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Set Time", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // Quick adjusters: -1 Day, Today, +1 Day, +3 Days, +1 Week
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                OutlinedButton(
-                                    onClick = {
-                                        val cal = pickedCalendar.value.clone() as Calendar
-                                        cal.add(Calendar.DAY_OF_MONTH, -1)
-                                        pickedCalendar.value = cal
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                                ) {
-                                    Text("-1 Day", fontSize = 10.sp)
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        val h = pickedCalendar.value.get(Calendar.HOUR_OF_DAY)
-                                        val m = pickedCalendar.value.get(Calendar.MINUTE)
-                                        val cal = Calendar.getInstance().apply {
-                                            set(Calendar.HOUR_OF_DAY, h)
-                                            set(Calendar.MINUTE, m)
-                                        }
-                                        pickedCalendar.value = cal
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                                ) {
-                                    Text("Today", fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        val cal = pickedCalendar.value.clone() as Calendar
-                                        cal.add(Calendar.DAY_OF_MONTH, 1)
-                                        pickedCalendar.value = cal
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                                ) {
-                                    Text("+1 Day", fontSize = 10.sp)
-                                }
-                                OutlinedButton(
-                                    onClick = {
-                                        val cal = pickedCalendar.value.clone() as Calendar
-                                        cal.add(Calendar.DAY_OF_MONTH, 7)
-                                        pickedCalendar.value = cal
-                                    },
-                                    modifier = Modifier.weight(1.1f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
-                                ) {
-                                    Text("+1 Week", fontSize = 10.sp)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Interactive Calendar Widget right inside Dialog for instant month/day picking
-                item {
-                    MiniCalendarWidget(
-                        calendarState = pickedCalendar.value,
-                        onSelectDay = { day ->
-                            val cal = pickedCalendar.value.clone() as Calendar
-                            cal.set(Calendar.DAY_OF_MONTH, day)
-                            pickedCalendar.value = cal
-                        },
-                        onPrevMonth = {
-                            val cal = pickedCalendar.value.clone() as Calendar
-                            cal.add(Calendar.MONTH, -1)
-                            pickedCalendar.value = cal
-                        },
-                        onNextMonth = {
-                            val cal = pickedCalendar.value.clone() as Calendar
-                            cal.add(Calendar.MONTH, 1)
-                            pickedCalendar.value = cal
-                        }
-                    )
-                }
-
-                // Notes / Location Input
-                item {
-                    OutlinedTextField(
-                        value = note,
-                        onValueChange = { note = it },
-                        label = { Text("Notes / Details (Optional)") },
-                        placeholder = {
-                            Text(
-                                if (mode == DateScreenMode.IMPORTANT_DATES)
-                                    "e.g. Gift ideas, dinner reservations, anniversary years"
-                                else
-                                    "e.g. Steps to complete, contact person, priority details"
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Notes,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
-                        )
-                    )
-                }
-
-                // Notification Alert Card
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { notify = !notify },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (notify) MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
-                                             else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            if (notify) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                            else Color.Transparent
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 14.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(checked = notify, onCheckedChange = { notify = it })
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = if (mode == DateScreenMode.IMPORTANT_DATES) "Remind me before this date" else "Alert notification reminder",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "Receive scheduled alert on your device",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-
-                // Action Buttons: Cancel and Save
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 6.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onDismiss,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Text("Cancel", fontWeight = FontWeight.SemiBold)
-                        }
-                        Button(
-                            onClick = {
-                                if (title.isNotBlank()) {
-                                    onConfirm(
-                                        title.trim(),
-                                        note.trim(),
-                                        notify,
-                                        includeYear,
-                                        pickedCalendar.value.timeInMillis,
-                                        selectedCategory
-                                    )
-                                }
-                            },
-                            enabled = title.isNotBlank(),
-                            modifier = Modifier
-                                .weight(1.3f)
-                                .height(50.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = if (mode == DateScreenMode.IMPORTANT_DATES) "Save Date" else "Save Task",
-                                fontWeight = FontWeight.Bold
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Delete",
+                                tint = Color(0xCCFFFFFF),
+                                modifier = Modifier.size(15.dp)
                             )
                         }
                     }
@@ -1172,131 +1244,77 @@ private fun AddDateOrTaskDialog(
 }
 
 /**
- * Interactive mini calendar component for fast day selection inside the dialog
+ * Custom Compose implementation of the "Organize Today" badge with rising sun & foliage
  */
 @Composable
-private fun MiniCalendarWidget(
-    calendarState: Calendar,
-    onSelectDay: (Int) -> Unit,
-    onPrevMonth: () -> Unit,
-    onNextMonth: () -> Unit
-) {
-    val monthYearFormat = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
-    val currentMonthYear = remember(calendarState.timeInMillis) {
-        monthYearFormat.format(calendarState.time)
-    }
-
-    val daysInMonth = remember(calendarState.timeInMillis) {
-        val cal = calendarState.clone() as Calendar
-        cal.getActualMaximum(Calendar.DAY_OF_MONTH)
-    }
-
-    val firstDayOfWeek = remember(calendarState.timeInMillis) {
-        val cal = calendarState.clone() as Calendar
-        cal.set(Calendar.DAY_OF_MONTH, 1)
-        cal.get(Calendar.DAY_OF_WEEK) - 1 // 0 for Sunday
-    }
-
-    val selectedDay = calendarState.get(Calendar.DAY_OF_MONTH)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+private fun OrganizeTodayBrandBadge() {
+    Surface(
+        modifier = Modifier.size(62.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFFFFFBE8),
+        border = BorderStroke(1.dp, Color(0xFFFFE599)),
+        shadowElevation = 4.dp
     ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            // Month Header with Prev and Next
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onPrevMonth, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Filled.ChevronLeft, contentDescription = "Previous Month", modifier = Modifier.size(18.dp))
-                }
-                Text(
-                    text = currentMonthYear,
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                IconButton(onClick = onNextMonth, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Filled.ChevronRight, contentDescription = "Next Month", modifier = Modifier.size(18.dp))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Day labels S M T W T F S
-            val dayHeaders = listOf("S", "M", "T", "W", "T", "F", "S")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                dayHeaders.forEach { header ->
-                    Text(
-                        text = header,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xFFFFFFFF),
+                            Color(0xFFFFF9E4),
+                            Color(0xFFFFEFBE)
+                        )
                     )
-                }
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 4.dp, vertical = 3.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Rising Sun with rays icon
+                Text(
+                    text = "☀️",
+                    fontSize = 16.sp,
+                    lineHeight = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                // "Organize" in dark pine green
+                Text(
+                    text = "Organize",
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF0F3832),
+                    lineHeight = 9.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                // "Today" in golden cursive
+                Text(
+                    text = "Today",
+                    fontSize = 11.5.sp,
+                    fontStyle = FontStyle.Italic,
+                    fontFamily = FontFamily.Cursive,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF8A531C),
+                    lineHeight = 12.sp,
+                    textAlign = TextAlign.Center
+                )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Days grid (up to 6 rows)
-            val totalCells = 42
-            for (row in 0 until 6) {
-                if (row * 7 - firstDayOfWeek + 1 > daysInMonth) break
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    for (col in 0 until 7) {
-                        val cellIndex = row * 7 + col
-                        val dayNumber = cellIndex - firstDayOfWeek + 1
-
-                        if (dayNumber in 1..daysInMonth) {
-                            val isSelected = dayNumber == selectedDay
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(30.dp)
-                                    .padding(1.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (isSelected) MaterialTheme.colorScheme.primary
-                                        else Color.Transparent
-                                    )
-                                    .clickable { onSelectDay(dayNumber) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "$dayNumber",
-                                    fontSize = 12.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                                            else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-            }
+            // Decorative green leaf accent at bottom-left corner
+            Text(
+                text = "🌿",
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 2.dp, bottom = 1.dp)
+            )
         }
     }
 }

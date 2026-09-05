@@ -1,63 +1,33 @@
 package com.example.ui.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.R
 import com.example.ui.LedgerSection
 import com.example.ui.LedgerViewModel
-import com.example.ui.components.*
-import kotlinx.coroutines.launch
+import com.example.ui.components.LedgerBinderBottomBar
+import com.example.ui.components.LedgerBinderNavRail
+import com.example.ui.components.TabBackgroundView
 
 @Composable
 fun MainLedgerScreen(
     viewModel: LedgerViewModel,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    
     val currentSection by viewModel.selectedSection.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
     val vaultDocs by viewModel.vaultDocuments.collectAsStateWithLifecycle()
     val globalSettings by viewModel.globalSettings.collectAsStateWithLifecycle()
-
-    var showGlobalSettingsDialog by remember { mutableStateOf(false) }
-
-    if (showGlobalSettingsDialog) {
-        GlobalSettingsDialog(
-            settings = globalSettings,
-            onDismissRequest = { showGlobalSettingsDialog = false },
-            onToggleLocation = {},
-            onSetLocation = { _, _, _, _ -> },
-            onToggleTranslation = {},
-            onSetLanguage = { _, _ -> },
-            onToggleAutoTranslate = {},
-            onSetTranslationEngine = {}
-        )
-    }
 
     BackHandler(enabled = currentSection != LedgerSection.IMAGES) {
         viewModel.setSection(LedgerSection.IMAGES)
@@ -69,7 +39,6 @@ fun MainLedgerScreen(
                 .fillMaxSize()
                 .clip(RoundedCornerShape(28.dp))
         ) {
-            // Page App Background with round corners as per page
             TabBackgroundView(currentSection = currentSection)
 
             val isTablet = maxWidth >= 600.dp
@@ -88,9 +57,7 @@ fun MainLedgerScreen(
                             currentSection = currentSection,
                             viewModel = viewModel,
                             events = events,
-                            vaultDocs = vaultDocs,
-                            globalSettings = globalSettings,
-                            onOpenGlobalSettings = { showGlobalSettingsDialog = true }
+                            vaultDocs = vaultDocs
                         )
                     }
                 }
@@ -119,9 +86,7 @@ fun MainLedgerScreen(
                                 currentSection = currentSection,
                                 viewModel = viewModel,
                                 events = events,
-                                vaultDocs = vaultDocs,
-                                globalSettings = globalSettings,
-                                onOpenGlobalSettings = { showGlobalSettingsDialog = true }
+                                vaultDocs = vaultDocs
                             )
                         }
                     }
@@ -136,11 +101,8 @@ private fun ScreenContent(
     currentSection: LedgerSection,
     viewModel: LedgerViewModel,
     events: List<com.example.data.model.EventEntity>,
-    vaultDocs: List<com.example.data.model.VaultDocumentEntity>,
-    globalSettings: com.example.ui.GlobalSettingsState,
-    onOpenGlobalSettings: () -> Unit
+    vaultDocs: List<com.example.data.model.VaultDocumentEntity>
 ) {
-    val context = LocalContext.current
     Crossfade(targetState = currentSection, modifier = Modifier.fillMaxSize(), label = "ledger_section_crossfade") { section ->
         Box(modifier = Modifier.fillMaxSize()) {
             TabBackgroundView(currentSection = section)
@@ -149,7 +111,7 @@ private fun ScreenContent(
                     ImageStudioScreen(
                         onHomeClick = null,
                         onMenuClick = null,
-                        onOpenGlobalSettings = onOpenGlobalSettings
+                        onOpenGlobalSettings = {}
                     )
                 }
                 LedgerSection.IMPORTANT_DATES -> {
@@ -206,3 +168,4 @@ private fun ScreenContent(
         }
     }
 }
+
