@@ -214,29 +214,29 @@ fun LedgerSideMenuDrawer(
                             modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                         )
                         DrawerNavItem(
-                            label = "Home Dashboard",
-                            icon = Icons.Filled.Home,
-                            isSelected = currentSection == LedgerSection.HOME,
+                            label = "Text to Image Studio",
+                            icon = Icons.Filled.AutoAwesome,
+                            isSelected = currentSection == LedgerSection.IMAGES,
                             onClick = {
-                                onSectionSelected(LedgerSection.HOME)
+                                onSectionSelected(LedgerSection.IMAGES)
                                 onCloseDrawer()
                             }
                         )
                         DrawerNavItem(
-                            label = "Tasks to Remember",
-                            icon = Icons.Filled.CheckCircle,
-                            isSelected = currentSection == LedgerSection.TASKS,
+                            label = "Important Dates",
+                            icon = Icons.Filled.Cake,
+                            isSelected = currentSection == LedgerSection.IMPORTANT_DATES,
                             onClick = {
-                                onSectionSelected(LedgerSection.TASKS)
+                                onSectionSelected(LedgerSection.IMPORTANT_DATES)
                                 onCloseDrawer()
                             }
                         )
                         DrawerNavItem(
-                            label = "Event Dates",
-                            icon = Icons.Filled.DateRange,
-                            isSelected = currentSection == LedgerSection.EVENTS,
+                            label = "Remind Me",
+                            icon = Icons.Filled.NotificationsActive,
+                            isSelected = currentSection == LedgerSection.REMIND_ME,
                             onClick = {
-                                onSectionSelected(LedgerSection.EVENTS)
+                                onSectionSelected(LedgerSection.REMIND_ME)
                                 onCloseDrawer()
                             }
                         )

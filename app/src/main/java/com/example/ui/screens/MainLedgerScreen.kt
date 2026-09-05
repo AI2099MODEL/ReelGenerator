@@ -3,22 +3,29 @@ package com.example.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.R
 import com.example.ui.LedgerSection
 import com.example.ui.LedgerViewModel
 import com.example.ui.components.*
@@ -33,7 +40,6 @@ fun MainLedgerScreen(
     val coroutineScope = rememberCoroutineScope()
     
     val currentSection by viewModel.selectedSection.collectAsStateWithLifecycle()
-    val tasks by viewModel.tasks.collectAsStateWithLifecycle()
     val events by viewModel.events.collectAsStateWithLifecycle()
     val vaultDocs by viewModel.vaultDocuments.collectAsStateWithLifecycle()
     val globalSettings by viewModel.globalSettings.collectAsStateWithLifecycle()
@@ -53,14 +59,26 @@ fun MainLedgerScreen(
         )
     }
 
+    BackHandler(enabled = currentSection != LedgerSection.IMAGES) {
+        viewModel.setSection(LedgerSection.IMAGES)
+    }
+
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-            // Bespoke background image for each tab with smooth crossfading transitions
+        BoxWithConstraints(
+            modifier = modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(28.dp))
+        ) {
+            // Page App Background with round corners as per page
             TabBackgroundView(currentSection = currentSection)
 
             val isTablet = maxWidth >= 600.dp
             if (isTablet) {
-                Row(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(28.dp))
+                ) {
                     LedgerBinderNavRail(
                         currentSection = currentSection,
                         onSectionSelected = { viewModel.setSection(it) },
@@ -69,7 +87,6 @@ fun MainLedgerScreen(
                         ScreenContent(
                             currentSection = currentSection,
                             viewModel = viewModel,
-                            tasks = tasks,
                             events = events,
                             vaultDocs = vaultDocs,
                             globalSettings = globalSettings,
@@ -78,7 +95,11 @@ fun MainLedgerScreen(
                     }
                 }
             } else {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(28.dp))
+                ) {
                     Scaffold(
                         bottomBar = {
                             LedgerBinderBottomBar(
@@ -92,11 +113,11 @@ fun MainLedgerScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding)
+                                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                         ) {
                             ScreenContent(
                                 currentSection = currentSection,
                                 viewModel = viewModel,
-                                tasks = tasks,
                                 events = events,
                                 vaultDocs = vaultDocs,
                                 globalSettings = globalSettings,
@@ -114,7 +135,6 @@ fun MainLedgerScreen(
 private fun ScreenContent(
     currentSection: LedgerSection,
     viewModel: LedgerViewModel,
-    tasks: List<com.example.data.model.TaskEntity>,
     events: List<com.example.data.model.EventEntity>,
     vaultDocs: List<com.example.data.model.VaultDocumentEntity>,
     globalSettings: com.example.ui.GlobalSettingsState,
@@ -122,54 +142,66 @@ private fun ScreenContent(
 ) {
     val context = LocalContext.current
     Crossfade(targetState = currentSection, modifier = Modifier.fillMaxSize(), label = "ledger_section_crossfade") { section ->
-        when (section) {
-            LedgerSection.HOME -> {
-                HomeScreen(
-                    events = events,
-                    tasks = tasks,
-                    vaultDocs = vaultDocs,
-                    onNavigateToSection = { viewModel.setSection(it) }
-                )
-            }
-            LedgerSection.TASKS -> {
-                TasksScreen(
-                    tasks = tasks,
-                    onAddTask = { title, description, notify, scheduledTime -> 
-                        viewModel.addTask(title, description, scheduledTime, "General", notify, "")
-                    },
-                    onToggleComplete = { viewModel.toggleTaskComplete(it) },
-                    onDeleteTask = { viewModel.deleteTask(it) }
-                )
-            }
-            LedgerSection.EVENTS -> {
-                EventsScreen(
-                    events = events,
-                    onAddEvent = { title, location, notify, includeYear, eventTime ->
-                        viewModel.addEvent(
-                            title = title,
-                            locationOrNote = location,
-                            eventTimestamp = eventTime,
-                            notifyMe = notify,
-                            includeYear = includeYear
-                        )
-                    },
-                    onDeleteEvent = { viewModel.deleteEvent(it) }
-                )
-            }
-            LedgerSection.IMAGES -> {
-                ImageStudioScreen(
-                    onMenuClick = null,
-                    onOpenGlobalSettings = onOpenGlobalSettings
-                )
-            }
-            LedgerSection.VAULT -> {
-                VaultScreen(
-                    vaultDocs = vaultDocs,
-                    onAddDocument = { title, filename, uriStr, type, category, bytes ->
-                        viewModel.addVaultDocument(title, filename, uriStr, type, category, bytes, "")
-                    },
-                    onDeleteDocument = { viewModel.deleteVaultDocument(it) }
-                )
+        Box(modifier = Modifier.fillMaxSize()) {
+            TabBackgroundView(currentSection = section)
+            when (section) {
+                LedgerSection.IMAGES -> {
+                    ImageStudioScreen(
+                        onHomeClick = null,
+                        onMenuClick = null,
+                        onOpenGlobalSettings = onOpenGlobalSettings
+                    )
+                }
+                LedgerSection.IMPORTANT_DATES -> {
+                    RemindMeDatesScreen(
+                        mode = DateScreenMode.IMPORTANT_DATES,
+                        events = events,
+                        onAddEvent = { title, location, notify, includeYear, eventTime, category, eventType ->
+                            viewModel.addEvent(
+                                title = title,
+                                locationOrNote = location,
+                                eventTimestamp = eventTime,
+                                notifyMe = notify,
+                                category = category,
+                                includeYear = includeYear,
+                                eventType = eventType
+                            )
+                        },
+                        onDeleteEvent = { viewModel.deleteEvent(it) },
+                        onToggleComplete = { viewModel.toggleEventCompleted(it) },
+                        onHomeClick = null
+                    )
+                }
+                LedgerSection.REMIND_ME -> {
+                    RemindMeDatesScreen(
+                        mode = DateScreenMode.REMIND_ME,
+                        events = events,
+                        onAddEvent = { title, location, notify, includeYear, eventTime, category, eventType ->
+                            viewModel.addEvent(
+                                title = title,
+                                locationOrNote = location,
+                                eventTimestamp = eventTime,
+                                notifyMe = notify,
+                                category = category,
+                                includeYear = includeYear,
+                                eventType = eventType
+                            )
+                        },
+                        onDeleteEvent = { viewModel.deleteEvent(it) },
+                        onToggleComplete = { viewModel.toggleEventCompleted(it) },
+                        onHomeClick = null
+                    )
+                }
+                LedgerSection.VAULT -> {
+                    VaultScreen(
+                        vaultDocs = vaultDocs,
+                        onAddDocument = { title, filename, uriStr, type, category, bytes ->
+                            viewModel.addVaultDocument(title, filename, uriStr, type, category, bytes, "")
+                        },
+                        onDeleteDocument = { viewModel.deleteVaultDocument(it) },
+                        onHomeClick = null
+                    )
+                }
             }
         }
     }

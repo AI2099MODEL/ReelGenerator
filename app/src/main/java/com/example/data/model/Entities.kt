@@ -59,7 +59,9 @@ data class EventEntity(
     val category: String = "General",
     val includeYear: Boolean = true,
     val isAllDay: Boolean = false,
-    val imageUri: String? = null
+    val imageUri: String? = null,
+    val isCompleted: Boolean = false,
+    val eventType: String = "IMPORTANT_DATE"
 )
 
 @Entity(tableName = "vault_documents")

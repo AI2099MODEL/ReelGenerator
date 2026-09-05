@@ -103,7 +103,8 @@ val ASPECT_RATIOS = listOf(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ImageStudioScreen(
-    onMenuClick: (() -> Unit)?,
+    onHomeClick: (() -> Unit)? = null,
+    onMenuClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     globalSettings: GlobalSettingsState? = null,
     onOpenGlobalSettings: (() -> Unit)? = null
@@ -304,9 +305,10 @@ fun ImageStudioScreen(
         containerColor = Color.Transparent,
         topBar = {
             LedgerTopHeader(
-                title = "Image Studio",
+                title = "Text to Image Studio",
+                onHomeClick = onHomeClick,
                 onMenuClick = null,
-                actionIcon = Icons.Filled.PhotoLibrary,
+                actionIcon = Icons.Filled.AutoAwesome,
                 onActionClick = {
                     photoPickerLauncher.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -320,15 +322,15 @@ fun ImageStudioScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Segmented Tab Selector (AI Creator, Local Storage, Google Drive)
+            // Segmented Tab Selector (AI Creator, Local Storage, Google Drive) with Golden Luxury theme
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(16.dp),
-                color = Color(0xFFEEEEF0),
-                border = BorderStroke(1.dp, RoseQuartzPrimary.copy(alpha = 0.2f)),
-                shadowElevation = 2.dp
+                color = Color(0xDD121018),
+                border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.6f)),
+                shadowElevation = 4.dp
             ) {
                 Row(
                     modifier = Modifier
@@ -342,10 +344,11 @@ fun ImageStudioScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(RoundedCornerShape(10.dp))
                                 .clickable { selectedTab = tab },
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isSelected) RoseQuartzPrimary else Color.Transparent,
+                            shape = RoundedCornerShape(10.dp),
+                            color = if (isSelected) GoldPrimary else Color.Transparent,
+                            border = if (isSelected) BorderStroke(1.dp, GoldHighlight) else null,
                             shadowElevation = if (isSelected) 3.dp else 0.dp
                         ) {
                             Row(
@@ -360,7 +363,7 @@ fun ImageStudioScreen(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = tab.label,
-                                    color = if (isSelected) RoseQuartzOnPrimary else RoseQuartzTextSecondary,
+                                    color = if (isSelected) Color(0xFF241400) else GoldLight.copy(alpha = 0.8f),
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                 )
@@ -495,8 +498,41 @@ fun ImageStudioScreen(
 }
 
 // -------------------------------------------------------------------------------------------------
-// 1. TEXT TO IMAGE CREATOR SECTION
+// 1. TEXT TO IMAGE CREATOR SECTION - MOBILE SCREEN MOCKUP WITH GOLDEN ROUNDED FRAME
 // -------------------------------------------------------------------------------------------------
+
+private val GoldHighlight = Color(0xFFFFF8D6)
+private val GoldLight = Color(0xFFFFE082)
+private val GoldPrimary = Color(0xFFFFD700)
+private val GoldAccent = Color(0xFFD4AF37)
+private val GoldDark = Color(0xFFAA771C)
+private val GoldDeep = Color(0xFF4A3206)
+
+private val MetallicGoldBrush = Brush.linearGradient(
+    listOf(
+        Color(0xFFFFDF73),
+        Color(0xFFD4AF37),
+        Color(0xFFFFF5B8),
+        Color(0xFFAA771C),
+        Color(0xFFFFE57F),
+        Color(0xFFC59B27),
+        Color(0xFF8C6212)
+    )
+)
+
+private val SunsetPhoneWallpaperGradient = Brush.verticalGradient(
+    listOf(
+        Color(0xFF131628),
+        Color(0xFF1C1F38),
+        Color(0xFF2E2644),
+        Color(0xFF4E2D4E),
+        Color(0xFF783955),
+        Color(0xFFA64A4E),
+        Color(0xFFCD6742),
+        Color(0xFFE8914F),
+        Color(0xFF382230)
+    )
+)
 
 @Composable
 private fun TextToImageSection(
@@ -517,201 +553,412 @@ private fun TextToImageSection(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp)
+        contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Hero Prompt Creation Card
+        // Golden Mobile Phone Mockup Device
         item {
-            Surface(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .roseQuartz3dCardEffect(shape = RoundedCornerShape(20.dp)),
-                shape = RoundedCornerShape(20.dp),
-                color = RoseQuartzContainerLowest,
-                border = BorderStroke(1.dp, RoseQuartzPrimary.copy(alpha = 0.25f))
+                    .widthIn(max = 440.dp)
+                    .padding(vertical = 4.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                // Outer Phone Chassis with Metallic Golden Bezel
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(
+                            elevation = 20.dp,
+                            shape = RoundedCornerShape(40.dp),
+                            ambientColor = GoldAccent.copy(alpha = 0.5f),
+                            spotColor = GoldPrimary.copy(alpha = 0.6f)
+                        ),
+                    shape = RoundedCornerShape(40.dp),
+                    color = Color(0xFF0F0F14),
+                    border = BorderStroke(6.dp, MetallicGoldBrush)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    // Inner Screen Bezel & Wallpaper Screen
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(4.dp)
+                            .clip(RoundedCornerShape(34.dp))
+                            .background(SunsetPhoneWallpaperGradient)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Top Speaker / Dynamic Island Notch
+                            Row(
                                 modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .background(RoseQuartzPrimary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth()
+                                    .padding(bottom = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("✨", fontSize = 16.sp)
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Text to Image Studio",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = RoseQuartzPrimary
-                            )
-                        }
-                    }
-
-                    // Prompt Input Field
-                    OutlinedTextField(
-                        value = promptInput,
-                        onValueChange = onPromptChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 90.dp)
-                            .testTag("ai_image_prompt_input"),
-                        placeholder = {
-                            Text(
-                                "A cozy rustic log cabin in an autumn forest with bright yellow and orange trees, misty morning, mountain background, green grass field with a wooden fence. Light and bright.",
-                                color = RoseQuartzTextMuted,
-                                fontSize = 13.sp,
-                                lineHeight = 18.sp
-                            )
-                        },
-                        trailingIcon = {
-                            if (promptInput.isNotEmpty()) {
-                                IconButton(onClick = { onPromptChange("") }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear", tint = RoseQuartzTextMuted)
-                                }
-                            }
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = RoseQuartzPrimary,
-                            unfocusedBorderColor = RoseQuartzContainerHighest,
-                            focusedContainerColor = RoseQuartzContainerLowest,
-                            unfocusedContainerColor = RoseQuartzContainerLowest
-                        )
-                    )
-
-                    // Style Preset Selector
-                    Text(
-                        text = "🎨 Visual Style",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = RoseQuartzTextSecondary
-                    )
-
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        STYLE_PRESETS.forEach { (styleName, emoji) ->
-                            val isSelected = selectedStyle == styleName
-                            Surface(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .clickable { onStyleSelect(styleName) },
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) RoseQuartzPrimary else RoseQuartzContainerLow,
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (isSelected) RoseQuartzPrimary else RoseQuartzContainerHighest
+                                Text(
+                                    text = "9:41",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GoldLight
                                 )
-                            ) {
+
+                                // Dynamic Island Pill
                                 Box(
-                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
+                                    modifier = Modifier
+                                        .width(90.dp)
+                                        .height(22.dp)
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(Color.Black)
+                                        .border(1.dp, GoldAccent.copy(alpha = 0.35f), RoundedCornerShape(14.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(text = emoji, fontSize = 14.sp)
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        // Camera lens
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFF1A1A2E))
+                                                .border(0.5.dp, GoldLight.copy(alpha = 0.4f), CircleShape)
+                                        )
+                                        // Speaker sensor
+                                        Box(
+                                            modifier = Modifier
+                                                .width(18.dp)
+                                                .height(3.dp)
+                                                .clip(RoundedCornerShape(2.dp))
+                                                .background(Color(0xFF2B2B38))
+                                        )
+                                    }
                                 }
-                            }
-                        }
-                    }
 
-                    // Aspect Ratio Selector
-                    Text(
-                        text = "📐 Aspect Ratio",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = RoseQuartzTextSecondary
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        ASPECT_RATIOS.forEach { (ratio, label) ->
-                            val isSelected = selectedAspectRatio == ratio
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .clickable { onAspectRatioSelect(ratio) },
-                                shape = RoundedCornerShape(10.dp),
-                                color = if (isSelected) RoseQuartzPrimary.copy(alpha = 0.15f) else RoseQuartzContainerLow,
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (isSelected) RoseQuartzPrimary else RoseQuartzContainerHighest
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(vertical = 6.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = ratio,
-                                        fontSize = 11.sp,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (isSelected) RoseQuartzPrimary else RoseQuartzTextPrimary
+                                    Icon(
+                                        imageVector = Icons.Default.Wifi,
+                                        contentDescription = null,
+                                        tint = GoldLight,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.BatteryFull,
+                                        contentDescription = null,
+                                        tint = GoldLight,
+                                        modifier = Modifier.size(14.dp)
                                     )
                                 }
                             }
-                        }
-                    }
 
-                    // Generate Button with glowing state
-                    Button(
-                        onClick = onGenerate,
-                        enabled = !isGenerating,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp)
-                            .testTag("ai_generate_image_button"),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = RoseQuartzPrimary,
-                            contentColor = RoseQuartzOnPrimary,
-                            disabledContainerColor = RoseQuartzPrimary.copy(alpha = 0.5f)
-                        )
-                    ) {
-                        if (isGenerating) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                color = RoseQuartzOnPrimary,
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text("Generating Artwork...", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        } else {
-                            Icon(Icons.Default.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Generate Image", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            // Decorative Golden Sun Doodle & Script Header as in the snapshot
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                // Sun rays doodle
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(bottom = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "☀",
+                                        fontSize = 24.sp,
+                                        color = GoldPrimary
+                                    )
+                                    Text(
+                                        text = "✦",
+                                        fontSize = 14.sp,
+                                        color = GoldLight,
+                                        modifier = Modifier.padding(horizontal = 4.dp)
+                                    )
+                                    Text(
+                                        text = "✨",
+                                        fontSize = 18.sp
+                                    )
+                                }
+
+                                // Golden Cursive Script Words
+                                Text(
+                                    text = "Organize Today",
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Cursive,
+                                    color = GoldLight,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 36.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                Text(
+                                    text = "♡",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = GoldLight,
+                                    textAlign = TextAlign.Center
+                                )
+
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                Text(
+                                    text = "A MORE ORGANIZED YOU\nA BRIGHTER TOMORROW",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.8.sp,
+                                    color = GoldHighlight,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 14.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(14.dp))
+
+                            // Studio Content Card inside the Mobile Screen with Golden Border
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(20.dp),
+                                color = Color(0x77110F18),
+                                border = BorderStroke(1.5.dp, GoldAccent.copy(alpha = 0.7f)),
+                                shadowElevation = 8.dp
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(14.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    // Studio Header in Golden font
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(28.dp)
+                                                    .clip(CircleShape)
+                                                    .background(GoldPrimary.copy(alpha = 0.2f))
+                                                    .border(1.dp, GoldPrimary.copy(alpha = 0.6f), CircleShape),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text("✨", fontSize = 14.sp)
+                                            }
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Text to Image Studio",
+                                                fontSize = 15.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = GoldPrimary
+                                            )
+                                        }
+
+                                        Surface(
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = GoldDeep.copy(alpha = 0.7f),
+                                            border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f))
+                                        ) {
+                                            Text(
+                                                text = "AI Gen",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = GoldHighlight,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                    }
+
+                                    // Prompt Input with Golden Border and warm text
+                                    OutlinedTextField(
+                                        value = promptInput,
+                                        onValueChange = onPromptChange,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .heightIn(min = 90.dp)
+                                            .testTag("ai_image_prompt_input"),
+                                        placeholder = {
+                                            Text(
+                                                "A cozy rustic log cabin in an autumn forest with bright yellow and orange trees, misty morning, mountain background, green grass field with a wooden fence. Light and bright.",
+                                                color = GoldLight.copy(alpha = 0.65f),
+                                                fontSize = 12.sp,
+                                                lineHeight = 16.sp
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            if (promptInput.isNotEmpty()) {
+                                                IconButton(onClick = { onPromptChange("") }) {
+                                                    Icon(Icons.Default.Clear, contentDescription = "Clear", tint = GoldLight)
+                                                }
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(14.dp),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = GoldPrimary,
+                                            unfocusedBorderColor = GoldAccent.copy(alpha = 0.6f),
+                                            focusedContainerColor = Color(0x55000000),
+                                            unfocusedContainerColor = Color(0x33000000),
+                                            focusedTextColor = GoldHighlight,
+                                            unfocusedTextColor = GoldHighlight
+                                        )
+                                    )
+
+                                    // Visual Style Selector in Golden Words
+                                    Text(
+                                        text = "🎨 Visual Style",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GoldLight
+                                    )
+
+                                    Row(
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        STYLE_PRESETS.forEach { (styleName, emoji) ->
+                                            val isSelected = selectedStyle == styleName
+                                            Surface(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .clickable { onStyleSelect(styleName) },
+                                                shape = RoundedCornerShape(8.dp),
+                                                color = if (isSelected) GoldAccent else Color(0x44000000),
+                                                border = BorderStroke(
+                                                    1.dp,
+                                                    if (isSelected) GoldHighlight else GoldAccent.copy(alpha = 0.4f)
+                                                )
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(text = emoji, fontSize = 14.sp)
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Aspect Ratio Selector in Golden Words
+                                    Text(
+                                        text = "📐 Aspect Ratio",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GoldLight
+                                    )
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        ASPECT_RATIOS.forEach { (ratio, _) ->
+                                            val isSelected = selectedAspectRatio == ratio
+                                            Surface(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .clip(RoundedCornerShape(10.dp))
+                                                    .clickable { onAspectRatioSelect(ratio) },
+                                                shape = RoundedCornerShape(10.dp),
+                                                color = if (isSelected) GoldAccent.copy(alpha = 0.35f) else Color(0x33000000),
+                                                border = BorderStroke(
+                                                    1.dp,
+                                                    if (isSelected) GoldPrimary else GoldAccent.copy(alpha = 0.4f)
+                                                )
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.padding(vertical = 6.dp),
+                                                    horizontalAlignment = Alignment.CenterHorizontally
+                                                ) {
+                                                    Text(
+                                                        text = ratio,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                        color = if (isSelected) GoldPrimary else GoldLight.copy(alpha = 0.8f)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+
+                                    // Golden Shimmering Generate Button
+                                    Button(
+                                        onClick = onGenerate,
+                                        enabled = !isGenerating,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(48.dp)
+                                            .shadow(8.dp, RoundedCornerShape(14.dp), ambientColor = GoldPrimary, spotColor = GoldAccent)
+                                            .testTag("ai_generate_image_button"),
+                                        shape = RoundedCornerShape(14.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = GoldPrimary,
+                                            contentColor = Color(0xFF241400),
+                                            disabledContainerColor = GoldDark.copy(alpha = 0.5f)
+                                        )
+                                    ) {
+                                        if (isGenerating) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(20.dp),
+                                                color = Color(0xFF241400),
+                                                strokeWidth = 2.dp
+                                            )
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Text(
+                                                "Generating Artwork...",
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF241400)
+                                            )
+                                        } else {
+                                            Icon(
+                                                Icons.Default.AutoAwesome,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(18.dp),
+                                                tint = Color(0xFF241400)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                "Generate Image",
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF241400)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                 }
             }
         }
 
-        // Live Generated Result Preview Card
+        // Live Generated Result Preview Card (Inside Golden Border Frame)
         latestResult?.let { res ->
             item {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .roseQuartz3dCardEffect(shape = RoundedCornerShape(20.dp)),
-                    shape = RoundedCornerShape(20.dp),
-                    color = RoseQuartzContainerLowest,
-                    border = BorderStroke(1.dp, RoseQuartzPrimary.copy(alpha = 0.4f))
+                        .widthIn(max = 440.dp)
+                        .shadow(12.dp, RoundedCornerShape(22.dp), ambientColor = GoldAccent, spotColor = GoldPrimary),
+                    shape = RoundedCornerShape(22.dp),
+                    color = Color(0xFF131118),
+                    border = BorderStroke(2.dp, MetallicGoldBrush)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(
@@ -720,22 +967,23 @@ private fun TextToImageSection(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "🎨 Latest AI Creation",
+                                text = "✨ Latest AI Creation",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = RoseQuartzPrimary
+                                color = GoldPrimary
                             )
 
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = Color(0xFF2E7D32).copy(alpha = 0.15f)
+                                color = Color(0xFF2E7D32).copy(alpha = 0.25f),
+                                border = BorderStroke(0.5.dp, Color(0xFF4CAF50).copy(alpha = 0.5f))
                             ) {
                                 Text(
                                     text = "Saved to Gallery ✓",
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF2E7D32)
+                                    color = Color(0xFF81C784)
                                 )
                             }
                         }
@@ -749,6 +997,7 @@ private fun TextToImageSection(
                                 .height(260.dp)
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(Color.Black)
+                                .border(1.dp, GoldAccent.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
                                 .clickable { onInspect(res) }
                         ) {
                             Image(
@@ -764,13 +1013,14 @@ private fun TextToImageSection(
                                     .align(Alignment.BottomStart)
                                     .padding(8.dp),
                                 shape = RoundedCornerShape(8.dp),
-                                color = Color.Black.copy(alpha = 0.65f)
+                                color = Color.Black.copy(alpha = 0.75f),
+                                border = BorderStroke(0.5.dp, GoldAccent.copy(alpha = 0.4f))
                             ) {
                                 Text(
                                     text = res.prompt,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     fontSize = 11.sp,
-                                    color = Color.White,
+                                    color = GoldHighlight,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -787,23 +1037,23 @@ private fun TextToImageSection(
                             OutlinedButton(
                                 onClick = { onInspect(res) },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, RoseQuartzPrimary)
+                                shape = RoundedCornerShape(10.dp),
+                                border = BorderStroke(1.dp, GoldAccent)
                             ) {
-                                Icon(Icons.Default.Fullscreen, contentDescription = null, modifier = Modifier.size(16.dp), tint = RoseQuartzPrimary)
+                                Icon(Icons.Default.Fullscreen, contentDescription = null, modifier = Modifier.size(16.dp), tint = GoldLight)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Zoom", fontSize = 12.sp, color = RoseQuartzPrimary)
+                                Text("Zoom", fontSize = 12.sp, color = GoldLight, fontWeight = FontWeight.Bold)
                             }
 
                             Button(
                                 onClick = { onSaveToDrive(res) },
                                 modifier = Modifier.weight(1.3f),
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5))
                             ) {
                                 Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Google Drive", fontSize = 12.sp, color = Color.White)
+                                Text("Google Drive", fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -814,12 +1064,15 @@ private fun TextToImageSection(
         // Recent AI Creations Section
         if (recentAiCreations.isNotEmpty()) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().widthIn(max = 440.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
                         text = "✨ Recent Creations in Studio (${recentAiCreations.size})",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = RoseQuartzTextPrimary
+                        color = GoldLight
                     )
 
                     LazyRow(
@@ -833,8 +1086,8 @@ private fun TextToImageSection(
                                     .clip(RoundedCornerShape(14.dp))
                                     .clickable { onSelectRecent(item) },
                                 shape = RoundedCornerShape(14.dp),
-                                color = RoseQuartzContainerLowest,
-                                border = BorderStroke(1.dp, RoseQuartzContainerHighest),
+                                color = Color(0xFF16141D),
+                                border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.5f)),
                                 shadowElevation = 2.dp
                             ) {
                                 Column {
@@ -856,9 +1109,9 @@ private fun TextToImageSection(
                                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Medium,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        color = RoseQuartzTextPrimary
+                                        color = GoldLight,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
                             }

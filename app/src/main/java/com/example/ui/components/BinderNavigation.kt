@@ -61,30 +61,23 @@ data class NavTabItem(
 private val NAV_ITEMS = listOf(
     NavTabItem(
         section = LedgerSection.IMAGES,
-        label = "Collage",
-        selectedIcon = Icons.Filled.PhotoLibrary,
-        unselectedIcon = Icons.Outlined.PhotoLibrary,
-        tabColor = Color(0xFF38BDF8)
+        label = "Text to Image",
+        selectedIcon = Icons.Filled.AutoAwesome,
+        unselectedIcon = Icons.Outlined.AutoAwesome,
+        tabColor = Color(0xFFFFD700)
     ),
     NavTabItem(
-        section = LedgerSection.HOME,
-        label = "Home",
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-        tabColor = Color(0xFF0284C7)
-    ),
-    NavTabItem(
-        section = LedgerSection.TASKS,
-        label = "Tasks",
-        selectedIcon = Icons.Filled.TaskAlt,
-        unselectedIcon = Icons.Outlined.TaskAlt,
-        tabColor = Color(0xFF0EA5E9)
-    ),
-    NavTabItem(
-        section = LedgerSection.EVENTS,
-        label = "Events",
+        section = LedgerSection.IMPORTANT_DATES,
+        label = "Important Dates",
         selectedIcon = Icons.Filled.Cake,
         unselectedIcon = Icons.Outlined.Cake,
+        tabColor = Color(0xFFE11D48)
+    ),
+    NavTabItem(
+        section = LedgerSection.REMIND_ME,
+        label = "Remind Me",
+        selectedIcon = Icons.Filled.NotificationsActive,
+        unselectedIcon = Icons.Outlined.NotificationsActive,
         tabColor = Color(0xFF0284C7)
     ),
     NavTabItem(
@@ -238,7 +231,7 @@ fun TabBarWaterBackground(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = FastOutSlowInEasing),
+            animation = tween(3800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "rip1"
@@ -249,106 +242,240 @@ fun TabBarWaterBackground(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(4000, delayMillis = 2000, easing = FastOutSlowInEasing),
+            animation = tween(4200, delayMillis = 1800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Restart
         ),
         label = "rip2"
+    )
+
+    // Pulsing background ambient ripple 3 (Center-lower ripple origin)
+    val ripple3Progress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4600, delayMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rip3"
+    )
+
+    // Pulsing background ambient ripple 4 (Far-right upper ripple origin)
+    val ripple4Progress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(5000, delayMillis = 2800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rip4"
+    )
+
+    // Secondary counter-flow undulating wave
+    val wave2Phase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2 * Math.PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(9000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "wave2_phase"
+    )
+
+    // Water surface sunbeam caustics shimmer
+    val causticsShift by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(8500, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "caustics_shift"
     )
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val width = size.width
         val height = size.height
 
-        // Light grey palette for tab base background
-        val lightGreyBase = listOf(
-            Color.Transparent,
-            Color.Transparent
+        // 1. Base Rich Blue Water Flowing Background (Full Depth Gradient)
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xEA0284C7), // Luminous Sky Blue Surface
+                    Color(0xF00369A1), // Vibrant Cerulean Water
+                    Color(0xF6075985), // Deep Ocean Azure
+                    Color(0xFC0C4A6E)  // Deep Blue Sea Bed
+                ),
+                startY = 0f,
+                endY = height
+            )
         )
 
-        // 2. Light Blue Watercolor Animated Ambient Water Ripple Rings
-        val r1Center = Offset(width * 0.25f, height * 0.5f)
-        val r1MaxRadius = width * 0.5f
-        val r1Alpha = (1f - ripple1Progress) * 0.50f
-        val r1Radius = (r1MaxRadius * ripple1Progress).coerceAtLeast(1f)
-        if (r1Alpha > 0.01f) {
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFBAE6FD).copy(alpha = r1Alpha * 0.45f), // Soft Light Blue Water Glow
-                        Color(0xFF7DD3FC).copy(alpha = r1Alpha * 0.35f), // Aquamarine Water Ring
-                        Color.Transparent
-                    ),
-                    center = r1Center,
-                    radius = r1Radius
+        // 2. Animated Horizontal Flowing Currents (Shifting Light Rays and Streams)
+        drawRect(
+            brush = Brush.horizontalGradient(
+                colors = listOf(
+                    Color(0x350EA5E9), // Light Cerulean Stream
+                    Color(0x5538BDF8), // Turquoise Glisten
+                    Color(0x3006B6D4), // Cyan Current
+                    Color(0x550284C7), // Deep Ocean Wave
+                    Color(0x350EA5E9)  // Light Cerulean Stream
                 ),
-                radius = r1Radius,
-                center = r1Center
+                startX = width * (1f - colorShift),
+                endX = width * (2f - colorShift)
             )
-            drawCircle(
-                color = Color(0xFF38BDF8).copy(alpha = r1Alpha * 0.45f), // Light Blue Water Edge
-                radius = r1Radius,
-                center = r1Center,
-                style = Stroke(width = 2.dp.toPx())
-            )
-        }
-
-        val r2Center = Offset(width * 0.75f, height * 0.5f)
-        val r2MaxRadius = width * 0.5f
-        val r2Alpha = (1f - ripple2Progress) * 0.50f
-        val r2Radius = (r2MaxRadius * ripple2Progress).coerceAtLeast(1f)
-        if (r2Alpha > 0.01f) {
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFFE0F2FE).copy(alpha = r2Alpha * 0.50f), // Sky Water Glow
-                        Color(0xFF38BDF8).copy(alpha = r2Alpha * 0.35f), // Light Blue Ring
-                        Color.Transparent
-                    ),
-                    center = r2Center,
-                    radius = r2Radius
-                ),
-                radius = r2Radius,
-                center = r2Center
-            )
-            drawCircle(
-                color = Color(0xFF0284C7).copy(alpha = r2Alpha * 0.40f), // Cerulean Water Edge
-                radius = r2Radius,
-                center = r2Center,
-                style = Stroke(width = 2.dp.toPx())
-            )
-        }
-
-        // 3. Fluid Light Blue Watercolor Ribbon Layer
-        val path = Path()
-        path.moveTo(0f, height * 0.15f)
-
-        var x = 0f
-        val step = 8f
-        while (x <= width) {
-            val y = height * 0.35f + kotlin.math.sin((x / width * 3 * Math.PI + phase).toDouble()).toFloat() * 7f
-            path.lineTo(x, y)
-            x += step
-        }
-        path.lineTo(width, height)
-        path.lineTo(0f, height)
-        path.close()
-
-        val lightBlueWatercolorGradient = Brush.horizontalGradient(
-            colors = listOf(
-                Color(0xFFE0F2FE).copy(alpha = 0.40f), // Light Sky Blue Water
-                Color(0xFFBAE6FD).copy(alpha = 0.50f), // Soft Aquamarine Water
-                Color(0xFF7DD3FC).copy(alpha = 0.45f), // Light Blue Water
-                Color(0xFF38BDF8).copy(alpha = 0.35f), // Bright Water Blue
-                Color(0xFF0284C7).copy(alpha = 0.25f), // Ocean Water Accent
-                Color(0xFFE0F2FE).copy(alpha = 0.40f)  // Light Sky Blue Water
-            ),
-            startX = width * (1f - colorShift),
-            endX = width * (2f - colorShift)
         )
+
+        // 3. Fluid Flowing Water Wave Layer 1 (Mid-depth undulating fluid stream)
+        val wavePath1 = Path()
+        wavePath1.moveTo(0f, height * 0.15f)
+        var wx = 0f
+        val wStep = 6f
+        while (wx <= width) {
+            val wy = height * 0.28f + kotlin.math.sin((wx / width * 3 * Math.PI + phase).toDouble()).toFloat() * 8f
+            wavePath1.lineTo(wx, wy)
+            wx += wStep
+        }
+        wavePath1.lineTo(width, height)
+        wavePath1.lineTo(0f, height)
+        wavePath1.close()
 
         drawPath(
-            path = path,
-            brush = lightBlueWatercolorGradient
+            path = wavePath1,
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0x5538BDF8), // Bright Aquamarine Crest
+                    Color(0x400284C7), // Ocean Water Current
+                    Color(0x20075985)  // Deep Azure
+                ),
+                startY = height * 0.15f,
+                endY = height
+            )
+        )
+
+        // 4. Fluid Flowing Water Wave Layer 2 (Counter-current rolling water wave)
+        val wavePath2 = Path()
+        wavePath2.moveTo(0f, height * 0.32f)
+        wx = 0f
+        while (wx <= width) {
+            val wy = height * 0.44f + kotlin.math.cos((wx / width * 3.5 * Math.PI - wave2Phase).toDouble()).toFloat() * 6f
+            wavePath2.lineTo(wx, wy)
+            wx += wStep
+        }
+        wavePath2.lineTo(width, height)
+        wavePath2.lineTo(0f, height)
+        wavePath2.close()
+
+        drawPath(
+            path = wavePath2,
+            brush = Brush.horizontalGradient(
+                colors = listOf(
+                    Color(0x407DD3FC),
+                    Color(0x5038BDF8),
+                    Color(0x300EA5E9),
+                    Color(0x457DD3FC)
+                ),
+                startX = width * colorShift,
+                endX = width * (colorShift + 1f)
+            )
+        )
+
+        // 5. Glistening Water Caustics / Sunlight Refraction Bands
+        val causticCount = 6
+        for (i in 0 until causticCount) {
+            val cX = ((i.toFloat() / causticCount + causticsShift) % 1f) * width
+            val cPath = Path()
+            cPath.moveTo(cX - 12.dp.toPx(), 0f)
+            cPath.lineTo(cX + 18.dp.toPx(), 0f)
+            cPath.lineTo(cX + 38.dp.toPx(), height)
+            cPath.lineTo(cX + 8.dp.toPx(), height)
+            cPath.close()
+
+            drawPath(
+                path = cPath,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.14f),
+                        Color(0xFFBAE6FD).copy(alpha = 0.08f),
+                        Color.Transparent
+                    ),
+                    startY = 0f,
+                    endY = height * 0.75f
+                )
+            )
+        }
+
+        // 6. Expanding Animated Water Ripple Effects (Multiple Staggered Origins)
+        fun drawAquaticRipple(origin: Offset, progress: Float, maxR: Float) {
+            val alpha = (1f - progress) * 0.65f
+            if (alpha <= 0.01f) return
+            val radius = (maxR * progress).coerceAtLeast(1.5f)
+
+            // Radial water displacement glow
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = alpha * 0.45f),
+                        Color(0xFFBAE6FD).copy(alpha = alpha * 0.55f),
+                        Color(0xFF38BDF8).copy(alpha = alpha * 0.25f),
+                        Color.Transparent
+                    ),
+                    center = origin,
+                    radius = radius
+                ),
+                radius = radius,
+                center = origin
+            )
+            // Crisp outer crest ring (sharp highlight edge)
+            drawCircle(
+                color = Color.White.copy(alpha = alpha * 0.85f),
+                radius = radius,
+                center = origin,
+                style = Stroke(width = 1.8.dp.toPx())
+            )
+            // Inner secondary wave crest ring (concentric harmonic ring)
+            val innerRadius = radius * 0.62f
+            if (innerRadius > 2f) {
+                drawCircle(
+                    color = Color(0xFF7DD3FC).copy(alpha = alpha * 0.60f),
+                    radius = innerRadius,
+                    center = origin,
+                    style = Stroke(width = 1.2.dp.toPx())
+                )
+            }
+            // Tiny center droplet impact point when ripple is young
+            if (progress < 0.22f) {
+                val dropAlpha = (1f - progress / 0.22f) * alpha
+                drawCircle(
+                    color = Color.White.copy(alpha = dropAlpha * 0.75f),
+                    radius = 2.5.dp.toPx(),
+                    center = origin
+                )
+            }
+        }
+
+        // Ripple 1: Left stream origin
+        drawAquaticRipple(
+            origin = Offset(width * 0.22f, height * 0.46f),
+            progress = ripple1Progress,
+            maxR = width * 0.36f
+        )
+        // Ripple 2: Right-mid stream origin
+        drawAquaticRipple(
+            origin = Offset(width * 0.74f, height * 0.48f),
+            progress = ripple2Progress,
+            maxR = width * 0.38f
+        )
+        // Ripple 3: Center-lower stream origin
+        drawAquaticRipple(
+            origin = Offset(width * 0.46f, height * 0.64f),
+            progress = ripple3Progress,
+            maxR = width * 0.34f
+        )
+        // Ripple 4: Far-right stream origin
+        drawAquaticRipple(
+            origin = Offset(width * 0.86f, height * 0.32f),
+            progress = ripple4Progress,
+            maxR = width * 0.30f
         )
 
         // 4. ANIMATED SWIMMING FISHES IN THE WATER STREAM
@@ -447,6 +574,36 @@ fun TabBarWaterBackground(
             tentaclePhase = octopusTentacle,
             facingRight = false,
             alpha = 0.82f
+        )
+
+        // 7. Glassmorphism: Top Specular Curved Glass Reflection Sheen
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color.White.copy(alpha = 0.42f),       // Crisp white specular reflection along top edge
+                    Color(0xFFE0F2FE).copy(alpha = 0.20f), // Soft sky blue glass sheen
+                    Color(0xFF38BDF8).copy(alpha = 0.08f),
+                    Color.Transparent                      // Fades seamlessly into deep flowing water
+                ),
+                startY = 0f,
+                endY = height * 0.42f
+            )
+        )
+
+        // Glassmorphism: Top Beveled Specular Reflection Rim Line
+        drawLine(
+            brush = Brush.horizontalGradient(
+                colors = listOf(
+                    Color.White.copy(alpha = 0.45f),
+                    Color.White.copy(alpha = 0.95f),
+                    Color(0xFFBAE6FD).copy(alpha = 0.98f),
+                    Color.White.copy(alpha = 0.90f),
+                    Color.White.copy(alpha = 0.45f)
+                )
+            ),
+            start = Offset(0f, 1.2.dp.toPx()),
+            end = Offset(width, 1.2.dp.toPx()),
+            strokeWidth = 2.dp.toPx()
         )
     }
 }
@@ -876,9 +1033,9 @@ fun FloatingSailingBoats(
         val waterPath = Path()
         waterPath.moveTo(0f, waterLine)
         var x = 0f
-        val step = 10f
+        val step = 8f
         while (x <= width) {
-            val y = waterLine + kotlin.math.sin(x * 0.05f + wavePhase).toFloat() * 2f
+            val y = waterLine + kotlin.math.sin(x * 0.05f + wavePhase).toFloat() * 2.5f
             waterPath.lineTo(x, y)
             x += step
         }
@@ -890,12 +1047,27 @@ fun FloatingSailingBoats(
             path = waterPath,
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFFBAE6FD).copy(alpha = 0.6f),
-                    Color(0xFF38BDF8).copy(alpha = 0.8f)
+                    Color(0xFFE0F2FE).copy(alpha = 0.50f),
+                    Color(0xFF38BDF8).copy(alpha = 0.30f)
                 ),
                 startY = waterLine,
                 endY = height
             )
+        )
+
+        // Glistening water crest line
+        val crestPath = Path()
+        crestPath.moveTo(0f, waterLine)
+        var cx = 0f
+        while (cx <= width) {
+            val cy = waterLine + kotlin.math.sin(cx * 0.05f + wavePhase).toFloat() * 2.5f
+            crestPath.lineTo(cx, cy)
+            cx += step
+        }
+        drawPath(
+            path = crestPath,
+            color = Color.White.copy(alpha = 0.80f),
+            style = Stroke(width = 1.5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
         )
 
         fun drawBoat(cx: Float, scale: Float, facingRight: Boolean, colorBase: Color, colorSail: Color, phaseOffset: Float) {
@@ -1600,32 +1772,45 @@ fun WaterRippleTabBackground(
     Canvas(modifier = modifier.fillMaxSize()) {
         val maxRadius = size.maxDimension / 1.5f
 
-        // Expanding Outer Light Blue Watercolor Ripple Ring 1
+        // Expanding Outer Water Ripple Ring 1 with crisp specular highlight
         drawCircle(
-            color = lightBlueWaterPrimary.copy(alpha = wave1Alpha * 0.55f),
+            color = Color.White.copy(alpha = wave1Alpha * 0.70f),
             radius = maxRadius * wave1Radius,
             center = center,
-            style = Stroke(width = 2.dp.toPx())
+            style = Stroke(width = 1.8.dp.toPx())
         )
-        // Inner Light Blue Water Drop Cushion 1
+        // Inner Water Drop Glow 1
         drawCircle(
-            color = lightBlueWaterSoft.copy(alpha = wave1Alpha * 0.25f),
+            color = lightBlueWaterPrimary.copy(alpha = wave1Alpha * 0.40f),
             radius = maxRadius * wave1Radius * 0.75f,
             center = center
         )
 
-        // Expanding Outer Light Blue Watercolor Ripple Ring 2
+        // Expanding Outer Water Ripple Ring 2
         drawCircle(
-            color = lightBlueWaterPrimary.copy(alpha = wave2Alpha * 0.55f),
+            color = lightBlueWaterSoft.copy(alpha = wave2Alpha * 0.60f),
             radius = maxRadius * wave2Radius,
             center = center,
-            style = Stroke(width = 1.5.dp.toPx())
+            style = Stroke(width = 1.4.dp.toPx())
         )
-        // Inner Light Blue Water Drop Cushion 2
+        // Inner Water Drop Glow 2
         drawCircle(
-            color = lightBlueWaterSoft.copy(alpha = wave2Alpha * 0.20f),
+            color = lightBlueWaterSoft.copy(alpha = wave2Alpha * 0.25f),
             radius = maxRadius * wave2Radius * 0.75f,
             center = center
+        )
+
+        // Glassmorphism top specular glass sheen on the active tab
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color.White.copy(alpha = 0.55f),
+                    Color.White.copy(alpha = 0.15f),
+                    Color.Transparent
+                ),
+                startY = 0f,
+                endY = size.height * 0.5f
+            )
         )
     }
 }
@@ -1740,17 +1925,29 @@ fun LedgerBinderBottomBar(
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 28.dp, bottomEnd = 28.dp))
             .navigationBarsPadding(),
-        color = lightGreyTabBg,
-        border = BorderStroke(1.dp, Color(0xFFE2E8F0).copy(alpha = 0.2f)),
-        shadowElevation = 0.dp
+        shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 28.dp, bottomEnd = 28.dp),
+        color = Color.Transparent,
+        border = BorderStroke(
+            1.5.dp,
+            Brush.horizontalGradient(
+                listOf(
+                    Color.White.copy(alpha = 0.85f),
+                    Color(0xFFBAE6FD).copy(alpha = 0.95f),
+                    Color(0xFF7DD3FC).copy(alpha = 0.80f),
+                    Color.White.copy(alpha = 0.70f)
+                )
+            )
+        ),
+        shadowElevation = 8.dp
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(lightGreyTabBg)
+                .background(Color.Transparent)
         ) {
-            // Light Blue Watercolor Wave Flow above Light Grey Base
+            // Blue Water Flowing Background with Animated Ripples and Glassmorphism
             TabBarWaterBackground(modifier = Modifier.matchParentSize())
 
             val rows = remember { listOf(NAV_ITEMS) }
@@ -1758,14 +1955,14 @@ fun LedgerBinderBottomBar(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                    .padding(horizontal = 6.dp, vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                // Beautiful Garden with Soil Layer directly above the first row of tabs
+                // Floating sailing boats bobbing on the flowing water surface
                 FloatingSailingBoats(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(32.dp)
+                        .height(30.dp)
                         .padding(bottom = 2.dp)
                 )
 
@@ -1781,7 +1978,7 @@ fun LedgerBinderBottomBar(
 
                             // Animated Icon Click Physics
                             val animatedScale by animateFloatAsState(
-                                targetValue = if (isSelected) 1.25f else 0.90f,
+                                targetValue = if (isSelected) 1.22f else 0.90f,
                                 animationSpec = spring(
                                     dampingRatio = Spring.DampingRatioMediumBouncy,
                                     stiffness = Spring.StiffnessVeryLow
@@ -1799,7 +1996,7 @@ fun LedgerBinderBottomBar(
                             )
 
                             val animatedOffsetY by animateFloatAsState(
-                                targetValue = if (isSelected) -4f else 0f,
+                                targetValue = if (isSelected) -3f else 0f,
                                 animationSpec = spring(
                                     dampingRatio = Spring.DampingRatioNoBouncy,
                                     stiffness = Spring.StiffnessVeryLow
@@ -1807,26 +2004,27 @@ fun LedgerBinderBottomBar(
                                 label = "tab_offset_y"
                             )
 
+                            // Glassmorphism tab styling: Deep Ocean Blue for active, crisp luminous white for inactive
                             val tint by animateColorAsState(
-                                targetValue = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
-                                animationSpec = tween(durationMillis = 400),
+                                targetValue = if (isSelected) Color(0xFF0369A1) else Color.White.copy(alpha = 0.92f),
+                                animationSpec = tween(durationMillis = 350),
                                 label = "tab_tint"
                             )
 
                             val pillBg by animateColorAsState(
-                                targetValue = if (isSelected) Color(0xFFE0F2FE).copy(alpha = 0.85f) else Color.Transparent,
-                                animationSpec = tween(durationMillis = 400),
+                                targetValue = if (isSelected) Color.White.copy(alpha = 0.90f) else Color.White.copy(alpha = 0.16f),
+                                animationSpec = tween(durationMillis = 350),
                                 label = "tab_bg"
                             )
 
                             val borderColor by animateColorAsState(
-                                targetValue = if (isSelected) Color(0xFF38BDF8).copy(alpha = pulseAlpha) else Color.Transparent,
-                                animationSpec = tween(durationMillis = 400),
+                                targetValue = if (isSelected) Color.White.copy(alpha = 0.95f) else Color.White.copy(alpha = 0.32f),
+                                animationSpec = tween(durationMillis = 350),
                                 label = "tab_border"
                             )
 
                             val barWidthFraction by animateFloatAsState(
-                                targetValue = if (isSelected) 0.60f else 0f,
+                                targetValue = if (isSelected) 0.55f else 0f,
                                 animationSpec = spring(
                                     dampingRatio = Spring.DampingRatioNoBouncy,
                                     stiffness = Spring.StiffnessVeryLow
@@ -1838,21 +2036,21 @@ fun LedgerBinderBottomBar(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(42.dp)
+                                    .height(44.dp)
                                     .padding(horizontal = 2.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(RoundedCornerShape(14.dp))
                                     .background(pillBg)
                                     .border(
-                                        width = if (isSelected) 1.5.dp else 0.dp,
+                                        width = if (isSelected) 1.5.dp else 1.dp,
                                         color = borderColor,
-                                        shape = RoundedCornerShape(12.dp)
+                                        shape = RoundedCornerShape(14.dp)
                                     )
                                     .clickable(
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = null
                                     ) { onSectionSelected(item.section) }
                             ) {
-                                // Light Blue Watercolor Ripple drop rings on selected tab
+                                // Water Ripple drop rings and glass shine on selected tab
                                 WaterRippleTabBackground(
                                     isSelected = isSelected,
                                     rippleColor = Color(0xFF38BDF8),
@@ -1921,99 +2119,113 @@ fun LedgerBinderNavRail(
         modifier = modifier
             .width(76.dp)
             .fillMaxHeight(),
-        color = lightGreyTabBg,
-        border = BorderStroke(1.dp, Color(0xFFE2E8F0).copy(alpha = 0.2f)),
-        shadowElevation = 0.dp
+        color = Color.Transparent,
+        border = BorderStroke(
+            1.5.dp,
+            Brush.verticalGradient(
+                listOf(
+                    Color.White.copy(alpha = 0.85f),
+                    Color(0xFFBAE6FD).copy(alpha = 0.95f),
+                    Color(0xFF7DD3FC).copy(alpha = 0.80f),
+                    Color.White.copy(alpha = 0.70f)
+                )
+            )
+        ),
+        shadowElevation = 8.dp
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Header Logo
-            AppHeaderLogo(size = 36.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            TabBarWaterBackground(modifier = Modifier.matchParentSize())
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Navigation Items
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                    .fillMaxHeight()
+                    .padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                NAV_ITEMS.forEach { item ->
-                    val isSelected = currentSection == item.section
-                    val icon = if (isSelected) item.selectedIcon else item.unselectedIcon
+                // Header Logo
+                AppHeaderLogo(size = 36.dp)
 
-                    val animatedScale by animateFloatAsState(
-                        targetValue = if (isSelected) 1.25f else 0.90f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioHighBouncy,
-                            stiffness = Spring.StiffnessMedium
-                        ),
-                        label = "rail_scale"
-                    )
+                Spacer(modifier = Modifier.height(16.dp))
 
-                    val animatedRotation by animateFloatAsState(
-                        targetValue = if (isSelected) 360f else 0f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        ),
-                        label = "rail_rotation"
-                    )
+                // Navigation Items
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    NAV_ITEMS.forEach { item ->
+                        val isSelected = currentSection == item.section
+                        val icon = if (isSelected) item.selectedIcon else item.unselectedIcon
 
-                    val tint by animateColorAsState(
-                        targetValue = if (isSelected) Color(0xFF0284C7) else Color(0xFF64748B),
-                        animationSpec = tween(durationMillis = 250),
-                        label = "rail_tint"
-                    )
+                        val animatedScale by animateFloatAsState(
+                            targetValue = if (isSelected) 1.25f else 0.90f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioHighBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            ),
+                            label = "rail_scale"
+                        )
 
-                    val pillBg by animateColorAsState(
-                        targetValue = if (isSelected) Color(0xFFE0F2FE).copy(alpha = 0.85f) else Color.Transparent,
-                        animationSpec = tween(durationMillis = 250),
-                        label = "rail_bg"
-                    )
+                        val animatedRotation by animateFloatAsState(
+                            targetValue = if (isSelected) 360f else 0f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            ),
+                            label = "rail_rotation"
+                        )
 
-                    val borderColor by animateColorAsState(
-                        targetValue = if (isSelected) Color(0xFF38BDF8).copy(alpha = pulseAlpha) else Color.Transparent,
-                        animationSpec = tween(durationMillis = 250),
-                        label = "rail_border"
-                    )
+                        val tint by animateColorAsState(
+                            targetValue = if (isSelected) Color(0xFF0369A1) else Color.White.copy(alpha = 0.92f),
+                            animationSpec = tween(durationMillis = 250),
+                            label = "rail_tint"
+                        )
 
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(pillBg)
-                            .border(
-                                width = if (isSelected) 1.5.dp else 0.dp,
-                                color = borderColor,
-                                shape = RoundedCornerShape(14.dp)
-                            )
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { onSectionSelected(item.section) }
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxSize()
+                        val pillBg by animateColorAsState(
+                            targetValue = if (isSelected) Color.White.copy(alpha = 0.90f) else Color.White.copy(alpha = 0.16f),
+                            animationSpec = tween(durationMillis = 250),
+                            label = "rail_bg"
+                        )
+
+                        val borderColor by animateColorAsState(
+                            targetValue = if (isSelected) Color.White.copy(alpha = 0.95f) else Color.White.copy(alpha = 0.32f),
+                            animationSpec = tween(durationMillis = 250),
+                            label = "rail_border"
+                        )
+
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(pillBg)
+                                .border(
+                                    width = if (isSelected) 1.5.dp else 1.dp,
+                                    color = borderColor,
+                                    shape = RoundedCornerShape(14.dp)
+                                )
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) { onSectionSelected(item.section) }
                         ) {
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = item.label,
-                                tint = tint,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .scale(animatedScale)
-                                    .rotate(animatedRotation)
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = item.label,
+                                    tint = tint,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .scale(animatedScale)
+                                        .rotate(animatedRotation)
+                                )
+                            }
                         }
                     }
                 }

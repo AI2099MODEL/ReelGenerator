@@ -25,7 +25,7 @@ fun LedgerSearchBar(
         placeholder = { Text(placeholder) },
         leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null, tint = RoseQuartzPrimary) },
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = RoseQuartzPrimary,

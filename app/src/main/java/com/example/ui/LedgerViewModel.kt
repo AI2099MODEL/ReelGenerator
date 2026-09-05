@@ -15,10 +15,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 enum class LedgerSection(val title: String, val tabLabel: String, val iconEmoji: String) {
-    IMAGES("Photo Collage", "Photo Collage", "🖼️"),
-    HOME("Home Studio", "Home", "🏠"),
-    TASKS("Tasks", "Tasks", "✅"),
-    EVENTS("Event Dates", "Event Dates", "🎂"),
+    IMAGES("Text to Image", "Text to Image", "✨"),
+    IMPORTANT_DATES("Important Dates", "Important Dates", "🎂"),
+    REMIND_ME("Remind Me", "Remind Me", "⏰"),
     VAULT("Vault", "Vault", "🔒")
 }
 
@@ -326,13 +325,41 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    // ---------------- EVENTS ----------------
-    fun addEvent(title: String, locationOrNote: String, eventTimestamp: Long, notifyMe: Boolean, category: String = "General", includeYear: Boolean = true, isAllDay: Boolean = false, imageUri: String? = null) {
+    // ---------------- EVENTS / DATES & REMINDERS ----------------
+    fun addEvent(
+        title: String,
+        locationOrNote: String,
+        eventTimestamp: Long,
+        notifyMe: Boolean,
+        category: String = "General",
+        includeYear: Boolean = true,
+        isAllDay: Boolean = false,
+        imageUri: String? = null,
+        eventType: String = "IMPORTANT_DATE",
+        isCompleted: Boolean = false
+    ) {
         if (title.isBlank()) return
         viewModelScope.launch {
-            repository.addEvent(title, locationOrNote, eventTimestamp, notifyMe, category, includeYear, isAllDay, imageUri)
-            val event = EventEntity(title = title, locationOrNote = locationOrNote, eventTimestamp = eventTimestamp, notifyMe = notifyMe, category = category, includeYear = includeYear, isAllDay = isAllDay, imageUri = imageUri)
+            repository.addEvent(title, locationOrNote, eventTimestamp, notifyMe, category, includeYear, isAllDay, imageUri, eventType, isCompleted)
+            val event = EventEntity(
+                title = title,
+                locationOrNote = locationOrNote,
+                eventTimestamp = eventTimestamp,
+                notifyMe = notifyMe,
+                category = category,
+                includeYear = includeYear,
+                isAllDay = isAllDay,
+                imageUri = imageUri,
+                eventType = eventType,
+                isCompleted = isCompleted
+            )
             OrganiserStorageManager.persistEvent(getApplication(), event)
+        }
+    }
+
+    fun toggleEventCompleted(event: EventEntity) {
+        viewModelScope.launch {
+            repository.toggleEventCompleted(event)
         }
     }
 

@@ -108,7 +108,7 @@ fun Modifier.roseQuartz3dCardEffect(
     elevation: Dp = 5.dp,
     rotationX: Float = -1.2f,
     rotationY: Float = 0.8f,
-    shape: Shape = RoundedCornerShape(12.dp)
+    shape: Shape = RoundedCornerShape(18.dp)
 ): Modifier = this
     .shadow(
         elevation = elevation,
@@ -396,19 +396,26 @@ fun LedgerTopHeader(
     modifier: Modifier = Modifier,
     actionIcon: ImageVector? = null,
     onActionClick: (() -> Unit)? = null,
+    onHomeClick: (() -> Unit)? = null,
     onMenuClick: (() -> Unit)? = null,
     globalSettings: com.example.ui.GlobalSettingsState? = null,
     onOpenGlobalSettings: (() -> Unit)? = null
 ) {
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
         ) {
-            // Floating animated light blue sky with light colored white clouds
-            HeaderSkyCloudsBackground(
-                modifier = Modifier.matchParentSize()
+            // Frosted translucent surface letting the page background image show through
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.White.copy(alpha = 0.50f))
             )
 
             Row(
@@ -439,17 +446,33 @@ fun LedgerTopHeader(
                     )
                 }
 
-                // Right side: Action icon
+                // Right side: Action icon and Home Landing button
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (onHomeClick != null) {
+                        IconButton(
+                            onClick = onHomeClick,
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(RoseQuartzContainerLowest),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Home,
+                                contentDescription = "Back to Landing Page",
+                                tint = RoseQuartzPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                     if (actionIcon != null && onActionClick != null) {
                         IconButton(
                             onClick = onActionClick,
                             modifier = Modifier
                                 .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
+                                .clip(RoundedCornerShape(12.dp))
                                 .background(RoseQuartzContainerLowest),
                         ) {
                             Icon(
@@ -484,10 +507,10 @@ fun LedgerPaperCard(
                 elevation = 5.dp,
                 rotationX = -1.2f,
                 rotationY = 0.8f,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(18.dp)
             )
             .waterRippleTouch(rippleColor = rippleColor, onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         color = RoseQuartzContainerLowest.copy(alpha = 0.92f),
         border = BorderStroke(1.dp, borderColor),
         shadowElevation = 4.dp

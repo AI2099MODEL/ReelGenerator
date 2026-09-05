@@ -463,7 +463,9 @@ class LedgerRepository(
         category: String = "General",
         includeYear: Boolean = true,
         isAllDay: Boolean = false,
-        imageUri: String? = null
+        imageUri: String? = null,
+        eventType: String = "IMPORTANT_DATE",
+        isCompleted: Boolean = false
     ) = withContext(Dispatchers.IO) {
         val notificationId = (System.currentTimeMillis() % 100000).toInt()
         val event = EventEntity(
@@ -475,7 +477,9 @@ class LedgerRepository(
             category = category,
             includeYear = includeYear,
             isAllDay = isAllDay,
-            imageUri = imageUri
+            imageUri = imageUri,
+            isCompleted = isCompleted,
+            eventType = eventType
         )
         val id = eventDao.insertEvent(event)
 
@@ -484,12 +488,17 @@ class LedgerRepository(
                 context = context,
                 notificationId = notificationId,
                 title = title.trim(),
-                message = if (locationOrNote.isNotBlank()) "Location: $locationOrNote" else "Upcoming scheduled event in MyLyfe",
+                message = if (locationOrNote.isNotBlank()) "Note: $locationOrNote" else "Upcoming reminder in MyLyfe",
                 timestampMillis = eventTimestamp,
                 type = "EVENT"
             )
         }
         id
+    }
+
+    suspend fun toggleEventCompleted(event: EventEntity) = withContext(Dispatchers.IO) {
+        val updated = event.copy(isCompleted = !event.isCompleted)
+        eventDao.updateEvent(updated)
     }
 
     suspend fun updateEvent(event: EventEntity) = withContext(Dispatchers.IO) {

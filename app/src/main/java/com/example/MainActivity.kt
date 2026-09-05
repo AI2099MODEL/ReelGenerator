@@ -39,7 +39,15 @@ class MainActivity : FragmentActivity() {
                     color = Color.Transparent,
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    MainLedgerScreen(viewModel = viewModel)
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Image(
+                            painter = painterResource(id = R.drawable.app_background),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        MainLedgerScreen(viewModel = viewModel)
+                    }
                 }
             }
         }
