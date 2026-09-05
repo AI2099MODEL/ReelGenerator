@@ -47,6 +47,24 @@ data class DiaryEntryEntity(
     val imageUri: String? = null
 )
 
+@Entity(tableName = "daily_schedules")
+data class DailyScheduleEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val title: String,
+    val note: String = "",
+    val timestamp: Long = System.currentTimeMillis(),
+    val endTimestamp: Long? = null,
+    val isMultiDay: Boolean = false,
+    val recurrence: String = "DAILY", // "DAILY", "WEEK", "MONTH", "ANNUAL"
+    val timeSlot: String = "09:00 AM",
+    val category: String = "General", // "Morning", "Work", "Personal", "Health", "Evening", "Diary" or Custom
+    val notifyMe: Boolean = true,
+    val notificationScheduledId: Int = 0,
+    val isCompleted: Boolean = false,
+    val colorHex: String = "#F59E0B"
+)
+
 @Entity(tableName = "events")
 data class EventEntity(
     @PrimaryKey(autoGenerate = true)

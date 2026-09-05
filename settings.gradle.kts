@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Timepass"
+rootProject.name = "Organize Today"
 
 include(":app")

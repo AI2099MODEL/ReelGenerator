@@ -60,6 +60,13 @@ object MusicPlayerManager {
 
         stopInternal()
 
+        NotificationHelper.showMusicNotification(
+            context = context,
+            trackTitle = track.songName,
+            artistName = track.artist,
+            isPlaying = true
+        )
+
         if (track.uriString.isNotBlank() && !track.uriString.startsWith("ledger://")) {
             try {
                 val uri = Uri.parse(track.uriString)
@@ -225,7 +232,7 @@ object MusicPlayerManager {
         }
     }
 
-    fun pause() {
+    fun pause(context: Context? = null) {
         _isPlaying.value = false
         mediaPlayer?.let {
             try {
@@ -234,6 +241,16 @@ object MusicPlayerManager {
         }
         synthJob?.cancel()
         synthJob = null
+
+        val track = _currentTrack.value
+        if (context != null && track != null) {
+            NotificationHelper.showMusicNotification(
+                context = context,
+                trackTitle = track.songName,
+                artistName = track.artist,
+                isPlaying = false
+            )
+        }
     }
 
     fun resume(context: Context) {
@@ -249,6 +266,12 @@ object MusicPlayerManager {
         } else {
             startSynthMelody(track, context)
         }
+        NotificationHelper.showMusicNotification(
+            context = context,
+            trackTitle = track.songName,
+            artistName = track.artist,
+            isPlaying = true
+        )
     }
 
     fun seekTo(positionMs: Long) {

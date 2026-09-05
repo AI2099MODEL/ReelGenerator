@@ -60,11 +60,11 @@ data class NavTabItem(
 
 private val NAV_ITEMS = listOf(
     NavTabItem(
-        section = LedgerSection.IMAGES,
-        label = "Text to Image",
-        selectedIcon = Icons.Filled.AutoAwesome,
-        unselectedIcon = Icons.Outlined.AutoAwesome,
-        tabColor = Color(0xFFFFD700)
+        section = LedgerSection.DAILY_SCHEDULE,
+        label = "Daily Schedule",
+        selectedIcon = Icons.Filled.CalendarMonth,
+        unselectedIcon = Icons.Outlined.CalendarMonth,
+        tabColor = Color(0xFFF59E0B)
     ),
     NavTabItem(
         section = LedgerSection.IMPORTANT_DATES,
@@ -81,11 +81,11 @@ private val NAV_ITEMS = listOf(
         tabColor = Color(0xFF0284C7)
     ),
     NavTabItem(
-        section = LedgerSection.VAULT,
-        label = "Vault",
-        selectedIcon = Icons.Filled.Lock,
-        unselectedIcon = Icons.Outlined.Lock,
-        tabColor = Color(0xFF0369A1)
+        section = LedgerSection.IMAGES,
+        label = "Text to Image",
+        selectedIcon = Icons.Filled.AutoAwesome,
+        unselectedIcon = Icons.Outlined.AutoAwesome,
+        tabColor = Color(0xFFFFD700)
     )
 )
 
@@ -576,28 +576,25 @@ fun TabBarWaterBackground(
             alpha = 0.82f
         )
 
-        // 7. Glassmorphism: Top Specular Curved Glass Reflection Sheen
+        // 7. Specular Reflection Sheen
         drawRect(
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color.White.copy(alpha = 0.42f),       // Crisp white specular reflection along top edge
-                    Color(0xFFE0F2FE).copy(alpha = 0.20f), // Soft sky blue glass sheen
-                    Color(0xFF38BDF8).copy(alpha = 0.08f),
-                    Color.Transparent                      // Fades seamlessly into deep flowing water
+                    Color.White.copy(alpha = 0.42f),
+                    Color.Transparent
                 ),
                 startY = 0f,
                 endY = height * 0.42f
             )
         )
 
-        // Glassmorphism: Top Beveled Specular Reflection Rim Line
+        // Top Specular Reflection Line
         drawLine(
             brush = Brush.horizontalGradient(
                 colors = listOf(
                     Color.White.copy(alpha = 0.45f),
                     Color.White.copy(alpha = 0.95f),
-                    Color(0xFFBAE6FD).copy(alpha = 0.98f),
-                    Color.White.copy(alpha = 0.90f),
+                    Color.White.copy(alpha = 0.95f),
                     Color.White.copy(alpha = 0.45f)
                 )
             ),
@@ -1027,9 +1024,75 @@ fun FloatingSailingBoats(
         val height = size.height
         if (width <= 0 || height <= 0) return@Canvas
 
-        val waterLine = height * 0.7f
+        val waterLine = height * 0.65f
 
-        // Draw gentle water ripples underneath
+        // Golden Sunrise Sky Glow (Sky behind sailing ships)
+        drawRect(
+            brush = Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFFFFF7ED), // Warm sunrise peach-gold sky
+                    Color(0xFFFEF08A).copy(alpha = 0.85f), // Soft amber sunlight
+                    Color(0xFFFDBA74).copy(alpha = 0.70f), // Warm apricot sunrise
+                    Color(0xFFF59E0B).copy(alpha = 0.55f)  // Golden horizon
+                ),
+                startY = 0f,
+                endY = waterLine
+            ),
+            topLeft = Offset(0f, 0f),
+            size = androidx.compose.ui.geometry.Size(width, waterLine)
+        )
+
+        // Radiant Golden Rising Sun Disc at the horizon center
+        val sunCenterX = width * 0.5f
+        val sunCenterY = waterLine + 4.dp.toPx()
+        val sunRadius = 24.dp.toPx()
+
+        // Sun outer radial aura
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    Color(0xFFFFFBEB).copy(alpha = 0.95f),
+                    Color(0xFFFDE047).copy(alpha = 0.75f),
+                    Color(0xFFF59E0B).copy(alpha = 0.40f),
+                    Color(0xFFF97316).copy(alpha = 0f)
+                ),
+                center = Offset(sunCenterX, sunCenterY),
+                radius = sunRadius * 2.6f
+            ),
+            radius = sunRadius * 2.6f,
+            center = Offset(sunCenterX, sunCenterY)
+        )
+
+        // Sun glowing core disc
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    Color(0xFFFFFFFF),
+                    Color(0xFFFEF08A),
+                    Color(0xFFF59E0B)
+                ),
+                center = Offset(sunCenterX, sunCenterY),
+                radius = sunRadius
+            ),
+            radius = sunRadius,
+            center = Offset(sunCenterX, sunCenterY)
+        )
+
+        // Golden sunrise rays radiating upwards
+        for (i in -4..4) {
+            val angle = (Math.PI / 2.0) + (i * 0.18)
+            val rayEndX = sunCenterX + (kotlin.math.cos(angle) * 70.dp.toPx()).toFloat()
+            val rayEndY = sunCenterY - (kotlin.math.sin(angle) * 36.dp.toPx()).toFloat()
+            drawLine(
+                color = Color(0xFFFEF08A).copy(alpha = 0.35f),
+                start = Offset(sunCenterX, sunCenterY),
+                end = Offset(rayEndX, rayEndY),
+                strokeWidth = 3.dp.toPx(),
+                cap = androidx.compose.ui.graphics.StrokeCap.Round
+            )
+        }
+
+        // Draw golden glow water ripples underneath
         val waterPath = Path()
         waterPath.moveTo(0f, waterLine)
         var x = 0f
@@ -1047,15 +1110,17 @@ fun FloatingSailingBoats(
             path = waterPath,
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFFE0F2FE).copy(alpha = 0.50f),
-                    Color(0xFF38BDF8).copy(alpha = 0.30f)
+                    Color(0xFFFEF08A).copy(alpha = 0.85f), // Golden crest
+                    Color(0xFFF59E0B).copy(alpha = 0.70f), // Amber sunrise water
+                    Color(0xFFD97706).copy(alpha = 0.55f), // Deep golden water
+                    Color(0xFFB45309).copy(alpha = 0.40f)
                 ),
                 startY = waterLine,
                 endY = height
             )
         )
 
-        // Glistening water crest line
+        // Golden glimmering water crest line extending across full screen width
         val crestPath = Path()
         crestPath.moveTo(0f, waterLine)
         var cx = 0f
@@ -1066,8 +1131,8 @@ fun FloatingSailingBoats(
         }
         drawPath(
             path = crestPath,
-            color = Color.White.copy(alpha = 0.80f),
-            style = Stroke(width = 1.5.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            color = Color(0xFFFFD56B),
+            style = Stroke(width = 2.8.dp.toPx(), cap = androidx.compose.ui.graphics.StrokeCap.Round)
         )
 
         fun drawBoat(cx: Float, scale: Float, facingRight: Boolean, colorBase: Color, colorSail: Color, phaseOffset: Float) {
@@ -1925,53 +1990,40 @@ fun LedgerBinderBottomBar(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 28.dp, bottomEnd = 28.dp))
             .navigationBarsPadding(),
-        shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp, bottomStart = 28.dp, bottomEnd = 28.dp),
         color = Color.Transparent,
-        border = BorderStroke(
-            1.5.dp,
-            Brush.horizontalGradient(
-                listOf(
-                    Color.White.copy(alpha = 0.85f),
-                    Color(0xFFBAE6FD).copy(alpha = 0.95f),
-                    Color(0xFF7DD3FC).copy(alpha = 0.80f),
-                    Color.White.copy(alpha = 0.70f)
-                )
-            )
-        ),
-        shadowElevation = 8.dp
+        border = null,
+        shadowElevation = 4.dp
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.Transparent)
         ) {
-            // Blue Water Flowing Background with Animated Ripples and Glassmorphism
-            TabBarWaterBackground(modifier = Modifier.matchParentSize())
-
             val rows = remember { listOf(NAV_ITEMS) }
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 6.dp, vertical = 6.dp),
+                    .padding(horizontal = 6.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                // Floating sailing boats bobbing on the flowing water surface
-                FloatingSailingBoats(
+                // Blue Water Flowing Background strictly for the tab buttons row
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(30.dp)
-                        .padding(bottom = 2.dp)
-                )
+                        .clip(RoundedCornerShape(18.dp))
+                ) {
+                    TabBarWaterBackground(modifier = Modifier.matchParentSize())
 
-                rows.forEachIndexed { rowIndex, rowItems ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    rows.forEachIndexed { rowIndex, rowItems ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                         rowItems.forEach { item ->
                             val isSelected = currentSection == item.section
                             val icon = if (isSelected) item.selectedIcon else item.unselectedIcon
@@ -2073,16 +2125,7 @@ fun LedgerBinderBottomBar(
                                             .rotate(animatedRotation)
                                     )
 
-                                    if (barWidthFraction > 0.05f) {
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth(barWidthFraction)
-                                                .height(3.dp)
-                                                .clip(CircleShape)
-                                                .background(Color(0xFF0284C7).copy(alpha = pulseAlpha))
-                                        )
-                                    }
+
                                 }
                             }
                         }
@@ -2091,6 +2134,7 @@ fun LedgerBinderBottomBar(
             }
         }
     }
+}
 }
 
 /**
@@ -2120,18 +2164,8 @@ fun LedgerBinderNavRail(
             .width(76.dp)
             .fillMaxHeight(),
         color = Color.Transparent,
-        border = BorderStroke(
-            1.5.dp,
-            Brush.verticalGradient(
-                listOf(
-                    Color.White.copy(alpha = 0.85f),
-                    Color(0xFFBAE6FD).copy(alpha = 0.95f),
-                    Color(0xFF7DD3FC).copy(alpha = 0.80f),
-                    Color.White.copy(alpha = 0.70f)
-                )
-            )
-        ),
-        shadowElevation = 8.dp
+        border = null,
+        shadowElevation = 4.dp
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             TabBarWaterBackground(modifier = Modifier.matchParentSize())

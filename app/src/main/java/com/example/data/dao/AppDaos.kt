@@ -298,4 +298,43 @@ interface VideoDao {
     suspend fun getVideoCount(): Int
 }
 
+@Dao
+interface DailyScheduleDao {
+    @Query("SELECT * FROM daily_schedules ORDER BY timestamp ASC")
+    fun getAllSchedules(): Flow<List<DailyScheduleEntity>>
+
+    @Query("SELECT * FROM daily_schedules WHERE (timestamp >= :startOfDay AND timestamp <= :endOfDay) OR (isMultiDay = 1 AND timestamp <= :endOfDay AND (endTimestamp IS NULL OR endTimestamp >= :startOfDay)) ORDER BY isCompleted ASC, timestamp ASC")
+    fun getSchedulesForDateRange(startOfDay: Long, endOfDay: Long): Flow<List<DailyScheduleEntity>>
+
+    @Query("SELECT * FROM daily_schedules WHERE recurrence = :recurrence ORDER BY timestamp ASC")
+    fun getSchedulesByRecurrence(recurrence: String): Flow<List<DailyScheduleEntity>>
+
+    @Query("SELECT * FROM daily_schedules")
+    suspend fun getAllSchedulesSnapshot(): List<DailyScheduleEntity>
+
+    @Query("SELECT * FROM daily_schedules WHERE id = :id LIMIT 1")
+    suspend fun getScheduleById(id: Long): DailyScheduleEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSchedule(schedule: DailyScheduleEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSchedules(schedules: List<DailyScheduleEntity>)
+
+    @Update
+    suspend fun updateSchedule(schedule: DailyScheduleEntity)
+
+    @Query("UPDATE daily_schedules SET isCompleted = :isCompleted WHERE id = :id")
+    suspend fun updateScheduleCompletion(id: Long, isCompleted: Boolean)
+
+    @Delete
+    suspend fun deleteSchedule(schedule: DailyScheduleEntity)
+
+    @Query("DELETE FROM daily_schedules WHERE id = :id")
+    suspend fun deleteScheduleById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM daily_schedules")
+    suspend fun getScheduleCount(): Int
+}
+
 

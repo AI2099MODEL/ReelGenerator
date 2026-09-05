@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
@@ -23,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -76,8 +78,6 @@ fun DiaryScreen(
         ) {
             LedgerTopHeader(
                 title = "Notes",
-                actionIcon = Icons.Filled.Add,
-                onActionClick = { showAddDialog = true },
                 onMenuClick = null
             )
 
@@ -149,6 +149,26 @@ fun DiaryScreen(
             }
         }
     }
+
+        // Floating Action Button (+) at lower right - Small Red Button
+        FloatingActionButton(
+            onClick = { showAddDialog = true },
+            containerColor = Color(0xFFD81B60),
+            contentColor = Color.White,
+            shape = CircleShape,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 16.dp, end = 16.dp)
+                .size(40.dp)
+                .shadow(6.dp, CircleShape, ambientColor = Color(0xFFD81B60), spotColor = Color(0xFFD81B60))
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "New Entry",
+                tint = Color.White,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 
     // Add Reflection Dialog

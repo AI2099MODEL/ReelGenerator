@@ -20,6 +20,7 @@ class LedgerRepository(
     private val chatDao: ChatDao = database.chatDao()
     private val categoryContactDao: CategoryContactDao = database.categoryContactDao()
     private val diaryDao: DiaryDao = database.diaryDao()
+    private val dailyScheduleDao: DailyScheduleDao = database.dailyScheduleDao()
     private val eventDao: EventDao = database.eventDao()
     private val vaultDao: VaultDao = database.vaultDao()
     private val taskDao: TaskDao = database.taskDao()
@@ -542,6 +543,169 @@ class LedgerRepository(
         } else {
             NotificationHelper.cancelReminder(context, notifId)
         }
+    }
+
+    // ----------------------------------------------------
+    // DAILY SCHEDULE & DIARY
+    // ----------------------------------------------------
+    val allDailySchedules: Flow<List<DailyScheduleEntity>> = dailyScheduleDao.getAllSchedules()
+
+    suspend fun seedDefaultSampleSchedulesIfEmpty() = withContext(Dispatchers.IO) {
+        val existing = dailyScheduleDao.getAllSchedulesSnapshot()
+        if (existing.isEmpty()) {
+            loadSampleRoutine()
+        }
+    }
+
+    suspend fun loadSampleRoutine() = withContext(Dispatchers.IO) {
+        val cal = Calendar.getInstance()
+
+        // 1. 8:00 AM - Yoga & Tea
+        cal.set(Calendar.HOUR_OF_DAY, 8)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        dailyScheduleDao.insertSchedule(
+            DailyScheduleEntity(
+                title = "Yoga & Tea",
+                note = "Morning mindfulness and herbal tea routine",
+                timestamp = cal.timeInMillis,
+                timeSlot = "8:00 AM",
+                category = "Health",
+                notifyMe = true,
+                colorHex = "#10B981"
+            )
+        )
+
+        // 2. 10:00 AM - Work / Projects
+        cal.set(Calendar.HOUR_OF_DAY, 10)
+        cal.set(Calendar.MINUTE, 0)
+        dailyScheduleDao.insertSchedule(
+            DailyScheduleEntity(
+                title = "Work / Projects",
+                note = "Core focus session and project review",
+                timestamp = cal.timeInMillis,
+                timeSlot = "10:00 AM",
+                category = "Work",
+                notifyMe = true,
+                colorHex = "#2563EB"
+            )
+        )
+
+        // 3. 1:00 PM - Lunch Break
+        cal.set(Calendar.HOUR_OF_DAY, 13)
+        cal.set(Calendar.MINUTE, 0)
+        dailyScheduleDao.insertSchedule(
+            DailyScheduleEntity(
+                title = "Lunch Break",
+                note = "Healthy lunch and short relaxation walk",
+                timestamp = cal.timeInMillis,
+                timeSlot = "1:00 PM",
+                category = "Meal",
+                notifyMe = true,
+                colorHex = "#E11D48"
+            )
+        )
+
+        // 4. 7:00 PM - Reading
+        cal.set(Calendar.HOUR_OF_DAY, 19)
+        cal.set(Calendar.MINUTE, 0)
+        dailyScheduleDao.insertSchedule(
+            DailyScheduleEntity(
+                title = "Reading",
+                note = "Personal development and reading session",
+                timestamp = cal.timeInMillis,
+                timeSlot = "7:00 PM",
+                category = "Personal",
+                notifyMe = true,
+                colorHex = "#9333EA"
+            )
+        )
+    }
+
+    fun getSchedulesForDateRange(startOfDay: Long, endOfDay: Long): Flow<List<DailyScheduleEntity>> =
+        dailyScheduleDao.getSchedulesForDateRange(startOfDay, endOfDay)
+
+    fun getSchedulesByRecurrence(recurrence: String): Flow<List<DailyScheduleEntity>> =
+        dailyScheduleDao.getSchedulesByRecurrence(recurrence)
+
+    suspend fun addDailySchedule(
+        title: String,
+        note: String = "",
+        timestamp: Long = System.currentTimeMillis(),
+        endTimestamp: Long? = null,
+        isMultiDay: Boolean = false,
+        recurrence: String = "DAILY",
+        timeSlot: String = "09:00 AM",
+        category: String = "General",
+        notifyMe: Boolean = true,
+        colorHex: String = "#F59E0B"
+    ) = withContext(Dispatchers.IO) {
+        val notifId = (System.currentTimeMillis() % 100000).toInt()
+        val schedule = DailyScheduleEntity(
+            title = title.trim(),
+            note = note.trim(),
+            timestamp = timestamp,
+            endTimestamp = endTimestamp,
+            isMultiDay = isMultiDay,
+            recurrence = recurrence,
+            timeSlot = timeSlot,
+            category = category,
+            notifyMe = notifyMe,
+            notificationScheduledId = notifId,
+            isCompleted = false,
+            colorHex = colorHex
+        )
+        dailyScheduleDao.insertSchedule(schedule)
+
+        if (notifyMe) {
+            val recurrenceLabel = when (recurrence) {
+                "WEEK" -> "Weekly Schedule"
+                "MONTH" -> "Monthly Schedule"
+                "ANNUAL" -> "Annual Schedule"
+                else -> "Daily Schedule"
+            }
+            NotificationHelper.scheduleReminder(
+                context = context,
+                notificationId = notifId,
+                title = "[$recurrenceLabel] $title",
+                message = if (note.isNotBlank()) note else "Reminder for your scheduled entry at $timeSlot",
+                timestampMillis = timestamp,
+                type = "TASK"
+            )
+        }
+    }
+
+    suspend fun toggleDailyScheduleComplete(schedule: DailyScheduleEntity) = withContext(Dispatchers.IO) {
+        dailyScheduleDao.updateScheduleCompletion(schedule.id, !schedule.isCompleted)
+    }
+
+    suspend fun updateDailySchedule(schedule: DailyScheduleEntity) = withContext(Dispatchers.IO) {
+        dailyScheduleDao.updateSchedule(schedule)
+        if (schedule.notifyMe) {
+            val recurrenceLabel = when (schedule.recurrence) {
+                "WEEK" -> "Weekly Schedule"
+                "MONTH" -> "Monthly Schedule"
+                "ANNUAL" -> "Annual Schedule"
+                else -> "Daily Schedule"
+            }
+            NotificationHelper.scheduleReminder(
+                context = context,
+                notificationId = schedule.notificationScheduledId,
+                title = "[$recurrenceLabel] ${schedule.title}",
+                message = if (schedule.note.isNotBlank()) schedule.note else "Reminder for your scheduled entry at ${schedule.timeSlot}",
+                timestampMillis = schedule.timestamp,
+                type = "TASK"
+            )
+        } else {
+            NotificationHelper.cancelReminder(context, schedule.notificationScheduledId)
+        }
+    }
+
+    suspend fun deleteDailySchedule(schedule: DailyScheduleEntity) = withContext(Dispatchers.IO) {
+        if (schedule.notifyMe && schedule.notificationScheduledId != 0) {
+            NotificationHelper.cancelReminder(context, schedule.notificationScheduledId)
+        }
+        dailyScheduleDao.deleteSchedule(schedule)
     }
 
     // ----------------------------------------------------

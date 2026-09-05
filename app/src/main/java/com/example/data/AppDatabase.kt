@@ -12,6 +12,7 @@ import com.example.data.model.*
         ChatThreadEntity::class,
         ChatMessageEntity::class,
         DiaryEntryEntity::class,
+        DailyScheduleEntity::class,
         EventEntity::class,
         VaultDocumentEntity::class,
         TaskEntity::class,
@@ -19,13 +20,14 @@ import com.example.data.model.*
         MusicTrackEntity::class,
         DownloadedVideoEntity::class
     ],
-    version = 8,
+    version = 10,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun chatDao(): ChatDao
     abstract fun categoryContactDao(): CategoryContactDao
     abstract fun diaryDao(): DiaryDao
+    abstract fun dailyScheduleDao(): DailyScheduleDao
     abstract fun eventDao(): EventDao
     abstract fun vaultDao(): VaultDao
     abstract fun taskDao(): TaskDao

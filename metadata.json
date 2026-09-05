@@ -1,6 +1,6 @@
 {
-  "name": "Timepass",
-  "description": "An elegant personal media studio for downloading, organizing, playing, and editing videos, images, and music.",
+  "name": "Organize Today",
+  "description": "An elegant personal organizer for daily schedules, important dates, reminders, and creative media generation.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

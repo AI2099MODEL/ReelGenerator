@@ -17,8 +17,8 @@ android {
     applicationId = "com.aistudio.ledger.kddtds"
     minSdk = 24
     targetSdk = 36
-    versionCode = 17
-    versionName = "2.6"
+    versionCode = 23
+    versionName = "3.2"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }

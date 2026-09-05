@@ -170,24 +170,36 @@ fun RoseQuartz3dHeadingText(
 }
 
 /**
- * App Logo icon component featuring the glass 'L' monogram.
+ * App Logo icon component featuring square shaped prominent app_icon.
  */
 @Composable
 fun AppHeaderLogo(
     modifier: Modifier = Modifier,
-    size: Dp = 32.dp
+    size: Dp = 40.dp
 ) {
-    Image(
-        painter = painterResource(id = R.drawable.ic_app_logo_glass_l),
-        contentDescription = "App Logo",
+    Surface(
         modifier = modifier
             .size(size)
-            .clip(RoundedCornerShape(8.dp))
-    )
+            .clip(RoundedCornerShape(8.dp)),
+        shape = RoundedCornerShape(8.dp),
+        color = Color.White,
+        shadowElevation = 3.dp,
+        border = BorderStroke(1.2.dp, Color(0xFFBAE6FD))
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.app_icon),
+            contentDescription = "App Logo",
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(1.dp)
+                .clip(RoundedCornerShape(7.dp)),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
+    }
 }
 
 /**
- * Animated Light Blue Sky Background with Floating Light-Colored White Clouds for Headings.
+ * Animated Light Blue Sky Background with Floating Light Blue & White Clouds for Headings.
  */
 @Composable
 fun HeaderSkyCloudsBackground(
@@ -195,7 +207,7 @@ fun HeaderSkyCloudsBackground(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "HeaderSkyClouds")
 
-    // Cloud 1: Large fluffy white cloud drifting across the sky
+    // Cloud 1: Large fluffy blue & white cloud drifting across the sky
     val cloud1Progress by infiniteTransition.animateFloat(
         initialValue = -0.3f,
         targetValue = 1.3f,
@@ -283,16 +295,16 @@ fun HeaderSkyCloudsBackground(
         )
         drawRect(brush = mistBrush)
 
-        // 3. Draw Floating Animated White Clouds
-        // Cloud 1: Main fluffy white cloud
+        // 3. Draw Floating Animated Blue & White Clouds
+        // Cloud 1: Main fluffy cloud
         val c1X = w * cloud1Progress
         val c1Y = h * 0.35f + sin((cloud1Progress * 4 * Math.PI).toDouble()).toFloat() * (h * 0.08f)
         drawPuffyCloud(
             centerX = c1X,
             centerY = c1Y,
-            scaleWidth = 62.dp.toPx(),
-            scaleHeight = 22.dp.toPx(),
-            alpha = 0.88f
+            scaleWidth = 64.dp.toPx(),
+            scaleHeight = 24.dp.toPx(),
+            alpha = 0.92f
         )
 
         // Cloud 2: Medium high airy cloud
@@ -301,9 +313,9 @@ fun HeaderSkyCloudsBackground(
         drawPuffyCloud(
             centerX = c2X,
             centerY = c2Y,
-            scaleWidth = 48.dp.toPx(),
-            scaleHeight = 17.dp.toPx(),
-            alpha = 0.78f
+            scaleWidth = 50.dp.toPx(),
+            scaleHeight = 18.dp.toPx(),
+            alpha = 0.85f
         )
 
         // Cloud 3: Small swift lower cloud
@@ -312,9 +324,9 @@ fun HeaderSkyCloudsBackground(
         drawPuffyCloud(
             centerX = c3X,
             centerY = c3Y,
-            scaleWidth = 38.dp.toPx(),
-            scaleHeight = 14.dp.toPx(),
-            alpha = 0.82f
+            scaleWidth = 40.dp.toPx(),
+            scaleHeight = 15.dp.toPx(),
+            alpha = 0.88f
         )
 
         // Cloud 4: Distant wide drifting cloud
@@ -323,15 +335,15 @@ fun HeaderSkyCloudsBackground(
         drawPuffyCloud(
             centerX = c4X,
             centerY = c4Y,
-            scaleWidth = 74.dp.toPx(),
-            scaleHeight = 26.dp.toPx(),
-            alpha = 0.65f
+            scaleWidth = 76.dp.toPx(),
+            scaleHeight = 28.dp.toPx(),
+            alpha = 0.75f
         )
     }
 }
 
 /**
- * Draws a multi-lobed, light-colored white cloud with soft layered shading and puffy lobes.
+ * Draws a multi-lobed blue and white floating cloud with soft layered shading.
  */
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPuffyCloud(
     centerX: Float,
@@ -340,48 +352,71 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPuffyCloud(
     scaleHeight: Float,
     alpha: Float
 ) {
-    val cloudColor = Color.White.copy(alpha = alpha.coerceIn(0f, 1f))
-    val cloudHighlight = Color(0xFFF8FAFC).copy(alpha = (alpha * 0.95f).coerceIn(0f, 1f))
-    val softShadowColor = Color(0xFFBAE6FD).copy(alpha = (alpha * 0.35f).coerceIn(0f, 1f))
+    val cloudWhite = Color.White.copy(alpha = alpha.coerceIn(0f, 1f))
+    val cloudBlueShade = Color(0xFF7DD3FC).copy(alpha = (alpha * 0.75f).coerceIn(0f, 1f))
+    val cloudSkyAccent = Color(0xFF38BDF8).copy(alpha = (alpha * 0.45f).coerceIn(0f, 1f))
+    val softBaseBlue = Color(0xFFBAE6FD).copy(alpha = (alpha * 0.60f).coerceIn(0f, 1f))
 
-    // Soft base shadow puff
+    // 1. Soft blue base shadow puff
     drawOval(
-        color = softShadowColor,
-        topLeft = Offset(centerX - scaleWidth * 0.45f, centerY - scaleHeight * 0.15f),
-        size = androidx.compose.ui.geometry.Size(scaleWidth * 0.9f, scaleHeight * 0.75f)
+        color = softBaseBlue,
+        topLeft = Offset(centerX - scaleWidth * 0.48f, centerY - scaleHeight * 0.10f),
+        size = androidx.compose.ui.geometry.Size(scaleWidth * 0.96f, scaleHeight * 0.80f)
     )
 
-    // Flat / gently curved base body of cloud
+    // 2. Light blue lower puff body
     drawOval(
-        color = cloudColor,
-        topLeft = Offset(centerX - scaleWidth * 0.48f, centerY - scaleHeight * 0.28f),
-        size = androidx.compose.ui.geometry.Size(scaleWidth * 0.96f, scaleHeight * 0.65f)
+        color = cloudBlueShade,
+        topLeft = Offset(centerX - scaleWidth * 0.46f, centerY - scaleHeight * 0.22f),
+        size = androidx.compose.ui.geometry.Size(scaleWidth * 0.92f, scaleHeight * 0.65f)
     )
 
-    // Left puff lobe
-    drawCircle(
-        color = cloudHighlight,
-        radius = scaleHeight * 0.48f,
-        center = Offset(centerX - scaleWidth * 0.26f, centerY - scaleHeight * 0.12f)
+    // 3. Crisp white main cloud body
+    drawOval(
+        color = cloudWhite,
+        topLeft = Offset(centerX - scaleWidth * 0.44f, centerY - scaleHeight * 0.30f),
+        size = androidx.compose.ui.geometry.Size(scaleWidth * 0.88f, scaleHeight * 0.60f)
     )
 
-    // Center-top tallest puff lobe
+    // 4. Left blue & white puff lobe
     drawCircle(
-        color = cloudColor,
+        color = cloudSkyAccent,
+        radius = scaleHeight * 0.46f,
+        center = Offset(centerX - scaleWidth * 0.25f, centerY - scaleHeight * 0.08f)
+    )
+    drawCircle(
+        color = cloudWhite,
+        radius = scaleHeight * 0.42f,
+        center = Offset(centerX - scaleWidth * 0.25f, centerY - scaleHeight * 0.14f)
+    )
+
+    // 5. Center-top tallest pure white puff lobe with blue bottom rim
+    drawCircle(
+        color = cloudBlueShade,
         radius = scaleHeight * 0.58f,
-        center = Offset(centerX - scaleWidth * 0.04f, centerY - scaleHeight * 0.25f)
+        center = Offset(centerX - scaleWidth * 0.04f, centerY - scaleHeight * 0.18f)
+    )
+    drawCircle(
+        color = cloudWhite,
+        radius = scaleHeight * 0.54f,
+        center = Offset(centerX - scaleWidth * 0.04f, centerY - scaleHeight * 0.26f)
     )
 
-    // Right-top puff lobe
+    // 6. Right-top puff lobe
     drawCircle(
-        color = cloudHighlight,
+        color = cloudSkyAccent,
         radius = scaleHeight * 0.44f,
-        center = Offset(centerX + scaleWidth * 0.24f, centerY - scaleHeight * 0.10f)
+        center = Offset(centerX + scaleWidth * 0.24f, centerY - scaleHeight * 0.06f)
+    )
+    drawCircle(
+        color = cloudWhite,
+        radius = scaleHeight * 0.40f,
+        center = Offset(centerX + scaleWidth * 0.24f, centerY - scaleHeight * 0.12f)
     )
 
-    // Extra mini puff on far right
+    // 7. Extra mini puff on far right
     drawCircle(
-        color = cloudColor,
+        color = cloudWhite,
         radius = scaleHeight * 0.32f,
         center = Offset(centerX + scaleWidth * 0.36f, centerY + scaleHeight * 0.02f)
     )
@@ -399,45 +434,50 @@ fun LedgerTopHeader(
     onHomeClick: (() -> Unit)? = null,
     onMenuClick: (() -> Unit)? = null,
     globalSettings: com.example.ui.GlobalSettingsState? = null,
-    onOpenGlobalSettings: (() -> Unit)? = null
+    onOpenGlobalSettings: (() -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
+            .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
+                .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
         ) {
-            // Frosted translucent surface letting the page background image show through
+            // Animated Floating Sky & Clouds Background across all top headings
+            HeaderSkyCloudsBackground(
+                modifier = Modifier.matchParentSize()
+            )
+
+            // Frosted translucent surface overlay to ensure text contrast while showing drifting clouds
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .background(Color.White.copy(alpha = 0.50f))
+                    .background(Color.White.copy(alpha = 0.28f))
             )
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 10.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Left side: App Logo and Title
                 Row(
-                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     // App Logo placed directly before heading title
-                    AppHeaderLogo(size = 32.dp)
+                    AppHeaderLogo(size = 28.dp)
 
                     // Title with ChitChat Typography and Style
                     Text(
                         text = title,
-                        fontSize = 22.sp,
+                        fontSize = 18.sp,
                         fontFamily = FontFamily.Cursive,
                         fontWeight = FontWeight.Bold,
                         color = RoseQuartzTextPrimary,
@@ -446,24 +486,24 @@ fun LedgerTopHeader(
                     )
                 }
 
-                // Right side: Action icon and Home Landing button
+                // Right side: Action icon, trailing submenu filters, and Home Landing button
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (onHomeClick != null) {
                         IconButton(
                             onClick = onHomeClick,
                             modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(10.dp))
                                 .background(RoseQuartzContainerLowest),
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Home,
                                 contentDescription = "Back to Landing Page",
                                 tint = RoseQuartzPrimary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(17.dp)
                             )
                         }
                     }
@@ -471,17 +511,20 @@ fun LedgerTopHeader(
                         IconButton(
                             onClick = onActionClick,
                             modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(10.dp))
                                 .background(RoseQuartzContainerLowest),
                         ) {
                             Icon(
                                 imageVector = actionIcon,
                                 contentDescription = "Action",
                                 tint = RoseQuartzPrimary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(17.dp)
                             )
                         }
+                    }
+                    if (trailingContent != null) {
+                        trailingContent()
                     }
                 }
             }
@@ -661,3 +704,80 @@ fun showTimePicker(context: Context, initialTimestamp: Long, onTimeSelected: (Lo
         false
     ).show()
 }
+
+/**
+ * Custom Compose implementation of the "Organize Today" badge with rising sun & foliage
+ */
+@Composable
+fun OrganizeTodayBrandBadge() {
+    Surface(
+        modifier = Modifier.size(62.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFFFFFBE8),
+        border = BorderStroke(1.dp, Color(0xFFFFE599)),
+        shadowElevation = 4.dp
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xFFFFFFFF),
+                            Color(0xFFFFF9E4),
+                            Color(0xFFFFEFBE)
+                        )
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 4.dp, vertical = 3.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Rising Sun with rays icon
+                Text(
+                    text = "☀️",
+                    fontSize = 16.sp,
+                    lineHeight = 16.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+
+                // "Organize" in dark pine green
+                Text(
+                    text = "Organize",
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color(0xFF0F3832),
+                    lineHeight = 9.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+
+                // "Today" in golden cursive
+                Text(
+                    text = "Today",
+                    fontSize = 11.5.sp,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    fontFamily = FontFamily.Cursive,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF8A531C),
+                    lineHeight = 12.sp,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            }
+
+            // Decorative green leaf accent at bottom-left corner
+            Text(
+                text = "🌿",
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 2.dp, bottom = 1.dp)
+            )
+        }
+    }
+}
+

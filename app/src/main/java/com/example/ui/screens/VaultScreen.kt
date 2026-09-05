@@ -289,50 +289,7 @@ fun VaultLockScreen(
                             )
                         }
 
-                        // Golden Header with "Organize Today" visible in background styling
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Text(text = "☀️", fontSize = 20.sp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "✦ ✨",
-                                    color = GoldPrimary,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            Text(
-                                text = "Organize Today",
-                                color = GoldPrimary,
-                                fontSize = 23.sp,
-                                fontStyle = FontStyle.Italic,
-                                fontFamily = FontFamily.Cursive,
-                                textAlign = TextAlign.Center
-                            )
-
-                            Text(
-                                text = "♡",
-                                color = GoldLight,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Text(
-                                text = "A MORE ORGANIZED YOU • A BRIGHTER TOMORROW",
-                                color = GoldLight.copy(alpha = 0.85f),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(10.dp))
 
                         // Compact Golden Vault Unlock Card
                         Surface(
@@ -598,23 +555,9 @@ fun VaultContentScreen(
                 title = "Secure Vault",
                 onHomeClick = onHomeClick,
                 onMenuClick = onMenuClick,
-                actionIcon = Icons.Filled.Lock,
-                onActionClick = onLockVault
+                actionIcon = Icons.Filled.Add,
+                onActionClick = { showAddDialog = true }
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showAddDialog = true },
-                containerColor = GoldPrimary,
-                contentColor = Color(0xFF241400),
-                shape = RoundedCornerShape(16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
-                modifier = Modifier.testTag("add_vault_doc_fab")
-            ) {
-                Icon(Icons.Filled.Add, "Add Document", tint = Color(0xFF241400), modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Add Document", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF241400))
-            }
         },
         containerColor = Color.Transparent
     ) { padding ->

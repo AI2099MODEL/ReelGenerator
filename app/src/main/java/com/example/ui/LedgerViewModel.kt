@@ -10,6 +10,7 @@ import com.example.util.NetworkMonitor
 import com.example.util.NetworkSimulationMode
 import com.example.util.NetworkState
 import com.example.util.OrganiserStorageManager
+import java.util.Calendar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -18,6 +19,7 @@ enum class LedgerSection(val title: String, val tabLabel: String, val iconEmoji:
     IMAGES("Text to Image", "Text to Image", "✨"),
     IMPORTANT_DATES("Important Dates", "Important Dates", "🎂"),
     REMIND_ME("Remind Me", "Remind Me", "⏰"),
+    DAILY_SCHEDULE("Daily Schedule", "Daily Schedule", "📅"),
     VAULT("Vault", "Vault", "🔒")
 }
 
@@ -44,7 +46,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     val networkState: StateFlow<NetworkState> = networkMonitor.networkState
 
-    val selectedSection = MutableStateFlow(LedgerSection.IMAGES)
+    val selectedSection = MutableStateFlow(LedgerSection.DAILY_SCHEDULE)
     val activeChatThreadKey = MutableStateFlow("family")
     val globalSettings = MutableStateFlow(GlobalSettingsState())
     val selectedSocialChannels = androidx.compose.runtime.mutableStateListOf<String>()
@@ -78,11 +80,42 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
     val activeCategoryContacts: StateFlow<List<CategoryContactEntity>>
     val allCategoryContacts: StateFlow<List<CategoryContactEntity>>
     val diaryEntries: StateFlow<List<DiaryEntryEntity>>
+    val dailySchedules: StateFlow<List<DailyScheduleEntity>>
     val events: StateFlow<List<EventEntity>>
     val vaultDocuments: StateFlow<List<VaultDocumentEntity>>
     val tasks: StateFlow<List<TaskEntity>>
     val musicTracks: StateFlow<List<MusicTrackEntity>>
     val downloadedVideos: StateFlow<List<DownloadedVideoEntity>>
+
+    // Biometric & Security State for Entire App
+    private val securityPrefs = application.getSharedPreferences("app_security_prefs", android.content.Context.MODE_PRIVATE)
+    val isAppLocked = MutableStateFlow(false)
+    val isBiometricEnabled = MutableStateFlow(false)
+    val appPinCode = MutableStateFlow(securityPrefs.getString("user_app_pin", "1234") ?: "1234")
+
+    fun unlockApp() {
+        isAppLocked.value = false
+    }
+
+    fun lockApp() {
+        if (isBiometricEnabled.value) {
+            isAppLocked.value = true
+        }
+    }
+
+    fun toggleBiometricSecurity(enabled: Boolean) {
+        isBiometricEnabled.value = enabled
+        if (!enabled) {
+            isAppLocked.value = false
+        }
+    }
+
+    fun setAppPin(pin: String) {
+        if (pin.length in 4..6) {
+            securityPrefs.edit().putString("user_app_pin", pin).apply()
+            appPinCode.value = pin
+        }
+    }
 
     init {
         val db = AppDatabase.getDatabase(application)
@@ -152,6 +185,13 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
         diaryEntries = repository.allDiaryEntries
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        dailySchedules = repository.allDailySchedules
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        viewModelScope.launch {
+            repository.seedDefaultSampleSchedulesIfEmpty()
+        }
 
         events = repository.allEvents
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -405,6 +445,93 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
             // Keep in My Organiser / Deleted_Archive so data is preserved locally even if removed from UI
             OrganiserStorageManager.archiveDeletedVaultDocument(getApplication(), document)
             repository.deleteVaultDocument(document)
+        }
+    }
+
+    fun loadSampleRoutine() {
+        viewModelScope.launch {
+            repository.loadSampleRoutine()
+        }
+    }
+
+    // ---------------- DAILY SCHEDULE & DIARY ----------------
+    fun addDailySchedule(
+        title: String,
+        note: String = "",
+        timestamp: Long = System.currentTimeMillis(),
+        endTimestamp: Long? = null,
+        isMultiDay: Boolean = false,
+        recurrence: String = "DAILY",
+        timeSlot: String = "09:00 AM",
+        category: String = "General",
+        notifyMe: Boolean = true,
+        colorHex: String = "#F59E0B"
+    ) {
+        viewModelScope.launch {
+            repository.addDailySchedule(
+                title = title,
+                note = note,
+                timestamp = timestamp,
+                endTimestamp = endTimestamp,
+                isMultiDay = isMultiDay,
+                recurrence = recurrence,
+                timeSlot = timeSlot,
+                category = category,
+                notifyMe = notifyMe,
+                colorHex = colorHex
+            )
+        }
+    }
+
+    fun getSchedulesForDate(calendar: Calendar = Calendar.getInstance()): Flow<List<DailyScheduleEntity>> {
+        val cal = calendar.clone() as Calendar
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        val startOfDay = cal.timeInMillis
+
+        cal.set(Calendar.HOUR_OF_DAY, 23)
+        cal.set(Calendar.MINUTE, 59)
+        cal.set(Calendar.SECOND, 59)
+        cal.set(Calendar.MILLISECOND, 999)
+        val endOfDay = cal.timeInMillis
+
+        return repository.getSchedulesForDateRange(startOfDay, endOfDay)
+    }
+
+    fun addDailySchedule(schedule: DailyScheduleEntity) {
+        viewModelScope.launch {
+            repository.addDailySchedule(
+                title = schedule.title,
+                note = schedule.note,
+                timestamp = schedule.timestamp,
+                endTimestamp = schedule.endTimestamp,
+                isMultiDay = schedule.isMultiDay,
+                recurrence = schedule.recurrence,
+                timeSlot = schedule.timeSlot,
+                category = schedule.category,
+                notifyMe = schedule.notifyMe,
+                colorHex = schedule.colorHex
+            )
+        }
+    }
+
+    fun toggleDailyScheduleComplete(schedule: DailyScheduleEntity) {
+        viewModelScope.launch {
+            repository.toggleDailyScheduleComplete(schedule)
+        }
+    }
+
+    fun updateDailySchedule(schedule: DailyScheduleEntity) {
+        viewModelScope.launch {
+            repository.updateDailySchedule(schedule)
+        }
+    }
+
+    fun deleteDailySchedule(schedule: DailyScheduleEntity) {
+        viewModelScope.launch {
+            repository.deleteDailySchedule(schedule)
         }
     }
 
