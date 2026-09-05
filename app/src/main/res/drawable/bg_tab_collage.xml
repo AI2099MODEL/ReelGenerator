@@ -1,0 +1,110 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Base Creative Studio Pastel Violet Gradient -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="1080"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF1E112A" />
+                <item android:offset="0.3" android:color="#FF261435" />
+                <item android:offset="0.65" android:color="#FF1A1A3A" />
+                <item android:offset="1.0" android:color="#FF0F172A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Artistic Coral & Orchid Creative Wash -->
+    <path
+        android:pathData="M250,300m-350,0a350,350 0 1,1 700,0a350,350 0 1,1 -700,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="250"
+                android:centerY="300"
+                android:gradientRadius="350">
+                <item android:offset="0.0" android:color="#35EC4899" />
+                <item android:offset="0.5" android:color="#18A855F7" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Cyan Iris Accent Flare -->
+    <path
+        android:pathData="M850,550m-300,0a300,300 0 1,1 600,0a300,300 0 1,1 -600,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="850"
+                android:centerY="550"
+                android:gradientRadius="300">
+                <item android:offset="0.0" android:color="#2838BDF8" />
+                <item android:offset="0.6" android:color="#126366F1" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Stylized Photographic Collage Frame Outlines in Background -->
+    <!-- Frame 1 -->
+    <path
+        android:strokeColor="#18EC4899"
+        android:strokeWidth="1.5"
+        android:pathData="M160,400 L440,360 L480,680 L200,720 Z" />
+
+    <!-- Frame 2 -->
+    <path
+        android:strokeColor="#1838BDF8"
+        android:strokeWidth="1.5"
+        android:pathData="M520,380 L880,410 L840,730 L480,700 Z" />
+
+    <!-- Frame 3 -->
+    <path
+        android:strokeColor="#18A855F7"
+        android:strokeWidth="1.5"
+        android:pathData="M240,800 L620,780 L600,1140 L220,1160 Z" />
+
+    <!-- Frame 4 -->
+    <path
+        android:strokeColor="#18F59E0B"
+        android:strokeWidth="1.5"
+        android:pathData="M660,820 L940,860 L890,1220 L610,1180 Z" />
+
+    <!-- Camera Shutter / Aperture Blades Geometry -->
+    <path
+        android:strokeColor="#12F43F5E"
+        android:strokeWidth="1.2"
+        android:pathData="M540,1400m-140,0a140,140 0 1,1 280,0a140,140 0 1,1 -280,0" />
+
+    <path
+        android:strokeColor="#16EC4899"
+        android:strokeWidth="1"
+        android:pathData="M440,1320 L640,1480 M440,1480 L640,1320 M540,1260 L540,1540" />
+
+    <!-- Bottom Soft Violet Radiant Glow -->
+    <path
+        android:pathData="M0,1420 C320,1320 740,1520 1080,1400 L1080,1920 L0,1920 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1320"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#00000000" />
+                <item android:offset="0.5" android:color="#1DC084FC" />
+                <item android:offset="1.0" android:color="#32EC4899" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

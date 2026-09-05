@@ -1,0 +1,82 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Base Gradient Background -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF0F172A" />
+                <item android:offset="0.25" android:color="#FF1E293B" />
+                <item android:offset="0.6" android:color="#FF1E1B2E" />
+                <item android:offset="0.85" android:color="#FF271D2D" />
+                <item android:offset="1.0" android:color="#FF181423" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Warm Morning Sunlight Orb -->
+    <path
+        android:pathData="M540,180m-420,0a420,420 0 1,1 840,0a420,420 0 1,1 -840,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="540"
+                android:centerY="180"
+                android:gradientRadius="420">
+                <item android:offset="0.0" android:color="#35F59E0B" />
+                <item android:offset="0.4" android:color="#1CF97316" />
+                <item android:offset="0.8" android:color="#08EC4899" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Architectural Studio Window Arches & Lines -->
+    <path
+        android:strokeColor="#1AF8FAFC"
+        android:strokeWidth="2"
+        android:pathData="M180,600 C180,380 340,220 540,220 C740,220 900,380 900,600 L900,1400 L180,1400 Z" />
+
+    <path
+        android:strokeColor="#12F59E0B"
+        android:strokeWidth="1.5"
+        android:pathData="M240,640 C240,440 375,300 540,300 C705,300 840,440 840,640 L840,1350 L240,1350 Z" />
+
+    <!-- Horizontal Studio Shelves / Perspective Lines -->
+    <path
+        android:strokeColor="#18FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M180,650 L900,650 M180,920 L900,920 M180,1180 L900,1180" />
+
+    <path
+        android:strokeColor="#14FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M540,220 L540,1400" />
+
+    <!-- Ambient Home Glow Base -->
+    <path
+        android:pathData="M0,1300 C300,1200 700,1400 1080,1260 L1080,1920 L0,1920 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1200"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#00000000" />
+                <item android:offset="0.5" android:color="#1AEC4899" />
+                <item android:offset="1.0" android:color="#30F59E0B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

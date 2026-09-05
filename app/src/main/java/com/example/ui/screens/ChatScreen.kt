@@ -343,24 +343,6 @@ fun ChatScreen(
                             modifier = Modifier.size(20.dp)
                         )
                     }
-
-                    // Right-hand side Submenu / Drawer Button
-                    if (onMenuClick != null) {
-                        IconButton(
-                            onClick = onMenuClick,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(RoseQuartzPrimaryContainer)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Open Side Menu",
-                                tint = RoseQuartzPrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
                 }
             }
         }

@@ -1,0 +1,91 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Base Obsidian Cyber Gradient -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="0"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF030712" />
+                <item android:offset="0.3" android:color="#FF061325" />
+                <item android:offset="0.65" android:color="#FF0A192F" />
+                <item android:offset="1.0" android:color="#FF020617" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Center Security Core Radial Glow -->
+    <path
+        android:pathData="M540,580m-400,0a400,400 0 1,1 800,0a400,400 0 1,1 -800,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="540"
+                android:centerY="580"
+                android:gradientRadius="400">
+                <item android:offset="0.0" android:color="#3006B6D4" />
+                <item android:offset="0.5" android:color="#180284C7" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Concentric Vault Dial Rings -->
+    <path
+        android:strokeColor="#1822D3EE"
+        android:strokeWidth="1.5"
+        android:pathData="M540,580m-280,0a280,280 0 1,1 560,0a280,280 0 1,1 -560,0" />
+
+    <path
+        android:strokeColor="#1038BDF8"
+        android:strokeWidth="2"
+        android:pathData="M540,580m-220,0a220,220 0 1,1 440,0a220,220 0 1,1 -440,0" />
+
+    <path
+        android:strokeColor="#2206B6D4"
+        android:strokeWidth="1.5"
+        android:pathData="M540,580m-160,0a160,160 0 1,1 320,0a160,160 0 1,1 -320,0" />
+
+    <!-- Vault Shield Watermark Contour -->
+    <path
+        android:strokeColor="#1A22D3EE"
+        android:strokeWidth="2"
+        android:pathData="M540,460 L620,500 L620,620 C620,680 580,720 540,740 C500,720 460,680 460,620 L460,500 Z" />
+
+    <!-- Subtle Hexagonal / Security Matrix Lines -->
+    <path
+        android:strokeColor="#0C0EA5E9"
+        android:strokeWidth="1"
+        android:pathData="M140,200 L940,200 M140,360 L940,360 M140,800 L940,800 M140,980 L940,980 M140,1160 L940,1160 M140,1340 L940,1340 M140,1520 L940,1520 M140,1700 L940,1700" />
+
+    <path
+        android:strokeColor="#0C06B6D4"
+        android:strokeWidth="1"
+        android:pathData="M240,150 L240,1750 M540,150 L540,1750 M840,150 L840,1750" />
+
+    <!-- Deep Vault Blue Base Glow -->
+    <path
+        android:pathData="M0,1450 C360,1350 720,1550 1080,1420 L1080,1920 L0,1920 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1350"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#00000000" />
+                <item android:offset="0.6" android:color="#1A0284C7" />
+                <item android:offset="1.0" android:color="#2E06B6D4" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

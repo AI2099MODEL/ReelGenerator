@@ -439,7 +439,7 @@ fun LedgerTopHeader(
                     )
                 }
 
-                // Right side: Action icon & Submenu/Menu button at right-hand side
+                // Right side: Action icon
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -455,23 +455,6 @@ fun LedgerTopHeader(
                             Icon(
                                 imageVector = actionIcon,
                                 contentDescription = "Action",
-                                tint = RoseQuartzPrimary,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    if (onMenuClick != null) {
-                        IconButton(
-                            onClick = onMenuClick,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(RoseQuartzContainerLowest),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Open Side Menu",
                                 tint = RoseQuartzPrimary,
                                 modifier = Modifier.size(20.dp)
                             )

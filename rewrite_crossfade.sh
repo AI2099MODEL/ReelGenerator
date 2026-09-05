@@ -1,3 +1,5 @@
+#!/bin/bash
+cat << 'INNER_EOF' > app/src/main/java/com/example/ui/screens/MainLedgerScreen.kt
 package com.example.ui.screens
 
 import android.Manifest
@@ -38,61 +40,48 @@ fun MainLedgerScreen(
     val vaultDocs by viewModel.vaultDocuments.collectAsStateWithLifecycle()
     val globalSettings by viewModel.globalSettings.collectAsStateWithLifecycle()
 
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var showGlobalSettingsDialog by remember { mutableStateOf(false) }
 
     if (showGlobalSettingsDialog) {
         GlobalSettingsDialog(
             settings = globalSettings,
-            onDismissRequest = { showGlobalSettingsDialog = false },
-            onToggleLocation = {},
-            onSetLocation = { _, _, _, _ -> },
-            onToggleTranslation = {},
-            onSetLanguage = { _, _ -> },
-            onToggleAutoTranslate = {},
-            onSetTranslationEngine = {}
+            onDismiss = { showGlobalSettingsDialog = false },
+            onSave = { updated ->
+                viewModel.globalSettings.value = updated
+                showGlobalSettingsDialog = false
+            }
         )
     }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-            // Bespoke background image for each tab with smooth crossfading transitions
-            TabBackgroundView(currentSection = currentSection)
-
-            val isTablet = maxWidth >= 600.dp
-            if (isTablet) {
-                Row(modifier = Modifier.fillMaxSize()) {
-                    LedgerBinderNavRail(
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
+                    drawerContainerColor = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.width(320.dp)
+                ) {
+                    LedgerSideMenuDrawer(
                         currentSection = currentSection,
                         onSectionSelected = { viewModel.setSection(it) },
+                        onCloseDrawer = { coroutineScope.launch { drawerState.close() } },
+                        globalSettings = globalSettings,
+                        onOpenGlobalSettings = { showGlobalSettingsDialog = true }
                     )
-                    Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                        ScreenContent(
-                            currentSection = currentSection,
-                            viewModel = viewModel,
-                            tasks = tasks,
-                            events = events,
-                            vaultDocs = vaultDocs,
-                            globalSettings = globalSettings,
-                            onOpenGlobalSettings = { showGlobalSettingsDialog = true }
-                        )
-                    }
                 }
-            } else {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Scaffold(
-                        bottomBar = {
-                            LedgerBinderBottomBar(
-                                currentSection = currentSection,
-                                onSectionSelected = { viewModel.setSection(it) }
-                            )
-                        },
-                        containerColor = Color.Transparent
-                    ) { innerPadding ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
+            }
+        ) {
+            BoxWithConstraints(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                val isTablet = maxWidth >= 600.dp
+                if (isTablet) {
+                    Row(modifier = Modifier.fillMaxSize()) {
+                        BinderNavigationRail(
+                            currentSection = currentSection,
+                            onSectionSelected = { viewModel.setSection(it) },
+                            onMenuClick = { coroutineScope.launch { drawerState.open() } }
+                        )
+                        Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
                             ScreenContent(
                                 currentSection = currentSection,
                                 viewModel = viewModel,
@@ -100,8 +89,38 @@ fun MainLedgerScreen(
                                 events = events,
                                 vaultDocs = vaultDocs,
                                 globalSettings = globalSettings,
-                                onOpenGlobalSettings = { showGlobalSettingsDialog = true }
+                                onOpenGlobalSettings = { showGlobalSettingsDialog = true },
+                                onOpenDrawer = { coroutineScope.launch { drawerState.open() } }
                             )
+                        }
+                    }
+                } else {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Scaffold(
+                            bottomBar = {
+                                BinderBottomNavigation(
+                                    currentSection = currentSection,
+                                    onSectionSelected = { viewModel.setSection(it) }
+                                )
+                            },
+                            containerColor = Color.Transparent
+                        ) { innerPadding ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                            ) {
+                                ScreenContent(
+                                    currentSection = currentSection,
+                                    viewModel = viewModel,
+                                    tasks = tasks,
+                                    events = events,
+                                    vaultDocs = vaultDocs,
+                                    globalSettings = globalSettings,
+                                    onOpenGlobalSettings = { showGlobalSettingsDialog = true },
+                                    onOpenDrawer = { coroutineScope.launch { drawerState.open() } }
+                                )
+                            }
                         }
                     }
                 }
@@ -118,7 +137,8 @@ private fun ScreenContent(
     events: List<com.example.data.model.EventEntity>,
     vaultDocs: List<com.example.data.model.VaultDocumentEntity>,
     globalSettings: com.example.ui.GlobalSettingsState,
-    onOpenGlobalSettings: () -> Unit
+    onOpenGlobalSettings: () -> Unit,
+    onOpenDrawer: () -> Unit
 ) {
     val context = LocalContext.current
     Crossfade(targetState = currentSection, modifier = Modifier.fillMaxSize(), label = "ledger_section_crossfade") { section ->
@@ -128,17 +148,26 @@ private fun ScreenContent(
                     events = events,
                     tasks = tasks,
                     vaultDocs = vaultDocs,
-                    onNavigateToSection = { viewModel.setSection(it) }
+                    onNavigateToSection = { viewModel.setSection(it) },
+                    onMenuClick = onOpenDrawer
                 )
             }
             LedgerSection.TASKS -> {
                 TasksScreen(
                     tasks = tasks,
                     onAddTask = { title, description, notify, scheduledTime -> 
-                        viewModel.addTask(title, description, scheduledTime, "General", notify, "")
+                        val task = com.example.data.model.TaskEntity(
+                            title = title,
+                            description = description,
+                            notifyMe = notify,
+                            scheduledTimestamp = scheduledTime,
+                            category = "General"
+                        )
+                        viewModel.addTask(task)
                     },
                     onToggleComplete = { viewModel.toggleTaskComplete(it) },
-                    onDeleteTask = { viewModel.deleteTask(it) }
+                    onDeleteTask = { viewModel.deleteTask(it) },
+                    onMenuClick = onOpenDrawer
                 )
             }
             LedgerSection.EVENTS -> {
@@ -153,12 +182,14 @@ private fun ScreenContent(
                             includeYear = includeYear
                         )
                     },
-                    onDeleteEvent = { viewModel.deleteEvent(it) }
+                    onDeleteEvent = { viewModel.deleteEvent(it) },
+                    onMenuClick = onOpenDrawer
                 )
             }
             LedgerSection.IMAGES -> {
                 ImageStudioScreen(
-                    onMenuClick = null,
+                    onMenuClick = onOpenDrawer,
+                    globalSettings = globalSettings,
                     onOpenGlobalSettings = onOpenGlobalSettings
                 )
             }
@@ -166,11 +197,13 @@ private fun ScreenContent(
                 VaultScreen(
                     vaultDocs = vaultDocs,
                     onAddDocument = { title, filename, uriStr, type, category, bytes ->
-                        viewModel.addVaultDocument(title, filename, uriStr, type, category, bytes, "")
+                        viewModel.addVaultDocument(title, filename, uriStr, type, category, bytes)
                     },
-                    onDeleteDocument = { viewModel.deleteVaultDocument(it) }
+                    onDeleteDocument = { viewModel.deleteVaultDocument(it) },
+                    onMenuClick = onOpenDrawer
                 )
             }
         }
     }
 }
+INNER_EOF

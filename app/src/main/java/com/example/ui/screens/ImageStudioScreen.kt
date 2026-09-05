@@ -14,7 +14,6 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -343,9 +342,9 @@ fun ImageStudioScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(40.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(8.dp))
                                 .clickable { selectedTab = tab },
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(8.dp),
                             color = if (isSelected) RoseQuartzPrimary else Color.Transparent,
                             shadowElevation = if (isSelected) 3.dp else 0.dp
                         ) {
@@ -559,19 +558,6 @@ private fun TextToImageSection(
                                 color = RoseQuartzPrimary
                             )
                         }
-
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = RoseQuartzPrimary.copy(alpha = 0.1f)
-                        ) {
-                            Text(
-                                text = "Gemini Flash Image",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = RoseQuartzPrimary
-                            )
-                        }
                     }
 
                     // Prompt Input Field
@@ -615,18 +601,17 @@ private fun TextToImageSection(
                     )
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
                     ) {
                         STYLE_PRESETS.forEach { (styleName, emoji) ->
                             val isSelected = selectedStyle == styleName
                             Surface(
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .clip(RoundedCornerShape(8.dp))
                                     .clickable { onStyleSelect(styleName) },
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(8.dp),
                                 color = if (isSelected) RoseQuartzPrimary else RoseQuartzContainerLow,
                                 border = BorderStroke(
                                     1.dp,
@@ -634,10 +619,10 @@ private fun TextToImageSection(
                                 )
                             ) {
                                 Box(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(text = emoji, fontSize = 18.sp)
+                                    Text(text = emoji, fontSize = 14.sp)
                                 }
                             }
                         }
@@ -802,7 +787,7 @@ private fun TextToImageSection(
                             OutlinedButton(
                                 onClick = { onInspect(res) },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(8.dp),
                                 border = BorderStroke(1.dp, RoseQuartzPrimary)
                             ) {
                                 Icon(Icons.Default.Fullscreen, contentDescription = null, modifier = Modifier.size(16.dp), tint = RoseQuartzPrimary)
@@ -813,7 +798,7 @@ private fun TextToImageSection(
                             Button(
                                 onClick = { onSaveToDrive(res) },
                                 modifier = Modifier.weight(1.3f),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5))
                             ) {
                                 Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
@@ -984,7 +969,7 @@ private fun LocalStorageGallerySection(
                     )
                     Button(
                         onClick = onImportClick,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = RoseQuartzPrimary)
                     ) {
                         Text("Pick Photos from Device")
@@ -1227,7 +1212,7 @@ private fun GoogleDriveGallerySection(
                         Button(
                             onClick = onOpenDriveApp,
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5))
                         ) {
                             Icon(Icons.Default.Cloud, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
@@ -1238,7 +1223,7 @@ private fun GoogleDriveGallerySection(
                         OutlinedButton(
                             onClick = onImportFromDevice,
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(8.dp),
                             border = BorderStroke(1.dp, RoseQuartzPrimary)
                         ) {
                             Icon(Icons.Default.FileUpload, contentDescription = null, modifier = Modifier.size(16.dp), tint = RoseQuartzPrimary)
@@ -1441,7 +1426,7 @@ private fun ImageLightboxDialog(
                         contentDescription = item.title,
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp)),
+                            .clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Fit
                     )
                 }

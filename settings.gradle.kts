@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "MyLyfe"
+rootProject.name = "Timepass"
 
 include(":app")

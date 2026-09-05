@@ -274,3 +274,28 @@ interface MusicDao {
     suspend fun getTrackCount(): Int
 }
 
+@Dao
+interface VideoDao {
+    @Query("SELECT * FROM downloaded_videos ORDER BY downloadTimestamp DESC")
+    fun getAllVideos(): Flow<List<DownloadedVideoEntity>>
+
+    @Query("SELECT * FROM downloaded_videos WHERE id = :id LIMIT 1")
+    suspend fun getVideoById(id: Long): DownloadedVideoEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertVideo(video: DownloadedVideoEntity): Long
+
+    @Update
+    suspend fun updateVideo(video: DownloadedVideoEntity)
+
+    @Delete
+    suspend fun deleteVideo(video: DownloadedVideoEntity)
+
+    @Query("DELETE FROM downloaded_videos WHERE id = :id")
+    suspend fun deleteVideoById(id: Long)
+
+    @Query("SELECT COUNT(*) FROM downloaded_videos")
+    suspend fun getVideoCount(): Int
+}
+
+

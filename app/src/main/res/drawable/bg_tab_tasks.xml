@@ -1,0 +1,75 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Base Gradient: Cool Deep Navy Slate to Cyan Charcoal -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="1080"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF081426" />
+                <item android:offset="0.3" android:color="#FF0C2340" />
+                <item android:offset="0.7" android:color="#FF0F1D33" />
+                <item android:offset="1.0" android:color="#FF050D1A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Glowing Cyan Productivity Spotlight -->
+    <path
+        android:pathData="M800,300m-450,0a450,450 0 1,1 900,0a450,450 0 1,1 -900,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="800"
+                android:centerY="300"
+                android:gradientRadius="450">
+                <item android:offset="0.0" android:color="#2838BDF8" />
+                <item android:offset="0.5" android:color="#140EA5E9" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Subtle Isometric Productivity Task Grid -->
+    <path
+        android:strokeColor="#1538BDF8"
+        android:strokeWidth="1"
+        android:pathData="M100,200 L980,200 M100,350 L980,350 M100,500 L980,500 M100,650 L980,650 M100,800 L980,800 M100,950 L980,950 M100,1100 L980,1100 M100,1250 L980,1250 M100,1400 L980,1400 M100,1550 L980,1550 M100,1700 L980,1700" />
+
+    <path
+        android:strokeColor="#100284C7"
+        android:strokeWidth="1"
+        android:pathData="M200,150 L200,1750 M400,150 L400,1750 M600,150 L600,1750 M800,150 L800,1750" />
+
+    <!-- Stylized Subtle Checklist Bullet Motifs in Background -->
+    <path
+        android:strokeColor="#2038BDF8"
+        android:strokeWidth="2"
+        android:pathData="M150,335 l12,12 l24,-24 M150,485 l12,12 l24,-24 M150,635 l12,12 l24,-24 M150,785 l12,12 l24,-24 M150,935 l12,12 l24,-24" />
+
+    <!-- Bottom Energy Flow Wave -->
+    <path
+        android:pathData="M0,1500 C400,1650 700,1450 1080,1600 L1080,1920 L0,1920 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1450"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#00000000" />
+                <item android:offset="0.6" android:color="#180284C7" />
+                <item android:offset="1.0" android:color="#2838BDF8" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

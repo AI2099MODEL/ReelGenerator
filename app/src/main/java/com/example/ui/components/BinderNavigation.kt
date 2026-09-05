@@ -60,39 +60,39 @@ data class NavTabItem(
 
 private val NAV_ITEMS = listOf(
     NavTabItem(
-        section = LedgerSection.STUDIO,
-        label = "Image Studio",
-        selectedIcon = Icons.Filled.AutoAwesome,
-        unselectedIcon = Icons.Outlined.AutoAwesome,
-        tabColor = Color(0xFF0EA5E9) // Azure Water
+        section = LedgerSection.IMAGES,
+        label = "Collage",
+        selectedIcon = Icons.Filled.PhotoLibrary,
+        unselectedIcon = Icons.Outlined.PhotoLibrary,
+        tabColor = Color(0xFF38BDF8)
     ),
     NavTabItem(
-        section = LedgerSection.SOCIAL,
-        label = "Post Reel",
-        selectedIcon = Icons.Filled.VideoLibrary,
-        unselectedIcon = Icons.Outlined.VideoLibrary,
-        tabColor = Color(0xFF0284C7) // Blue Water
+        section = LedgerSection.HOME,
+        label = "Home",
+        selectedIcon = Icons.Filled.Home,
+        unselectedIcon = Icons.Outlined.Home,
+        tabColor = Color(0xFF0284C7)
     ),
     NavTabItem(
-        section = LedgerSection.GAMES,
-        label = "Games",
-        selectedIcon = Icons.Filled.SportsEsports,
-        unselectedIcon = Icons.Outlined.SportsEsports,
-        tabColor = Color(0xFF38BDF8) // Bright Water Blue
+        section = LedgerSection.TASKS,
+        label = "Tasks",
+        selectedIcon = Icons.Filled.TaskAlt,
+        unselectedIcon = Icons.Outlined.TaskAlt,
+        tabColor = Color(0xFF0EA5E9)
     ),
     NavTabItem(
-        section = LedgerSection.MUSIC,
-        label = "Music",
-        selectedIcon = Icons.Filled.MusicNote,
-        unselectedIcon = Icons.Outlined.MusicNote,
-        tabColor = Color(0xFF0284C7) // Clear Water Blue
+        section = LedgerSection.EVENTS,
+        label = "Events",
+        selectedIcon = Icons.Filled.Cake,
+        unselectedIcon = Icons.Outlined.Cake,
+        tabColor = Color(0xFF0284C7)
     ),
     NavTabItem(
-        section = LedgerSection.RINGTONES,
-        label = "Ringtones",
-        selectedIcon = Icons.Filled.Notifications,
-        unselectedIcon = Icons.Outlined.Notifications,
-        tabColor = Color(0xFF535F76) // Slate Steel
+        section = LedgerSection.VAULT,
+        label = "Vault",
+        selectedIcon = Icons.Filled.Lock,
+        unselectedIcon = Icons.Outlined.Lock,
+        tabColor = Color(0xFF0369A1)
     )
 )
 

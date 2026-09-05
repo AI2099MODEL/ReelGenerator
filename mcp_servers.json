@@ -4,7 +4,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@google/stitch-mcp@latest"
+        "@_davideast/stitch-mcp@latest"
       ],
       "env": {
         "STITCH_API_TOKEN": "${STITCH_API_TOKEN}"

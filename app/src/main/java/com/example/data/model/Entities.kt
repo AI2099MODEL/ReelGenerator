@@ -129,3 +129,21 @@ data class ArchiveMessagesReport(
     val cutoffTimestamp: Long
 )
 
+@Entity(tableName = "downloaded_videos")
+data class DownloadedVideoEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val title: String,
+    val originalUrl: String,
+    val platform: String, // "INSTAGRAM", "FACEBOOK", "WEB"
+    val localFilePath: String = "",
+    val thumbnailUri: String = "",
+    val fileSizeBytes: Long = 0L,
+    val durationSeconds: Int = 0,
+    val downloadTimestamp: Long = System.currentTimeMillis(),
+    val status: String = "COMPLETED", // "DOWNLOADING", "COMPLETED", "FAILED"
+    val authorName: String = "",
+    val quality: String = "HD 720p"
+)
+
+

@@ -24,6 +24,7 @@ class LedgerRepository(
     private val vaultDao: VaultDao = database.vaultDao()
     private val taskDao: TaskDao = database.taskDao()
     private val musicDao: MusicDao = database.musicDao()
+    private val videoDao: VideoDao = database.videoDao()
 
     // ----------------------------------------------------
     // CHAT
@@ -715,6 +716,27 @@ class LedgerRepository(
     }
 
     // ----------------------------------------------------
+    // DOWNLOADED VIDEOS (FACEBOOK & INSTAGRAM)
+    // ----------------------------------------------------
+    val allDownloadedVideos: Flow<List<DownloadedVideoEntity>> = videoDao.getAllVideos()
+
+    suspend fun addDownloadedVideo(video: DownloadedVideoEntity): Long = withContext(Dispatchers.IO) {
+        videoDao.insertVideo(video)
+    }
+
+    suspend fun updateDownloadedVideo(video: DownloadedVideoEntity) = withContext(Dispatchers.IO) {
+        videoDao.updateVideo(video)
+    }
+
+    suspend fun deleteDownloadedVideo(video: DownloadedVideoEntity) = withContext(Dispatchers.IO) {
+        videoDao.deleteVideo(video)
+    }
+
+    suspend fun deleteDownloadedVideoById(id: Long) = withContext(Dispatchers.IO) {
+        videoDao.deleteVideoById(id)
+    }
+
+    // ----------------------------------------------------
     // SEED INITIAL DATA IF FRESH INSTALL
     // ----------------------------------------------------
     suspend fun seedInitialDataIfNeeded() = withContext(Dispatchers.IO) {
@@ -855,71 +877,6 @@ class LedgerRepository(
 
         if (musicDao.getTrackCount() == 0) {
             val sampleTracks = listOf(
-                MusicTrackEntity(
-                    songName = "Shape of You",
-                    albumName = "÷ (Divide)",
-                    category = "🎵 Pop",
-                    artist = "Ed Sheeran",
-                    uriString = "",
-                    fileName = "shape_of_you.mp3",
-                    fileSizeBytes = 3800000L,
-                    durationMs = 233000L,
-                    isFavorite = true,
-                    sourceType = "LOCAL_STORAGE",
-                    notes = "Hit English pop song."
-                ),
-                MusicTrackEntity(
-                    songName = "Blinding Lights",
-                    albumName = "After Hours",
-                    category = "🎶 Synthpop",
-                    artist = "The Weeknd",
-                    uriString = "",
-                    fileName = "blinding_lights.mp3",
-                    fileSizeBytes = 3200000L,
-                    durationMs = 200000L,
-                    isFavorite = true,
-                    sourceType = "LOCAL_STORAGE",
-                    notes = "Energetic English synthpop hit."
-                ),
-                MusicTrackEntity(
-                    songName = "Perfect",
-                    albumName = "÷ (Divide)",
-                    category = "❤️ Romantic",
-                    artist = "Ed Sheeran",
-                    uriString = "",
-                    fileName = "perfect.mp3",
-                    fileSizeBytes = 4100000L,
-                    durationMs = 263000L,
-                    isFavorite = false,
-                    sourceType = "LOCAL_STORAGE",
-                    notes = "Acoustic English romance ballad."
-                ),
-                MusicTrackEntity(
-                    songName = "Clair de Lune Nocturne",
-                    albumName = "Suite Bergamasque",
-                    category = "🎼 Classical",
-                    artist = "Claude Debussy",
-                    uriString = "",
-                    fileName = "clair_de_lune.mp3",
-                    fileSizeBytes = 4850000L,
-                    durationMs = 302000L,
-                    isFavorite = true,
-                    sourceType = "LOCAL_STORAGE",
-                    notes = "Harmonic piano movement in D-flat major."
-                ),
-                MusicTrackEntity(
-                    songName = "Rose Quartz Morning Melody",
-                    albumName = "Atmospheric Reflections",
-                    category = "🎸 Acoustic",
-                    artist = "Living Water Ensemble",
-                    uriString = "",
-                    fileName = "rose_quartz_morning.mp3",
-                    fileSizeBytes = 3420000L,
-                    durationMs = 215000L,
-                    isFavorite = true,
-                    sourceType = "GOOGLE_DRIVE",
-                    notes = "Calming acoustic guitar and soft ambient strings."
-                ),
                 MusicTrackEntity(
                     songName = "Classic Marimba (English)",
                     albumName = "Standard Ringtones",

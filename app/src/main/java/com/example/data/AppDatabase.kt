@@ -16,9 +16,10 @@ import com.example.data.model.*
         VaultDocumentEntity::class,
         TaskEntity::class,
         CategoryContactEntity::class,
-        MusicTrackEntity::class
+        MusicTrackEntity::class,
+        DownloadedVideoEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun vaultDao(): VaultDao
     abstract fun taskDao(): TaskDao
     abstract fun musicDao(): MusicDao
+    abstract fun videoDao(): VideoDao
 
     companion object {
         @Volatile

@@ -9,17 +9,17 @@ import com.example.data.model.*
 import com.example.util.NetworkMonitor
 import com.example.util.NetworkSimulationMode
 import com.example.util.NetworkState
+import com.example.util.OrganiserStorageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 enum class LedgerSection(val title: String, val tabLabel: String, val iconEmoji: String) {
-    
-    MUSIC("Music", "Music", "🎵"),
-    RINGTONES("Ringtones", "Ringtones", "🔔"),
-    SOCIAL("Post Reel", "Post Reel", "📹"),
-    STUDIO("Image Studio", "Image Studio", "🎨"),
-    GAMES("Games Hub", "Games", "🎮")
+    IMAGES("Photo Collage", "Photo Collage", "🖼️"),
+    HOME("Home Studio", "Home", "🏠"),
+    TASKS("Tasks", "Tasks", "✅"),
+    EVENTS("Event Dates", "Event Dates", "🎂"),
+    VAULT("Vault", "Vault", "🔒")
 }
 
 data class GlobalSettingsState(
@@ -45,7 +45,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     val networkState: StateFlow<NetworkState> = networkMonitor.networkState
 
-    val selectedSection = MutableStateFlow(LedgerSection.GAMES)
+    val selectedSection = MutableStateFlow(LedgerSection.IMAGES)
     val activeChatThreadKey = MutableStateFlow("family")
     val globalSettings = MutableStateFlow(GlobalSettingsState())
     val selectedSocialChannels = androidx.compose.runtime.mutableStateListOf<String>()
@@ -83,13 +83,16 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
     val vaultDocuments: StateFlow<List<VaultDocumentEntity>>
     val tasks: StateFlow<List<TaskEntity>>
     val musicTracks: StateFlow<List<MusicTrackEntity>>
+    val downloadedVideos: StateFlow<List<DownloadedVideoEntity>>
 
     init {
         val db = AppDatabase.getDatabase(application)
         repository = LedgerRepository(db, application)
 
         // Seed default initial data & run auto-sync for chats > 5 days
+        // Initialize My Organiser directory in local storage upon app startup
         viewModelScope.launch {
+            OrganiserStorageManager.initOrganiserStorage(application)
             repository.seedInitialDataIfNeeded()
             repository.runAutoSyncAndArchive()
         }
@@ -162,6 +165,27 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
         musicTracks = repository.allMusicTracks
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+        downloadedVideos = repository.allDownloadedVideos
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
+    fun addDownloadedVideo(video: DownloadedVideoEntity) {
+        viewModelScope.launch {
+            repository.addDownloadedVideo(video)
+        }
+    }
+
+    fun deleteDownloadedVideo(video: DownloadedVideoEntity) {
+        viewModelScope.launch {
+            repository.deleteDownloadedVideo(video)
+        }
+    }
+
+    fun updateDownloadedVideo(video: DownloadedVideoEntity) {
+        viewModelScope.launch {
+            repository.updateDownloadedVideo(video)
+        }
     }
 
     fun setSection(section: LedgerSection) {
@@ -283,6 +307,8 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         if (title.isBlank() && body.isBlank()) return
         viewModelScope.launch {
             repository.addDiaryEntry(title, body, moodOrTag, isPinned, notifyMe, timestamp, imageUri)
+            val entry = DiaryEntryEntity(title = title, body = body, moodOrTag = moodOrTag, isPinned = isPinned, notifyMe = notifyMe, dateTimestamp = timestamp, imageUri = imageUri)
+            OrganiserStorageManager.persistDiaryEntry(getApplication(), entry)
         }
     }
 
@@ -294,6 +320,8 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteDiaryEntry(entry: DiaryEntryEntity) {
         viewModelScope.launch {
+            // Retain copy in My Organiser / Deleted_Archive before removing from UI
+            OrganiserStorageManager.archiveDeletedDiaryEntry(getApplication(), entry)
             repository.deleteDiaryEntry(entry)
         }
     }
@@ -303,6 +331,8 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         if (title.isBlank()) return
         viewModelScope.launch {
             repository.addEvent(title, locationOrNote, eventTimestamp, notifyMe, category, includeYear, isAllDay, imageUri)
+            val event = EventEntity(title = title, locationOrNote = locationOrNote, eventTimestamp = eventTimestamp, notifyMe = notifyMe, category = category, includeYear = includeYear, isAllDay = isAllDay, imageUri = imageUri)
+            OrganiserStorageManager.persistEvent(getApplication(), event)
         }
     }
 
@@ -314,6 +344,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteEvent(event: EventEntity) {
         viewModelScope.launch {
+            OrganiserStorageManager.archiveDeletedEvent(getApplication(), event)
             repository.deleteEvent(event)
         }
     }
@@ -337,11 +368,15 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         if (title.isBlank()) return
         viewModelScope.launch {
             repository.addVaultDocument(title, originalFileName, uriString, fileType, category, fileSizeBytes, notes)
+            val doc = VaultDocumentEntity(title = title, originalFileName = originalFileName, uriString = uriString, fileType = fileType, category = category, fileSizeBytes = fileSizeBytes, notes = notes)
+            OrganiserStorageManager.persistVaultDocument(getApplication(), doc)
         }
     }
 
     fun deleteVaultDocument(document: VaultDocumentEntity) {
         viewModelScope.launch {
+            // Keep in My Organiser / Deleted_Archive so data is preserved locally even if removed from UI
+            OrganiserStorageManager.archiveDeletedVaultDocument(getApplication(), document)
             repository.deleteVaultDocument(document)
         }
     }
@@ -398,6 +433,8 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         if (title.isBlank()) return
         viewModelScope.launch {
             repository.addTask(title, description, scheduledTimestamp, category, notifyMe, attachmentUris)
+            val task = TaskEntity(title = title, description = description, scheduledTimestamp = scheduledTimestamp, category = category, notifyMe = notifyMe, attachmentUris = attachmentUris)
+            OrganiserStorageManager.persistTask(getApplication(), task)
         }
     }
 
@@ -409,6 +446,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteTask(task: TaskEntity) {
         viewModelScope.launch {
+            OrganiserStorageManager.archiveDeletedTask(getApplication(), task)
             repository.deleteTask(task)
         }
     }

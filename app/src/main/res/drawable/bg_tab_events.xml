@@ -1,0 +1,88 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <!-- Base Festive Twilight Gradient -->
+    <path
+        android:pathData="M0,0h1080v1920h-1080z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0"
+                android:startY="0"
+                android:endX="1080"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#FF1A0B2E" />
+                <item android:offset="0.35" android:color="#FF2D124D" />
+                <item android:offset="0.7" android:color="#FF38153B" />
+                <item android:offset="1.0" android:color="#FF180924" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Warm Golden Celebration Radial Flare -->
+    <path
+        android:pathData="M300,350m-350,0a350,350 0 1,1 700,0a350,350 0 1,1 -700,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="300"
+                android:centerY="350"
+                android:gradientRadius="350">
+                <item android:offset="0.0" android:color="#35F59E0B" />
+                <item android:offset="0.5" android:color="#1AEC4899" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Secondary Soft Coral Bokeh Orb -->
+    <path
+        android:pathData="M850,750m-300,0a300,300 0 1,1 600,0a300,300 0 1,1 -600,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="850"
+                android:centerY="750"
+                android:gradientRadius="300">
+                <item android:offset="0.0" android:color="#28F43F5E" />
+                <item android:offset="0.6" android:color="#10A855F7" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Floating Celebration Bokeh Circles -->
+    <path
+        android:fillColor="#15FBBF24"
+        android:pathData="M200,800m-40,0a40,40 0 1,1 80,0a40,40 0 1,1 -80,0 M450,1100m-60,0a60,60 0 1,1 120,0a60,60 0 1,1 -120,0 M780,1350m-50,0a50,50 0 1,1 100,0a50,50 0 1,1 -100,0 M150,1450m-30,0a30,30 0 1,1 60,0a30,30 0 1,1 -60,0 M620,500m-45,0a45,45 0 1,1 90,0a45,45 0 1,1 -90,0" />
+
+    <path
+        android:fillColor="#15F472B6"
+        android:pathData="M350,600m-35,0a35,35 0 1,1 70,0a35,35 0 1,1 -70,0 M850,1150m-45,0a45,45 0 1,1 90,0a45,45 0 1,1 -90,0 M500,1550m-50,0a50,50 0 1,1 100,0a50,50 0 1,1 -100,0" />
+
+    <!-- Subtle Golden Sparkles / Stars -->
+    <path
+        android:fillColor="#30FDE047"
+        android:pathData="M220,380 l4,12 l12,4 l-12,4 l-4,12 l-4,-12 l-12,-4 l12,-4 z M750,280 l5,15 l15,5 l-15,5 l-5,15 l-5,-15 l-15,-5 l15,-5 z M880,950 l4,12 l12,4 l-12,4 l-4,12 l-4,-12 l-12,-4 l12,-4 z M320,1300 l4,10 l10,4 l-10,4 l-4,10 l-4,-10 l-10,-4 l10,-4 z" />
+
+    <!-- Bottom Warm Rose Glow -->
+    <path
+        android:pathData="M0,1400 C350,1300 750,1500 1080,1380 L1080,1920 L0,1920 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="540"
+                android:startY="1300"
+                android:endX="540"
+                android:endY="1920">
+                <item android:offset="0.0" android:color="#00000000" />
+                <item android:offset="0.5" android:color="#20E11D48" />
+                <item android:offset="1.0" android:color="#35F59E0B" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

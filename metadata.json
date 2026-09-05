@@ -1,6 +1,6 @@
 {
   "name": "Timepass",
-  "description": "TImepass AI App with Music, Video, Ringtones ",
+  "description": "An elegant personal media studio for downloading, organizing, playing, and editing videos, images, and music.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
