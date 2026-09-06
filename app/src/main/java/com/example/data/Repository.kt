@@ -558,65 +558,68 @@ class LedgerRepository(
     }
 
     suspend fun loadSampleRoutine() = withContext(Dispatchers.IO) {
-        val cal = Calendar.getInstance()
+        val nowCal = Calendar.getInstance()
+        val currentHour = nowCal.get(Calendar.HOUR_OF_DAY)
 
-        // 1. 8:00 AM - Yoga & Tea
-        cal.set(Calendar.HOUR_OF_DAY, 8)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
+        fun formatHourRange(startH24: Int): Pair<Long, String> {
+            val c = Calendar.getInstance()
+            val h = startH24 % 24
+            c.set(Calendar.HOUR_OF_DAY, h)
+            c.set(Calendar.MINUTE, 0)
+            c.set(Calendar.SECOND, 0)
+            c.set(Calendar.MILLISECOND, 0)
+
+            val endH = (h + 1) % 24
+            val amPm1 = if (h >= 12) "PM" else "AM"
+            val displayH1 = if (h == 0) 12 else if (h > 12) h - 12 else h
+            val amPm2 = if (endH >= 12) "PM" else "AM"
+            val displayH2 = if (endH == 0) 12 else if (endH > 12) endH - 12 else endH
+
+            val slotStr = "$displayH1:00 $amPm1 - $displayH2:00 $amPm2"
+            return Pair(c.timeInMillis, slotStr)
+        }
+
+        // 1. Present Task (Current Hour)
+        val t1 = formatHourRange(currentHour)
         dailyScheduleDao.insertSchedule(
             DailyScheduleEntity(
-                title = "Yoga & Tea",
-                note = "Morning mindfulness and herbal tea routine",
-                timestamp = cal.timeInMillis,
-                timeSlot = "8:00 AM",
+                title = "Yoga & Mindfulness",
+                note = "Stretch session and morning peace ♡",
+                timestamp = t1.first,
+                timeSlot = t1.second,
                 category = "Health",
                 notifyMe = true,
+                notificationSound = "Gentle Chime",
                 colorHex = "#10B981"
             )
         )
 
-        // 2. 10:00 AM - Work / Projects
-        cal.set(Calendar.HOUR_OF_DAY, 10)
-        cal.set(Calendar.MINUTE, 0)
+        // 2. Next Hour Task (Current Hour + 1)
+        val t2 = formatHourRange(currentHour + 1)
         dailyScheduleDao.insertSchedule(
             DailyScheduleEntity(
-                title = "Work / Projects",
-                note = "Core focus session and project review",
-                timestamp = cal.timeInMillis,
-                timeSlot = "10:00 AM",
+                title = "Work & Focus Session",
+                note = "Productive sprint and strategy",
+                timestamp = t2.first,
+                timeSlot = t2.second,
                 category = "Work",
                 notifyMe = true,
-                colorHex = "#2563EB"
+                notificationSound = "Zen Bell",
+                colorHex = "#0284C7"
             )
         )
 
-        // 3. 1:00 PM - Lunch Break
-        cal.set(Calendar.HOUR_OF_DAY, 13)
-        cal.set(Calendar.MINUTE, 0)
+        // 3. Next 2 Hours Task (Current Hour + 2)
+        val t3 = formatHourRange(currentHour + 2)
         dailyScheduleDao.insertSchedule(
             DailyScheduleEntity(
-                title = "Lunch Break",
-                note = "Healthy lunch and short relaxation walk",
-                timestamp = cal.timeInMillis,
-                timeSlot = "1:00 PM",
-                category = "Meal",
-                notifyMe = true,
-                colorHex = "#E11D48"
-            )
-        )
-
-        // 4. 7:00 PM - Reading
-        cal.set(Calendar.HOUR_OF_DAY, 19)
-        cal.set(Calendar.MINUTE, 0)
-        dailyScheduleDao.insertSchedule(
-            DailyScheduleEntity(
-                title = "Reading",
-                note = "Personal development and reading session",
-                timestamp = cal.timeInMillis,
-                timeSlot = "7:00 PM",
+                title = "Evening Tea & Unwind",
+                note = "Relax and unwind for better sleep",
+                timestamp = t3.first,
+                timeSlot = t3.second,
                 category = "Personal",
                 notifyMe = true,
+                notificationSound = "Morning Birds",
                 colorHex = "#9333EA"
             )
         )
@@ -638,6 +641,7 @@ class LedgerRepository(
         timeSlot: String = "09:00 AM",
         category: String = "General",
         notifyMe: Boolean = true,
+        notificationSound: String = "Gentle Chime",
         colorHex: String = "#F59E0B"
     ) = withContext(Dispatchers.IO) {
         val notifId = (System.currentTimeMillis() % 100000).toInt()
@@ -651,6 +655,7 @@ class LedgerRepository(
             timeSlot = timeSlot,
             category = category,
             notifyMe = notifyMe,
+            notificationSound = notificationSound,
             notificationScheduledId = notifId,
             isCompleted = false,
             colorHex = colorHex
@@ -670,7 +675,8 @@ class LedgerRepository(
                 title = "[$recurrenceLabel] $title",
                 message = if (note.isNotBlank()) note else "Reminder for your scheduled entry at $timeSlot",
                 timestampMillis = timestamp,
-                type = "TASK"
+                type = "TASK",
+                notificationSound = notificationSound
             )
         }
     }
@@ -694,7 +700,8 @@ class LedgerRepository(
                 title = "[$recurrenceLabel] ${schedule.title}",
                 message = if (schedule.note.isNotBlank()) schedule.note else "Reminder for your scheduled entry at ${schedule.timeSlot}",
                 timestampMillis = schedule.timestamp,
-                type = "TASK"
+                type = "TASK",
+                notificationSound = schedule.notificationSound
             )
         } else {
             NotificationHelper.cancelReminder(context, schedule.notificationScheduledId)

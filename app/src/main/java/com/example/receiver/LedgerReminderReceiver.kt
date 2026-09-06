@@ -18,6 +18,10 @@ class LedgerReminderReceiver : BroadcastReceiver() {
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "Reminder"
         val message = intent.getStringExtra(EXTRA_MESSAGE) ?: "You have a scheduled reminder in MyLyfe."
         val type = intent.getStringExtra(EXTRA_TYPE) ?: "GENERAL"
+        val soundName = intent.getStringExtra(EXTRA_SOUND) ?: "Morning Bell"
+
+        // Play default notification sound
+        com.example.util.SoundPlayerUtil.playNotificationSound(context, soundName)
 
         NotificationHelper.showNotification(
             context = context,
@@ -33,5 +37,6 @@ class LedgerReminderReceiver : BroadcastReceiver() {
         const val EXTRA_TITLE = "extra_title"
         const val EXTRA_MESSAGE = "extra_message"
         const val EXTRA_TYPE = "extra_type"
+        const val EXTRA_SOUND = "extra_sound"
     }
 }

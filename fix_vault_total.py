@@ -1,4 +1,6 @@
-package com.example.ui.screens
+import os
+
+content = """package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
@@ -34,29 +36,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.example.data.model.VaultDocumentEntity
 import com.example.ui.components.LedgerTopHeader
 import com.example.ui.theme.*
-
-import com.example.ui.components.LocalNotificationService
-import com.example.ui.components.NotificationType
-import androidx.compose.ui.geometry.Offset
-
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-
-// Vault Colors
-private val GoldPrimary = Color(0xFFFFD700)
-private val GoldHighlight = Color(0xFFFFF2B2)
-private val GoldAccent = Color(0xFFB8860B)
-private val GoldLight = Color(0xFFF0E68C)
-private val MetallicGoldBrush = Brush.linearGradient(
-    colors = listOf(Color(0xFFFFDF00), Color(0xFFD4AF37), Color(0xFF996515), Color(0xFFD4AF37), Color(0xFFFFDF00)),
-    start = Offset(0f, 0f),
-    end = Offset(1000f, 1000f)
-)
-private val SunsetPhoneWallpaperGradient = Brush.verticalGradient(
-    colors = listOf(Color(0xFF2C1B4D), Color(0xFF702D6C), Color(0xFFD36B5F), Color(0xFFF9C87B))
-)
 
 @Composable
 fun VaultScreen(
@@ -564,7 +546,7 @@ fun VaultContentScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .padding(horizontal = 14.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     vaultTabs.forEach { tabName ->
@@ -603,7 +585,7 @@ fun VaultContentScreen(
                     }
                 } else {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),
+                        columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 96.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -777,172 +759,85 @@ fun VaultDocumentCard(doc: VaultDocumentEntity, onDelete: () -> Unit) {
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().aspectRatio(1.58f),
-        shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF1E182A), // Darker base for contrast
-        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.4f)),
-        shadowElevation = 8.dp
+        modifier = Modifier.fillMaxWidth().aspectRatio(0.85f),
+        shape = RoundedCornerShape(20.dp),
+        color = Color(0x442A2438),
+        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.3f)),
+        shadowElevation = 0.dp
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Background subtle gradient/pattern to look like a secure ID
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                GoldPrimary.copy(alpha = 0.03f),
-                                Color.Transparent
-                            ),
-                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                            end = androidx.compose.ui.geometry.Offset(1000f, 1000f)
-                        )
-                    )
-            )
-            
-            // Layout
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Left side: ID Photo placeholder
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                 Box(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(0.35f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF2A2438))
-                        .border(1.dp, GoldPrimary.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
+                        .size(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Brush.linearGradient(listOf(GoldPrimary.copy(alpha = 0.3f), GoldAccent.copy(alpha = 0.1f)))),
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Filled.PersonOutline,
-                            contentDescription = null,
-                            tint = GoldPrimary.copy(alpha = 0.4f),
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Icon(
-                            fileIcon,
-                            contentDescription = null,
-                            tint = GoldPrimary.copy(alpha = 0.6f),
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
+                    Icon(
+                        fileIcon,
+                        contentDescription = null,
+                        tint = GoldPrimary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+                IconButton(onClick = onDelete, modifier = Modifier.size(24.dp).offset(x = 6.dp, y = (-6).dp)) {
+                    Icon(
+                        Icons.Filled.DeleteOutline,
+                        contentDescription = "Delete Document",
+                        tint = Color(0xFFFF8080).copy(alpha = 0.8f),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+            
+            Column {
+                Text(
+                    text = doc.title,
+                    color = GoldHighlight,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 18.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Surface(
+                    color = GoldPrimary.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text(
+                        text = doc.category,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = GoldPrimary,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
                 }
                 
-                // Right side: Data
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(0.65f),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Header: Category and delete button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = doc.category.uppercase(),
-                            color = GoldPrimary,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.5.sp
-                        )
-                        IconButton(
-                            onClick = onDelete,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .offset(x = 8.dp, y = (-8).dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.DeleteOutline,
-                                contentDescription = "Delete",
-                                tint = Color(0xFFFF8080).copy(alpha = 0.8f),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                    
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        // Title
-                        Column {
-                            Text(
-                                text = "DOCUMENT NAME",
-                                color = GoldLight.copy(alpha = 0.5f),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = doc.title,
-                                color = GoldHighlight,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        
-                        // ID / Number (simulated from notes or just placeholder if none)
-                        if (doc.notes.isNotBlank()) {
-                            Column {
-                                Text(
-                                    text = "DETAILS / NOTES",
-                                    color = GoldLight.copy(alpha = 0.5f),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = doc.notes,
-                                    color = GoldLight,
-                                    fontSize = 12.sp,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    lineHeight = 16.sp
-                                )
-                            }
-                        } else {
-                            // Dummy lines to make it look like an ID if no notes
-                            Column {
-                                Text(
-                                    text = "DOCUMENT ID",
-                                    color = GoldLight.copy(alpha = 0.5f),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "XXXX-XXXX-XXXX",
-                                    color = GoldLight.copy(alpha = 0.3f),
-                                    fontSize = 12.sp,
-                                    letterSpacing = 2.sp
-                                )
-                            }
-                        }
-                    }
-                    
-                    // Footer (issue date / filetype)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        Text(
-                            text = "<<<<<<<<<<<<<<<<<<<<",
-                            color = GoldPrimary.copy(alpha = 0.3f),
-                            fontSize = 10.sp,
-                            letterSpacing = 2.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Clip
-                        )
-                    }
+                if (doc.notes.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = doc.notes,
+                        color = GoldLight.copy(alpha = 0.7f),
+                        fontSize = 10.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        lineHeight = 14.sp
+                    )
                 }
             }
         }
     }
 }
+"""
+
+with open('app/src/main/java/com/example/ui/screens/VaultScreen.kt', 'w') as f:
+    f.write(content)
+

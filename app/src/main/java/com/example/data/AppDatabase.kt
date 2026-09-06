@@ -20,7 +20,7 @@ import com.example.data.model.*
         MusicTrackEntity::class,
         DownloadedVideoEntity::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

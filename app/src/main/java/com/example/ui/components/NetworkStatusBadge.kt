@@ -14,6 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -201,6 +203,7 @@ fun NetworkQueueDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -291,7 +294,7 @@ fun NetworkQueueDialog(
                                 .clip(RoundedCornerShape(8.dp))
                                 .clickable {
                                     onSetSimulationMode(mode)
-                                    Toast.makeText(context, "Switched to: ${mode.label}", Toast.LENGTH_SHORT).show()
+                                    notificationService.show("Update", "Switched to: ${mode.label}", NotificationType.INFO)
                                 },
                             shape = RoundedCornerShape(8.dp),
                             color = if (isSelected) RoseQuartzPrimaryContainer else RoseQuartzBg,
@@ -327,7 +330,7 @@ fun NetworkQueueDialog(
                 Button(
                     onClick = {
                         onSyncNow()
-                        Toast.makeText(context, "Syncing queued chat messages...", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Update", "Syncing queued chat messages...", NotificationType.INFO)
                         onDismiss()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = RoseQuartzPrimary),

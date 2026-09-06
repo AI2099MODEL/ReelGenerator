@@ -28,6 +28,8 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +54,7 @@ import com.example.ui.components.LedgerEmptyState
 import com.example.ui.components.NetworkQueueDialog
 import com.example.ui.components.NetworkStatusChip
 import com.example.ui.components.OfflineStatusBanner
+import com.example.ui.components.SpeechToTextButton
 import com.example.ui.theme.*
 import com.example.util.BackupRestoreResult
 import com.example.util.NetworkSimulationMode
@@ -104,6 +107,7 @@ fun ChatScreen(
     onMenuClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
 
@@ -160,7 +164,7 @@ fun ChatScreen(
             fileType = type,
             fileSizeBytes = size
         )
-        Toast.makeText(context, "Attached: $name (${formatFileSize(size)})", Toast.LENGTH_SHORT).show()
+        notificationService.show("Notification", "Attached: $name (${formatFileSize(size)})", NotificationType.INFO)
     }
 
     // Media / Image Picker Launcher
@@ -219,13 +223,13 @@ fun ChatScreen(
                             } else {
                                 "Restore failed: ${result.message}"
                             }
-                            Toast.makeText(context, backupStatusMessage, Toast.LENGTH_LONG).show()
+                            notificationService.show("Notification", backupStatusMessage ?: "", NotificationType.INFO)
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         backupStatusMessage = "Error reading backup: ${e.localizedMessage ?: e.message}"
-                        Toast.makeText(context, backupStatusMessage, Toast.LENGTH_LONG).show()
+                        notificationService.show("Notification", backupStatusMessage ?: "", NotificationType.INFO)
                     }
                 }
             }
@@ -245,12 +249,12 @@ fun ChatScreen(
                     }
                     withContext(Dispatchers.Main) {
                         backupStatusMessage = "Backup saved successfully! Ready for Google Drive."
-                        Toast.makeText(context, backupStatusMessage, Toast.LENGTH_LONG).show()
+                        notificationService.show("Notification", backupStatusMessage ?: "", NotificationType.INFO)
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         backupStatusMessage = "Export failed: ${e.localizedMessage ?: e.message}"
-                        Toast.makeText(context, backupStatusMessage, Toast.LENGTH_LONG).show()
+                        notificationService.show("Notification", backupStatusMessage ?: "", NotificationType.INFO)
                     }
                 }
             }
@@ -629,6 +633,12 @@ fun ChatScreen(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent
                     ),
+                    trailingIcon = {
+                        SpeechToTextButton(
+                            onResult = { inputText = if (inputText.isEmpty()) it else "$inputText $it" },
+                            tint = RoseQuartzPrimary
+                        )
+                    },
                     maxLines = 4,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     keyboardActions = KeyboardActions(onSend = {
@@ -841,7 +851,7 @@ fun ChatScreen(
                                             IconButton(
                                                 onClick = {
                                                     onRestoreArchived(archMsg.id)
-                                                    Toast.makeText(context, "Restored message to active thread!", Toast.LENGTH_SHORT).show()
+                                                    notificationService.show("Notification", "Restored message to active thread!", NotificationType.INFO)
                                                 },
                                                 modifier = Modifier.size(28.dp)
                                             ) {
@@ -856,7 +866,7 @@ fun ChatScreen(
                                             IconButton(
                                                 onClick = {
                                                     onDeleteMessage(archMsg)
-                                                    Toast.makeText(context, "Deleted archived message", Toast.LENGTH_SHORT).show()
+                                                    notificationService.show("Item Removed", "Deleted archived message", NotificationType.ALERT)
                                                 },
                                                 modifier = Modifier.size(28.dp)
                                             ) {
@@ -989,7 +999,7 @@ fun ChatScreen(
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 val clip = ClipData.newPlainText("${currentTab.title} Chat Details", qrPayload)
                                 clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "Copied ${currentTab.title} transcript to clipboard!", Toast.LENGTH_SHORT).show()
+                                notificationService.show("Success", "Copied ${currentTab.title} transcript to clipboard!", NotificationType.SUCCESS)
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(8.dp),
@@ -1237,7 +1247,7 @@ fun ChatScreen(
                         if (editContentText.isNotBlank()) {
                             onEditMessage?.invoke(targetMsg.id, editContentText.trim())
                             editingMessage = null
-                            Toast.makeText(context, "Message updated successfully", Toast.LENGTH_SHORT).show()
+                            notificationService.show("Success", "Message updated successfully", NotificationType.SUCCESS)
                         }
                     },
                     enabled = editContentText.isNotBlank(),
@@ -1312,7 +1322,7 @@ fun ChatScreen(
                         if (newCategoryNameText.isNotBlank()) {
                             onRenameCategory?.invoke(targetCat.key, newCategoryNameText.trim())
                             renamingCategoryTarget = null
-                            Toast.makeText(context, "Category renamed to '${newCategoryNameText.trim()}'", Toast.LENGTH_SHORT).show()
+                            notificationService.show("Notification", "Category renamed to '${newCategoryNameText.trim()}'", NotificationType.INFO)
                         }
                     },
                     enabled = newCategoryNameText.isNotBlank(),
@@ -1384,6 +1394,7 @@ private fun ChatMessageBubble(
     onEdit: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     val isUser = message.isSentByUser
     val timeFormatter = remember { SimpleDateFormat("MMM d, hh:mm a", Locale.getDefault()) }
     val formattedTime = remember(message.timestamp) { timeFormatter.format(Date(message.timestamp)) }
@@ -1445,7 +1456,7 @@ private fun ChatMessageBubble(
                                             }
                                             context.startActivity(viewIntent)
                                         } catch (e: Exception) {
-                                            Toast.makeText(context, "Image: $fileName", Toast.LENGTH_SHORT).show()
+                                            notificationService.show("Notification", "Image: $fileName", NotificationType.INFO)
                                         }
                                     }
                             ) {
@@ -1471,7 +1482,7 @@ private fun ChatMessageBubble(
                                             }
                                             context.startActivity(viewIntent)
                                         } catch (e: Exception) {
-                                            Toast.makeText(context, "Video: $fileName", Toast.LENGTH_SHORT).show()
+                                            notificationService.show("Notification", "Video: $fileName", NotificationType.INFO)
                                         }
                                     }
                             ) {
@@ -1528,7 +1539,7 @@ private fun ChatMessageBubble(
                                                 }
                                                 context.startActivity(viewIntent)
                                             } catch (e: Exception) {
-                                                Toast.makeText(context, "Attachment: $fileName", Toast.LENGTH_SHORT).show()
+                                                notificationService.show("Notification", "Attachment: $fileName", NotificationType.INFO)
                                             }
                                         }
                                     }

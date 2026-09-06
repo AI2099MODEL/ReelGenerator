@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +57,7 @@ fun BiometricLockOverlay(
     if (!isLocked) return
 
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     var pinInput by remember { mutableStateOf("") }
     var pinError by remember { mutableStateOf(false) }
     var showSetPinDialog by remember { mutableStateOf(false) }
@@ -69,7 +72,7 @@ fun BiometricLockOverlay(
                 BiometricManager.Authenticators.DEVICE_CREDENTIAL
             )
             if (canAuth != BiometricManager.BIOMETRIC_SUCCESS) {
-                Toast.makeText(activity, "Biometric unavailable. Unlock using Default PIN: 1234", Toast.LENGTH_SHORT).show()
+                notificationService.show("Notification", "Biometric unavailable. Unlock using Default PIN: 1234", NotificationType.INFO)
                 return
             }
 
@@ -98,7 +101,7 @@ fun BiometricLockOverlay(
 
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
-                        Toast.makeText(activity, "Biometric recognition failed", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Action Failed", "Biometric recognition failed", NotificationType.ERROR)
                     }
                 }
             )
@@ -106,7 +109,7 @@ fun BiometricLockOverlay(
             biometricPrompt.authenticate(promptInfo)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(activity, "Please unlock with PIN: 1234", Toast.LENGTH_SHORT).show()
+            notificationService.show("Attention", "Please unlock with PIN: 1234", NotificationType.ALERT)
         }
     }
 
@@ -315,7 +318,7 @@ fun BiometricLockOverlay(
                 onSaveNewPin = { newPin ->
                     onSetNewPin(newPin)
                     showSetPinDialog = false
-                    Toast.makeText(context, "New PIN saved successfully!", Toast.LENGTH_SHORT).show()
+                    notificationService.show("Success", "New PIN saved successfully!", NotificationType.SUCCESS)
                 }
             )
         }

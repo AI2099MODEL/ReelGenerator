@@ -25,6 +25,8 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -72,6 +74,7 @@ fun LedgerSideMenuDrawer(
     viewModel: com.example.ui.LedgerViewModel? = null
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     val coroutineScope = rememberCoroutineScope()
 
     // State to toggle hiding or showing mobile numbers in the side menu
@@ -96,7 +99,7 @@ fun LedgerSideMenuDrawer(
             if (result != null) {
                 decodedQrResult = result
             } else {
-                Toast.makeText(context, "No readable QR code found in selected image. Please try another image.", Toast.LENGTH_LONG).show()
+                notificationService.show("Attention", "No readable QR code found in selected image. Please try another image.", NotificationType.ALERT)
             }
         }
     }

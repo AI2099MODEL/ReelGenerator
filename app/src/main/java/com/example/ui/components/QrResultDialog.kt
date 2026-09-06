@@ -19,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +42,7 @@ fun QrResultDialog(
     onAddContact: (category: String, name: String, phone: String, note: String) -> Unit
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     var name by remember { mutableStateOf(result.contactName.ifBlank { "Scanned Contact" }) }
     var phone by remember { mutableStateOf(result.contactPhone) }
     var note by remember { mutableStateOf(result.contactNote.ifBlank { if (!result.isContact) result.rawText else "" }) }
@@ -114,7 +117,7 @@ fun QrResultDialog(
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(result.rawText))
                                 context.startActivity(intent)
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Cannot open URL", Toast.LENGTH_SHORT).show()
+                                notificationService.show("Action Failed", "Cannot open URL", NotificationType.ERROR)
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = RoseQuartzPrimary),
@@ -216,10 +219,10 @@ fun QrResultDialog(
                 onClick = {
                     if (name.isNotBlank() && phone.isNotBlank()) {
                         onAddContact(category, name, phone, note)
-                        Toast.makeText(context, "Added $name ($phone) to $category", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Success", "Added $name ($phone) to $category", NotificationType.SUCCESS)
                         onDismiss()
                     } else {
-                        Toast.makeText(context, "Please enter both contact name and mobile number", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Attention", "Please enter both contact name and mobile number", NotificationType.ALERT)
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = RoseQuartzPrimary),
@@ -234,7 +237,7 @@ fun QrResultDialog(
             TextButton(onClick = {
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("Scanned QR Text", result.rawText))
-                Toast.makeText(context, "Copied QR content to clipboard", Toast.LENGTH_SHORT).show()
+                notificationService.show("Success", "Copied QR content to clipboard", NotificationType.SUCCESS)
                 onDismiss()
             }) {
                 Text("Copy Raw Text", color = RoseQuartzTextMuted)
@@ -251,6 +254,7 @@ fun ContactQrDisplayDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     val qrPayload = "MECARD:N:$name;TEL:$phoneNumber;NOTE:Category: $category;;"
     val qrBitmap = remember(qrPayload) {
         QRCodeGenerator.generateQrCodeBitmap(qrPayload, size = 512)
@@ -326,7 +330,7 @@ fun ContactQrDisplayDialog(
                 onClick = {
                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     clipboard.setPrimaryClip(ClipData.newPlainText("Contact Details", "$name: $phoneNumber ($category)"))
-                    Toast.makeText(context, "Copied contact info to clipboard", Toast.LENGTH_SHORT).show()
+                    notificationService.show("Success", "Copied contact info to clipboard", NotificationType.SUCCESS)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = RoseQuartzPrimary),
                 shape = RoundedCornerShape(8.dp)

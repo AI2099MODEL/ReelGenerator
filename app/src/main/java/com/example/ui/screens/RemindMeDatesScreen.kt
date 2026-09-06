@@ -20,6 +20,8 @@ import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,12 +46,16 @@ import androidx.compose.foundation.rememberScrollState
 import com.example.data.model.EventEntity
 import com.example.ui.components.LedgerTopHeader
 import com.example.ui.components.OrganizeTodayBrandBadge
+import com.example.ui.components.SpeechToTextButton
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import com.example.R
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.cos
+import kotlin.math.sin
+import androidx.compose.ui.graphics.graphicsLayer
 
 enum class DateScreenMode(
     val title: String,
@@ -141,6 +147,9 @@ fun RemindMeDatesScreen(
     // Filter items based on mode
     val displayItems = remember(events, mode) {
         val nowMillis = System.currentTimeMillis()
+        val calendar = Calendar.getInstance().apply { timeInMillis = nowMillis }
+        val currentWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+        val currentYear = calendar.get(Calendar.YEAR)
 
         val baseModeItems = when (mode) {
             DateScreenMode.IMPORTANT_DATES -> {
@@ -162,12 +171,91 @@ fun RemindMeDatesScreen(
 
         baseModeItems.filter { item ->
             val isPast = item.eventTimestamp < nowMillis && !item.category.equals("Birthday", ignoreCase = true) && !item.category.equals("Anniversary", ignoreCase = true)
-            !isPast
+            
+            val itemCal = Calendar.getInstance().apply { timeInMillis = item.eventTimestamp }
+            if (item.category.equals("Birthday", ignoreCase = true) || item.category.equals("Anniversary", ignoreCase = true)) {
+                // Normalize yearly repeating events to current year for week/month calculation
+                itemCal.set(Calendar.YEAR, currentYear)
+            }
+            
+            val itemWeek = itemCal.get(Calendar.WEEK_OF_YEAR)
+            val itemMonth = itemCal.get(Calendar.MONTH)
+            val currentMonth = calendar.get(Calendar.MONTH)
+            val itemYear = itemCal.get(Calendar.YEAR)
+            
+            val isCurrentWeek = (itemWeek == currentWeek) && (itemYear == currentYear)
+            val isCurrentMonth = (itemMonth == currentMonth) && (itemYear == currentYear)
+            
+            val matchesTimeframe = if (mode == DateScreenMode.IMPORTANT_DATES) {
+                isCurrentWeek
+            } else {
+                isCurrentMonth
+            }
+            
+            !isPast && matchesTimeframe
         }.sortedWith(
             compareBy<EventEntity> { it.isCompleted }
-                .thenBy { it.eventTimestamp }
+                .thenBy {
+                    val itemCal = Calendar.getInstance().apply { timeInMillis = it.eventTimestamp }
+                    if (it.category.equals("Birthday", ignoreCase = true) || it.category.equals("Anniversary", ignoreCase = true)) {
+                         itemCal.set(Calendar.YEAR, currentYear)
+                    }
+                    itemCal.timeInMillis
+                }
         )
     }
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Transparent)) {
+        // Butterfly Overlay
+        val transition = rememberInfiniteTransition(label = "ButterflyFlyTransition")
+        val flightProgress by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 8000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "flightProgress"
+        )
+    
+        val flutterWing by transition.animateFloat(
+            initialValue = -15f,
+            targetValue = 15f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "flutterWing"
+        )
+    
+        val butterflies = remember {
+            listOf(
+                Triple("🦋", 0.1f, 0.2f),
+                Triple("🦋", 0.7f, 0.4f),
+                Triple("🦋", 0.3f, 0.7f),
+                Triple("🦋", 0.85f, 0.15f)
+            )
+        }
+    
+        butterflies.forEachIndexed { index, (emoji, startX, startY) ->
+            val phaseOffset = index * 0.25f
+            val currentProgress = (flightProgress + phaseOffset) % 1f
+    
+            val offsetX = (startX * 320 + sin((currentProgress * 2 * Math.PI) + index) * 50).dp
+            val offsetY = (startY * 500 + cos((currentProgress * 2 * Math.PI) + index) * 40 - (currentProgress * 60)).dp
+    
+            Text(
+                text = emoji,
+                fontSize = (20 + (index % 3) * 4).sp,
+                modifier = Modifier
+                    .offset(x = offsetX, y = offsetY)
+                    .graphicsLayer(
+                        rotationZ = flutterWing + (if (index % 2 == 0) 10f else -10f),
+                        scaleX = if (index % 2 == 0) 1f else -1f,
+                        alpha = 0.85f
+                    )
+            )
+        }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -199,25 +287,33 @@ fun RemindMeDatesScreen(
         },
         floatingActionButtonPosition = FabPosition.End
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 14.dp),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (displayItems.isNotEmpty()) {
-                items(displayItems, key = { it.id }) { item ->
-                    ItemCardGold(
-                        item = item,
-                        mode = mode,
-                        onToggleComplete = { onToggleComplete?.invoke(item) },
-                        onDelete = { eventToDelete = item }
-                    )
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                if (displayItems.isNotEmpty()) {
+                    items(displayItems, key = { it.id }) { item ->
+                        ItemCardGold(
+                            item = item,
+                            mode = mode,
+                            onToggleComplete = { onToggleComplete?.invoke(item) },
+                            onDelete = { eventToDelete = item }
+                        )
+                    }
                 }
             }
         }
+    }
+    
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -286,6 +382,7 @@ private fun GoldenDataEntryDialog(
     ) -> Unit
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     var selectedCategory by remember(mode) {
         mutableStateOf(if (mode == DateScreenMode.IMPORTANT_DATES) "Birthday" else "Coming Task")
     }
@@ -552,6 +649,14 @@ private fun GoldenDataEntryDialog(
                                     modifier = Modifier.size(18.dp)
                                 )
                             },
+                            trailingIcon = {
+                                SpeechToTextButton(
+                                    onResult = { recognizedText ->
+                                        titleInput = if (titleInput.isEmpty()) recognizedText else "$titleInput $recognizedText"
+                                    },
+                                    tint = Color(0xFF0284C7)
+                                )
+                            },
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth(),
@@ -749,6 +854,14 @@ private fun GoldenDataEntryDialog(
                                     modifier = Modifier.size(17.dp)
                                 )
                             },
+                            trailingIcon = {
+                                SpeechToTextButton(
+                                    onResult = { recognizedText ->
+                                        noteInput = if (noteInput.isEmpty()) recognizedText else "$noteInput $recognizedText"
+                                    },
+                                    tint = Color(0xFF0284C7)
+                                )
+                            },
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.fillMaxWidth(),
@@ -812,7 +925,7 @@ private fun GoldenDataEntryDialog(
                         Button(
                             onClick = {
                                 if (titleInput.isBlank()) {
-                                    Toast.makeText(context, "Please enter a title for the entry", Toast.LENGTH_SHORT).show()
+                                    notificationService.show("Attention", "Please enter a title for the entry", NotificationType.ALERT)
                                     return@Button
                                 }
                                 onSave(
@@ -823,7 +936,7 @@ private fun GoldenDataEntryDialog(
                                     pickedCalendar.value.timeInMillis,
                                     selectedCategory
                                 )
-                                Toast.makeText(context, "Saved $selectedCategory!", Toast.LENGTH_SHORT).show()
+                                notificationService.show("Success", "Saved $selectedCategory!", NotificationType.SUCCESS)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1055,9 +1168,11 @@ private fun ItemCardGold(
                         )
                         Text(
                             text = formattedDate,
-                            fontSize = 12.sp,
+                            fontSize = 10.5.sp, // Reduced font size to avoid wrapping
                             color = Color(0xFF0F172A), // Crisp BLACK font
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

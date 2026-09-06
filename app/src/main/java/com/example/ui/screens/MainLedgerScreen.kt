@@ -20,10 +20,42 @@ import com.example.ui.components.BiometricLockOverlay
 import com.example.ui.components.LedgerBinderBottomBar
 import com.example.ui.components.LedgerBinderNavRail
 import com.example.ui.components.TabBackgroundView
+import com.example.ui.components.ColoredNotificationBannerHost
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationService
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainLedgerScreen(
+    viewModel: LedgerViewModel,
+    modifier: Modifier = Modifier
+) {
+    val notificationService = remember { NotificationService() }
+
+    CompositionLocalProvider(
+        LocalLayoutDirection provides LayoutDirection.Ltr,
+        LocalNotificationService provides notificationService
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            MainLedgerScreenContent(viewModel = viewModel, modifier = modifier)
+            
+            // Global Notification Banner
+            ColoredNotificationBannerHost(
+                notification = notificationService.activeNotification,
+                onDismiss = { notificationService.dismiss() },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .zIndex(100f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainLedgerScreenContent(
     viewModel: LedgerViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -40,7 +72,8 @@ fun MainLedgerScreen(
             LedgerSection.DAILY_SCHEDULE,
             LedgerSection.IMPORTANT_DATES,
             LedgerSection.REMIND_ME,
-            LedgerSection.IMAGES
+            LedgerSection.IMAGES,
+            LedgerSection.VAULT
         )
     }
 
@@ -79,13 +112,12 @@ fun MainLedgerScreen(
         }
     }
 
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-        ) {
-            BoxWithConstraints(
-                modifier = Modifier
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        BoxWithConstraints(
+            modifier = Modifier
                     .fillMaxSize()
             ) {
                 val currentDisplaySection = sections.getOrElse(pagerState.currentPage) { LedgerSection.DAILY_SCHEDULE }
@@ -168,7 +200,6 @@ fun MainLedgerScreen(
                 onSetNewPin = { viewModel.setAppPin(it) }
             )
         }
-    }
 }
 
 @Composable
@@ -251,8 +282,8 @@ private fun ScreenPagerContent(
                 LedgerSection.VAULT -> {
                     VaultScreen(
                         vaultDocs = vaultDocs,
-                        onAddDocument = { title, filename, uriStr, type, category, bytes ->
-                            viewModel.addVaultDocument(title, filename, uriStr, type, category, bytes, "")
+                        onAddDocument = { title, filename, uriStr, type, category, bytes, notes ->
+                            viewModel.addVaultDocument(title, filename, uriStr, type, category, bytes, notes)
                         },
                         onDeleteDocument = { viewModel.deleteVaultDocument(it) },
                         onHomeClick = null

@@ -36,6 +36,7 @@ import com.example.ui.components.AmbientWaterFlowBackground
 import com.example.ui.components.LedgerEmptyState
 import com.example.ui.components.LedgerPaperCard
 import com.example.ui.components.LedgerTopHeader
+import com.example.ui.components.SpeechToTextButton
 import com.example.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -433,6 +434,12 @@ private fun DiaryEditorDialog(
                     onValueChange = { entryTitle = it },
                     label = { Text("Reflection Title") },
                     placeholder = { Text("e.g. Rose Quartz Insights") },
+                    trailingIcon = {
+                        SpeechToTextButton(
+                            onResult = { entryTitle = if (entryTitle.isEmpty()) it else "$entryTitle $it" },
+                            tint = RoseQuartzPrimary
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -463,6 +470,12 @@ private fun DiaryEditorDialog(
                     onValueChange = { entryContent = it },
                     label = { Text("Reflection Body") },
                     placeholder = { Text("Write your thoughts...") },
+                    trailingIcon = {
+                        SpeechToTextButton(
+                            onResult = { entryContent = if (entryContent.isEmpty()) it else "$entryContent $it" },
+                            tint = RoseQuartzPrimary
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(130.dp),

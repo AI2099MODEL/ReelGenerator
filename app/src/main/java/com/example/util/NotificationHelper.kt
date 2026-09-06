@@ -62,7 +62,8 @@ object NotificationHelper {
         title: String,
         message: String,
         timestampMillis: Long,
-        type: String // "EVENT" or "TASK"
+        type: String, // "EVENT" or "TASK"
+        notificationSound: String = "Morning Bell"
     ) {
         // If the timestamp is in the past, do not schedule
         if (timestampMillis <= System.currentTimeMillis()) return
@@ -73,6 +74,7 @@ object NotificationHelper {
             putExtra(LedgerReminderReceiver.EXTRA_TITLE, title)
             putExtra(LedgerReminderReceiver.EXTRA_MESSAGE, message)
             putExtra(LedgerReminderReceiver.EXTRA_TYPE, type)
+            putExtra(LedgerReminderReceiver.EXTRA_SOUND, notificationSound)
         }
 
         val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

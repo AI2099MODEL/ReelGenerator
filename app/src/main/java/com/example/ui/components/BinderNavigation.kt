@@ -86,6 +86,13 @@ private val NAV_ITEMS = listOf(
         selectedIcon = Icons.Filled.AutoAwesome,
         unselectedIcon = Icons.Outlined.AutoAwesome,
         tabColor = Color(0xFFFFD700)
+    ),
+    NavTabItem(
+        section = LedgerSection.VAULT,
+        label = "Vault",
+        selectedIcon = Icons.Filled.Lock,
+        unselectedIcon = Icons.Outlined.Lock,
+        tabColor = Color(0xFFFFD700)
     )
 )
 

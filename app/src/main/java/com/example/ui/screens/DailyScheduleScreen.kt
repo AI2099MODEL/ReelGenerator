@@ -1,16 +1,23 @@
 package com.example.ui.screens
 
+// Daily Schedule Screen Component
+
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.delay
+import kotlin.math.cos
+import kotlin.math.sin
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -33,17 +40,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,11 +71,9 @@ import com.example.ui.components.AppNotification
 import com.example.ui.components.ColoredNotificationBannerHost
 import com.example.ui.components.LedgerEmptyState
 import com.example.ui.components.LedgerTopHeader
-import com.example.ui.components.NotificationType
 import com.example.ui.components.OrganizeTodayBrandBadge
 import com.example.ui.theme.*
 import com.example.util.rememberSpeechToTextLauncher
-import com.example.util.rememberTextToSpeechHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -79,7 +89,7 @@ fun DailyScheduleScreen(
     onMenuClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
-    val tts = rememberTextToSpeechHelper()
+    val notificationService = LocalNotificationService.current
 
     var showAddDialog by remember { mutableStateOf(false) }
     var viewingSchedule by remember { mutableStateOf<DailyScheduleEntity?>(null) }
@@ -88,37 +98,83 @@ fun DailyScheduleScreen(
     var presetTimeSlot by remember { mutableStateOf<String?>(null) }
 
     // Colored Notification Banner State
-    var activeNotification by remember { mutableStateOf<AppNotification?>(null) }
+    
 
-    fun showNotification(title: String, message: String, type: NotificationType) {
-        activeNotification = AppNotification(
-            title = title,
-            message = message,
-            type = type
-        )
+    
+
+    // Device Clock & Time Windows
+    var nowMs by remember { mutableStateOf(System.currentTimeMillis()) }
+    val deviceTimeString = remember(nowMs) {
+        SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date(nowMs))
     }
 
-    val filteredSchedules = remember(schedules, selectedCalendarDate) {
-        val startOfDay = (selectedCalendarDate.clone() as Calendar).apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+    LaunchedEffect(Unit) {
+        while(true) {
+            delay(10000L) // Update clock every 10 seconds
+            nowMs = System.currentTimeMillis()
+        }
+    }
 
-        val endOfDay = (selectedCalendarDate.clone() as Calendar).apply {
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-            set(Calendar.MILLISECOND, 999)
-        }.timeInMillis
+    // Strict Present Schedule Filter (Current time only)
+    val activeSchedules = remember(schedules, nowMs) {
+        val todayCalendar = Calendar.getInstance().apply { timeInMillis = nowMs }
+        val todayYear = todayCalendar.get(Calendar.YEAR)
+        val todayDayOfYear = todayCalendar.get(Calendar.DAY_OF_YEAR)
 
         schedules.filter { item ->
-            if (item.isMultiDay && item.endTimestamp != null) {
-                item.timestamp <= endOfDay && item.endTimestamp >= startOfDay
-            } else {
-                item.timestamp in startOfDay..endOfDay
+            // Parse start and end time from timeSlot string (e.g., "09:00 AM - 10:00 AM")
+            val times = item.timeSlot.split("-").map { it.trim() }
+            val startTimeStr = times.getOrNull(0) ?: "12:00 AM"
+            val endTimeStr = times.getOrNull(1) ?: ""
+
+            fun parseHourMin(t: String): Pair<Int, Int> {
+                val upper = t.uppercase(Locale.getDefault())
+                val isPm = upper.contains("PM")
+                val isAm = upper.contains("AM")
+                val clean = upper.replace("AM", "").replace("PM", "").trim()
+                val hStr = clean.substringBefore(":")
+                val mStr = clean.substringAfter(":", "00")
+                var h = hStr.toIntOrNull() ?: 12
+                val m = mStr.toIntOrNull() ?: 0
+                if (isPm && h < 12) h += 12
+                if (isAm && h == 12) h = 0
+                return Pair(h, m)
             }
+
+            val (startH, startM) = parseHourMin(startTimeStr)
+            
+            val itemCal = Calendar.getInstance().apply { timeInMillis = item.timestamp }
+            
+            // If DAILY, shift its day to today
+            if (item.recurrence == "DAILY") {
+                itemCal.set(Calendar.YEAR, todayYear)
+                itemCal.set(Calendar.DAY_OF_YEAR, todayDayOfYear)
+            }
+            
+            // Apply the actual hour and minute from the time slot
+            itemCal.set(Calendar.HOUR_OF_DAY, startH)
+            itemCal.set(Calendar.MINUTE, startM)
+            itemCal.set(Calendar.SECOND, 0)
+            val normalizedStartMs = itemCal.timeInMillis
+
+            val normalizedEndMs = if (endTimeStr.isNotBlank()) {
+                val (endH, endM) = parseHourMin(endTimeStr)
+                val endCal = Calendar.getInstance().apply { timeInMillis = normalizedStartMs }
+                endCal.set(Calendar.HOUR_OF_DAY, endH)
+                endCal.set(Calendar.MINUTE, endM)
+                if (endCal.timeInMillis < normalizedStartMs) {
+                    endCal.add(Calendar.DAY_OF_YEAR, 1) // Ends on the next day
+                }
+                endCal.timeInMillis
+            } else {
+                normalizedStartMs + (60 * 60 * 1000L) // Default 1 hour duration
+            }
+
+            // ONLY present time task (Happening right now, or starting within the next 30 minutes)
+            val isHappeningNow = nowMs in normalizedStartMs..normalizedEndMs
+            val isStartingVerySoon = normalizedStartMs in nowMs..(nowMs + 30 * 60 * 1000L)
+
+            isHappeningNow || isStartingVerySoon
         }.sortedWith(
             compareBy<DailyScheduleEntity> { it.isCompleted }
                 .thenBy { it.timestamp }
@@ -130,6 +186,9 @@ fun DailyScheduleScreen(
             .fillMaxSize()
             .background(Color.Transparent)
     ) {
+        // Animated Butterflies Overlay flying around schedule
+        FlyingButterfliesOverlay()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -142,46 +201,40 @@ fun DailyScheduleScreen(
             )
 
             // Colored Notification Banner Host
-            ColoredNotificationBannerHost(
-                notification = activeNotification,
-                onDismiss = { activeNotification = null }
-            )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Agenda Score Cards directly on the Background Image
-            if (filteredSchedules.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 14.dp)
-                        .weight(1f),
-                    contentPadding = PaddingValues(top = 4.dp, bottom = 80.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(filteredSchedules, key = { item -> item.id }) { schedule ->
-                        ScheduleScoreCard(
-                            schedule = schedule,
-                            onToggleComplete = {
-                                onToggleComplete(schedule)
-                                val newStatus = if (!schedule.isCompleted) "Done ✓" else "Pending"
-                                showNotification("Status Updated", "'${schedule.title}' marked $newStatus", NotificationType.SUCCESS)
-                            },
-                            onClick = { viewingSchedule = schedule },
-                            onDelete = {
-                                onDeleteSchedule(schedule)
-                                showNotification("Schedule Deleted", "'${schedule.title}' removed", NotificationType.ERROR)
-                            },
-                            onSpeak = {
-                                val speechText = "${schedule.title}. Scheduled for ${schedule.timeSlot}. ${if (schedule.note.isNotBlank()) schedule.note else ""}"
-                                tts.speak(speechText)
-                                showNotification("Voice Output Playing", "Reading: '${schedule.title}'", NotificationType.VOICE)
-                            }
-                        )
+            // Centered Agenda Section in Middle of Screen
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 14.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Agenda List directly on the Background Image (Frameless / No Card Background)
+                if (activeSchedules.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(top = 4.dp, bottom = 40.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp) // Tighter spacing between items
+                    ) {
+                        items(activeSchedules, key = { item -> item.id }) { schedule ->
+                            ScheduleScoreCard(
+                                schedule = schedule,
+                                onToggleComplete = {
+                                    onToggleComplete(schedule)
+                                    val newStatus = if (!schedule.isCompleted) "Done ✓" else "Pending"
+                                    notificationService.show("Status Updated", "'${schedule.title}' marked $newStatus", NotificationType.SUCCESS)
+                                },
+                                onClick = { viewingSchedule = schedule },
+                                onDelete = {
+                                    onDeleteSchedule(schedule)
+                                    notificationService.show("Schedule Deleted", "'${schedule.title}' removed", NotificationType.ERROR)
+                                }
+                            )
+                        }
                     }
                 }
-            } else {
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
 
@@ -198,13 +251,13 @@ fun DailyScheduleScreen(
                     onAddSchedule(newSchedule)
                     showAddDialog = false
                     presetTimeSlot = null
-                    showNotification(
+                    notificationService.show(
                         title = "Schedule Created",
                         message = "'${newSchedule.title}' saved for ${newSchedule.timeSlot}",
                         type = NotificationType.SUCCESS
                     )
                 },
-                onNotify = { title, msg, type -> showNotification(title, msg, type) }
+                onNotify = { title, msg, type -> notificationService.show(title, msg, type) }
             )
         }
 
@@ -217,13 +270,13 @@ fun DailyScheduleScreen(
                     onUpdateSchedule(updated)
                     editingSchedule = null
                     viewingSchedule = null
-                    showNotification(
+                    notificationService.show(
                         title = "Schedule Updated",
                         message = "'${updated.title}' updated",
                         type = NotificationType.SUCCESS
                     )
                 },
-                onNotify = { title, msg, type -> showNotification(title, msg, type) }
+                onNotify = { title, msg, type -> notificationService.show(title, msg, type) }
             )
         }
 
@@ -239,16 +292,11 @@ fun DailyScheduleScreen(
                 onDelete = {
                     onDeleteSchedule(schedule)
                     viewingSchedule = null
-                    showNotification("Schedule Deleted", "'${schedule.title}' removed", NotificationType.ERROR)
+                    notificationService.show("Schedule Deleted", "'${schedule.title}' removed", NotificationType.ERROR)
                 },
                 onToggleComplete = {
                     onToggleComplete(schedule)
                     viewingSchedule = schedule.copy(isCompleted = !schedule.isCompleted)
-                },
-                onSpeak = {
-                    val speechText = "${schedule.title}. Scheduled at ${schedule.timeSlot}. ${if (schedule.note.isNotBlank()) schedule.note else ""}"
-                    tts.speak(speechText)
-                    showNotification("Voice Output Playing", "Reading: '${schedule.title}'", NotificationType.VOICE)
                 }
             )
         }
@@ -280,183 +328,112 @@ private fun ScheduleScoreCard(
     schedule: DailyScheduleEntity,
     onToggleComplete: () -> Unit,
     onClick: () -> Unit,
-    onDelete: () -> Unit,
-    onSpeak: (() -> Unit)? = null
+    onDelete: () -> Unit
 ) {
-    val (timeDigits, period) = parseTimeDisplay(schedule.timeSlot)
-    val categoryStyle = getCategoryStyleForTitle(schedule.title)
-
-    val cardBackgroundGradient = Brush.horizontalGradient(
-        listOf(
-            Color(0xFF1E1D22),
-            Color(0xFF26242C),
-            Color(0xFF332932),
-            Color(0xFF4C2A33),
-            Color(0xFF7A3E31),
-            Color(0xFFB55D30),
-            Color(0xFFD47C3B),
-            Color(0xFFE59C4A)
-        )
-    )
+    val dateFormat = remember { SimpleDateFormat("MMMM d • hh:mm a", Locale.getDefault()) }
+    val formattedDate = remember(schedule.timestamp) { dateFormat.format(Date(schedule.timestamp)) }
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(18.dp),
-                ambientColor = Color(0xFFD47C3B).copy(alpha = 0.3f),
-                spotColor = Color(0xFFE59C4A).copy(alpha = 0.4f)
-            ),
-        shape = RoundedCornerShape(18.dp),
-        border = BorderStroke(1.dp, Color(0xFFFFD56B).copy(alpha = 0.6f))
+            .padding(horizontal = 4.dp), // add a little padding
+        shape = RoundedCornerShape(12.dp), // more compact corners
+        color = Color(0xFFFFFFFC), 
+        border = BorderStroke(1.dp, Color(0xFFFFF59D)), 
+        shadowElevation = 2.dp // reduced shadow
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(cardBackgroundGradient)
-                .padding(horizontal = 14.dp, vertical = 12.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp), // tighter padding
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Left Badge Area (Icon Box) - Compact
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFFFFDE7), 
+                border = BorderStroke(0.5.dp, Color(0xFFFFF59D)),
+                modifier = Modifier.size(44.dp) // much smaller box
             ) {
-                // 1. Time Badge Column
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color.White.copy(alpha = 0.18f),
-                    border = BorderStroke(0.8.dp, Color.White.copy(alpha = 0.3f)),
-                    modifier = Modifier.padding(end = 12.dp)
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = timeDigits,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
-                        )
-                        if (period.isNotEmpty()) {
-                            Text(
-                                text = period,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFFD56B)
-                            )
-                        }
-                    }
-                }
-
-                // 2. Category Icon Badge
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.2f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = categoryStyle.icon,
-                        contentDescription = schedule.category,
-                        tint = Color(0xFFFFD56B),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                // 3. Task Title & Heart Script / Note
-                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = schedule.title,
-                        fontSize = 15.sp,
+                        text = "Organize",
+                        fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (schedule.isCompleted) Color.White.copy(alpha = 0.6f) else Color.White,
-                        textDecoration = if (schedule.isCompleted) TextDecoration.LineThrough else null,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        color = Color(0xFF2E7D32)
                     )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Heart",
-                            tint = Color(0xFFF43F5E),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Text(
-                            text = if (schedule.note.isNotBlank()) schedule.note else "Better Days Ahead ♡",
-                            fontSize = 11.sp,
-                            fontFamily = FontFamily.Cursive,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFFE082),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                    Text(text = "🌿", fontSize = 12.sp)
                 }
+            }
 
-                Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
-                // 4. Action Buttons & Radio Checkbox
+            // Middle Info Area
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                // Title
+                Text(
+                    text = schedule.title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.Black,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                // Date & Time Row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    if (onSpeak != null) {
-                        IconButton(
-                            onClick = onSpeak,
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.VolumeUp,
-                                contentDescription = "Read Aloud",
-                                tint = Color(0xFFE0E7FF),
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
+                    Icon(
+                        imageVector = Icons.Outlined.CalendarToday,
+                        contentDescription = "Date",
+                        tint = Color(0xFFFFB300),
+                        modifier = Modifier.size(10.dp)
+                    )
+                    Text(
+                        text = formattedDate,
+                        fontSize = 10.5.sp, // slightly smaller text
+                        color = Color.DarkGray
+                    )
+                }
+            }
 
-                    IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.DeleteOutline,
-                            contentDescription = "Delete",
-                            tint = Color.White.copy(alpha = 0.7f),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-
-                    // Completion Checkbox Ring
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(if (schedule.isCompleted) Color(0xFF38BDF8) else Color.Transparent)
-                            .border(
-                                width = if (schedule.isCompleted) 0.dp else 1.8.dp,
-                                color = if (schedule.isCompleted) Color.Transparent else Color.White.copy(alpha = 0.8f),
-                                shape = CircleShape
-                            )
-                            .clickable { onToggleComplete() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (schedule.isCompleted) {
-                            Icon(
-                                imageVector = Icons.Filled.Check,
-                                contentDescription = "Completed",
-                                tint = Color.White,
-                                modifier = Modifier.size(14.dp)
-                            )
-                        }
-                    }
+            // Right Action Icons
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(26.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Delete",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+                
+                IconButton(
+                    onClick = { /* dummy */ },
+                    modifier = Modifier.size(26.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Notifications,
+                        contentDescription = "Notification",
+                        tint = Color(0xFFFFB300),
+                        modifier = Modifier.size(15.dp)
+                    )
                 }
             }
         }
@@ -480,6 +457,32 @@ private fun parseTimeDisplay(timeSlot: String): Pair<String, String> {
     }
 
     return Pair(if (digits.isNotEmpty()) digits else "12:00", period)
+}
+
+private fun isNightSlot(period: String, digits: String): Boolean {
+    val hourStr = digits.substringBefore(":").trim()
+    val hour = hourStr.toIntOrNull() ?: 12
+    return if (period.equals("PM", ignoreCase = true)) {
+        hour == 12 || hour >= 6
+    } else {
+        hour == 12 || hour < 6
+    }
+}
+
+private fun getCategoryEmoji(title: String, category: String): String {
+    val lower = "$title $category".lowercase(Locale.getDefault())
+    return when {
+        lower.contains("yoga") || lower.contains("tea") || lower.contains("meditat") || lower.contains("spa") -> "🧘‍♀️"
+        lower.contains("work") || lower.contains("project") || lower.contains("office") || lower.contains("meeting") || lower.contains("code") || lower.contains("dev") -> "💼"
+        lower.contains("coffee") -> "☕"
+        lower.contains("lunch") || lower.contains("dinner") || lower.contains("food") || lower.contains("eat") || lower.contains("meal") || lower.contains("breakfast") -> "🥗"
+        lower.contains("read") || lower.contains("book") || lower.contains("study") || lower.contains("learn") -> "📚"
+        lower.contains("gym") || lower.contains("run") || lower.contains("walk") || lower.contains("fit") || lower.contains("workout") || lower.contains("exercise") -> "🏃‍♂️"
+        lower.contains("shop") || lower.contains("buy") || lower.contains("store") || lower.contains("grocer") -> "🛒"
+        lower.contains("music") || lower.contains("song") -> "🎵"
+        lower.contains("sleep") || lower.contains("bed") || lower.contains("rest") || lower.contains("night") -> "🌙"
+        else -> "✨"
+    }
 }
 
 private data class ScheduleCategoryStyle(
@@ -517,12 +520,30 @@ private fun AddEditScheduleDialog(
     onNotify: ((String, String, NotificationType) -> Unit)? = null
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     var title by remember { mutableStateOf(initialSchedule?.title ?: "") }
     var note by remember { mutableStateOf(initialSchedule?.note ?: "") }
     var recurrence by remember { mutableStateOf(initialSchedule?.recurrence ?: "DAILY") }
     var category by remember { mutableStateOf(initialSchedule?.category ?: "Routine") }
-    var timeSlot by remember { mutableStateOf(initialSchedule?.timeSlot ?: presetTimeSlot ?: "09:00 AM") }
+    
+    val initialTimeParts = remember(initialSchedule, presetTimeSlot) {
+        val raw = initialSchedule?.timeSlot ?: presetTimeSlot ?: "09:00 AM"
+        if (raw.contains("-")) {
+            val parts = raw.split("-")
+            Pair(parts[0].trim(), parts.getOrNull(1)?.trim() ?: "")
+        } else {
+            Pair(raw, "")
+        }
+    }
+    var startTimeSlot by remember { mutableStateOf(initialTimeParts.first) }
+    var endTimeSlot by remember { mutableStateOf(initialTimeParts.second) }
+
+    val timeSlot = remember(startTimeSlot, endTimeSlot) {
+        if (endTimeSlot.isNotBlank()) "$startTimeSlot - $endTimeSlot" else startTimeSlot
+    }
+
     var notifyMe by remember { mutableStateOf(initialSchedule?.notifyMe ?: true) }
+    var notificationSound by remember { mutableStateOf(initialSchedule?.notificationSound ?: "Morning Bell") }
 
     // Voice Speech-to-Text Launchers
     val launchTitleVoiceInput = rememberSpeechToTextLauncher(
@@ -919,7 +940,7 @@ private fun AddEditScheduleDialog(
                                                             { _, y, m, d ->
                                                                 val newCal = Calendar.getInstance().apply { set(y, m, d) }
                                                                 if (newCal.timeInMillis < startTimestamp) {
-                                                                    Toast.makeText(context, "End date adjusted to match or follow start date", Toast.LENGTH_SHORT).show()
+                                                                    notificationService.show("Notification", "End date adjusted to match or follow start date", NotificationType.INFO)
                                                                     endTimestamp = startTimestamp
                                                                 } else {
                                                                     endTimestamp = newCal.timeInMillis
@@ -976,31 +997,69 @@ private fun AddEditScheduleDialog(
 
                                     HorizontalDivider(color = Color(0xFFBAE6FD).copy(alpha = 0.5f))
 
-                                    // Time Slot selector
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column {
-                                            Text("Time Slot:", fontSize = 11.sp, color = Color(0xFF0369A1), fontFamily = FontFamily.Cursive, fontWeight = FontWeight.Bold)
-                                            Text(timeSlot, fontSize = 12.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF0C4A6E))
+                                    // Time Slot selector (Start & End Time)
+                                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text("Time Range (Start & End):", fontSize = 11.5.sp, color = Color(0xFF0369A1), fontFamily = FontFamily.Cursive, fontWeight = FontWeight.Bold)
+                                            Text(timeSlot, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF0C4A6E))
                                         }
 
-                                        Button(
-                                            onClick = {
-                                                TimePickerDialog(context, { _, h, m ->
-                                                    val amPm = if (h >= 12) "PM" else "AM"
-                                                    val displayH = if (h == 0) 12 else if (h > 12) h - 12 else h
-                                                    timeSlot = String.format(Locale.getDefault(), "%02d:%02d %s", displayH, m, amPm)
-                                                }, 9, 0, false).show()
-                                            },
-                                            shape = RoundedCornerShape(8.dp),
-                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
-                                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                            modifier = Modifier.height(32.dp)
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text("Pick Time", fontSize = 11.sp)
+                                            // Start Time Button
+                                            Button(
+                                                onClick = {
+                                                    val parsed = parseTimeDisplay(startTimeSlot)
+                                                    val hourDigits = parsed.first.substringBefore(":").toIntOrNull() ?: 9
+                                                    val minuteDigits = parsed.first.substringAfter(":", "00").toIntOrNull() ?: 0
+                                                    val h24 = if (parsed.second.equals("PM", ignoreCase = true) && hourDigits < 12) hourDigits + 12 else if (parsed.second.equals("AM", ignoreCase = true) && hourDigits == 12) 0 else hourDigits
+
+                                                    TimePickerDialog(context, { _, h, m ->
+                                                        val amPm = if (h >= 12) "PM" else "AM"
+                                                        val displayH = if (h == 0) 12 else if (h > 12) h - 12 else h
+                                                        startTimeSlot = String.format(Locale.getDefault(), "%d:%02d %s", displayH, m, amPm)
+                                                    }, h24, minuteDigits, false).show()
+                                                },
+                                                shape = RoundedCornerShape(8.dp),
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0284C7)),
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                                modifier = Modifier.weight(1f).height(36.dp)
+                                            ) {
+                                                Text("Start: $startTimeSlot", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
+
+                                            // End Time Button
+                                            Button(
+                                                onClick = {
+                                                    val parsed = parseTimeDisplay(if (endTimeSlot.isNotBlank()) endTimeSlot else "10:00 AM")
+                                                    val hourDigits = parsed.first.substringBefore(":").toIntOrNull() ?: 10
+                                                    val minuteDigits = parsed.first.substringAfter(":", "00").toIntOrNull() ?: 0
+                                                    val h24 = if (parsed.second.equals("PM", ignoreCase = true) && hourDigits < 12) hourDigits + 12 else if (parsed.second.equals("AM", ignoreCase = true) && hourDigits == 12) 0 else hourDigits
+
+                                                    TimePickerDialog(context, { _, h, m ->
+                                                        val amPm = if (h >= 12) "PM" else "AM"
+                                                        val displayH = if (h == 0) 12 else if (h > 12) h - 12 else h
+                                                        endTimeSlot = String.format(Locale.getDefault(), "%d:%02d %s", displayH, m, amPm)
+                                                    }, h24, minuteDigits, false).show()
+                                                },
+                                                shape = RoundedCornerShape(8.dp),
+                                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9333EA)),
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                                modifier = Modifier.weight(1f).height(36.dp)
+                                            ) {
+                                                Text(
+                                                    text = if (endTimeSlot.isNotBlank()) "End: $endTimeSlot" else "+ End Time",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -1055,30 +1114,52 @@ private fun AddEditScheduleDialog(
                             }
                         }
 
-                        // Notification alert toggle
+                        // Notification alert toggle and sound selector
                         item {
                             Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable { notifyMe = !notifyMe },
+                                modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 color = Color(0xFFF0F9FF),
                                 border = BorderStroke(1.dp, Color(0xFFBAE6FD))
                             ) {
-                                Row(
+                                Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .padding(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Checkbox(
-                                        checked = notifyMe,
-                                        onCheckedChange = { notifyMe = it },
-                                        colors = CheckboxDefaults.colors(checkedColor = Color(0xFF0284C7), checkmarkColor = Color.White)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Set Notification Alert Reminder", fontSize = 12.5.sp, color = Color(0xFF0369A1), fontFamily = FontFamily.Cursive, fontWeight = FontWeight.Bold)
+                                    // Notification Switch ON/OFF
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { notifyMe = !notifyMe },
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = if (notifyMe) Icons.Filled.NotificationsActive else Icons.Filled.NotificationsOff,
+                                                contentDescription = "Notification Sound",
+                                                tint = if (notifyMe) Color(0xFF0284C7) else Color.Gray,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Notification Sound (On/Off)",
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF0369A1)
+                                            )
+                                        }
+                                        Switch(
+                                            checked = notifyMe,
+                                            onCheckedChange = { notifyMe = it },
+                                            colors = SwitchDefaults.colors(
+                                                checkedThumbColor = Color.White,
+                                                checkedTrackColor = Color(0xFF0284C7)
+                                            )
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1088,7 +1169,7 @@ private fun AddEditScheduleDialog(
                             Button(
                                 onClick = {
                                     if (title.isBlank()) {
-                                        Toast.makeText(context, "Please enter a title for the schedule", Toast.LENGTH_SHORT).show()
+                                        notificationService.show("Attention", "Please enter a title for the schedule", NotificationType.ALERT)
                                         return@Button
                                     }
                                     val finalEndTimestamp = if (isMultiDay) endTimestamp else null
@@ -1101,7 +1182,8 @@ private fun AddEditScheduleDialog(
                                         recurrence = recurrence,
                                         timeSlot = timeSlot,
                                         category = category,
-                                        notifyMe = notifyMe
+                                        notifyMe = notifyMe,
+                                        notificationSound = notificationSound
                                     ) ?: DailyScheduleEntity(
                                         title = title.trim(),
                                         note = note.trim(),
@@ -1111,7 +1193,8 @@ private fun AddEditScheduleDialog(
                                         recurrence = recurrence,
                                         timeSlot = timeSlot,
                                         category = category,
-                                        notifyMe = notifyMe
+                                        notifyMe = notifyMe,
+                                        notificationSound = notificationSound
                                     )
                                     onSave(scheduleToSave)
                                 },
@@ -1151,8 +1234,7 @@ private fun ScheduleDetailDialog(
     onDismiss: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onToggleComplete: () -> Unit,
-    onSpeak: (() -> Unit)? = null
+    onToggleComplete: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("EEEE, MMMM d, yyyy", Locale.getDefault()) }
 
@@ -1219,23 +1301,6 @@ private fun ScheduleDetailDialog(
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFF7E22CE),
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
-                                        )
-                                    }
-                                }
-
-                                if (onSpeak != null) {
-                                    IconButton(
-                                        onClick = onSpeak,
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFFF3E8FF))
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.VolumeUp,
-                                            contentDescription = "Speak Schedule",
-                                            tint = Color(0xFF9333EA),
-                                            modifier = Modifier.size(18.dp)
                                         )
                                     }
                                 }
@@ -1440,6 +1505,61 @@ private fun DailyCalendarWeekStrip(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FlyingButterfliesOverlay() {
+    val transition = rememberInfiniteTransition(label = "ButterflyFlyTransition")
+    val flightProgress by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "flightProgress"
+    )
+
+    val flutterWing by transition.animateFloat(
+        initialValue = -15f,
+        targetValue = 15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "flutterWing"
+    )
+
+    val butterflies = remember {
+        listOf(
+            Triple("🦋", 0.1f, 0.2f),
+            Triple("🦋", 0.7f, 0.4f),
+            Triple("🦋", 0.3f, 0.7f),
+            Triple("🦋", 0.85f, 0.15f)
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        butterflies.forEachIndexed { index, (emoji, startX, startY) ->
+            val phaseOffset = index * 0.25f
+            val currentProgress = (flightProgress + phaseOffset) % 1f
+
+            val offsetX = (startX * 320 + sin((currentProgress * 2 * Math.PI) + index) * 50).dp
+            val offsetY = (startY * 500 + cos((currentProgress * 2 * Math.PI) + index) * 40 - (currentProgress * 60)).dp
+
+            Text(
+                text = emoji,
+                fontSize = (20 + (index % 3) * 4).sp,
+                modifier = Modifier
+                    .offset(x = offsetX, y = offsetY)
+                    .graphicsLayer(
+                        rotationZ = flutterWing + (if (index % 2 == 0) 10f else -10f),
+                        scaleX = if (index % 2 == 0) 1f else -1f,
+                        alpha = 0.85f
+                    )
+            )
         }
     }
 }

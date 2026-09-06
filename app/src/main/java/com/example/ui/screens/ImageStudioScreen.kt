@@ -38,6 +38,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.graphicsLayer
+import com.example.ui.components.LocalNotificationService
+import com.example.ui.components.NotificationType
+
+import androidx.compose.animation.core.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -51,6 +56,7 @@ import com.example.data.model.GalleryMediaItem
 import com.example.data.model.GallerySourceType
 import com.example.ui.GlobalSettingsState
 import com.example.ui.components.LedgerTopHeader
+import com.example.ui.components.SpeechToTextButton
 import com.example.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -123,6 +129,7 @@ fun ImageStudioScreen(
     onOpenGlobalSettings: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
+    val notificationService = LocalNotificationService.current
     val scope = rememberCoroutineScope()
 
     // Prompt & Generation States
@@ -201,11 +208,11 @@ fun ImageStudioScreen(
                     }
                     withContext(Dispatchers.Main) {
                         referenceImageBitmap = bitmap
-                        Toast.makeText(context, "Image uploaded for editing & changes! ✨", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Success", "Image uploaded for editing & changes! ✨", NotificationType.SUCCESS)
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Failed to load image: ${e.message}", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Action Failed", "Failed to load image: ${e.message}", NotificationType.ERROR)
                     }
                 }
             }
@@ -221,7 +228,7 @@ fun ImageStudioScreen(
         if (bitmap != null) {
             referenceImageBitmap = bitmap
             referenceImageUri = null
-            Toast.makeText(context, "Photo captured! Ready for AI styling & changes. ✨", Toast.LENGTH_SHORT).show()
+            notificationService.show("Success", "Photo captured! Ready for AI styling & changes. ✨", NotificationType.SUCCESS)
         }
     }
 
@@ -237,7 +244,7 @@ fun ImageStudioScreen(
                         if (bitmap != null) {
                             referenceImageBitmap = bitmap
                             referenceImageUri = tempCameraUri
-                            Toast.makeText(context, "Photo captured! Ready for AI styling & changes. ✨", Toast.LENGTH_SHORT).show()
+                            notificationService.show("Success", "Photo captured! Ready for AI styling & changes. ✨", NotificationType.SUCCESS)
                         }
                     }
                 } catch (e: Exception) {
@@ -264,7 +271,7 @@ fun ImageStudioScreen(
             try {
                 cameraPreviewLauncher.launch(null)
             } catch (e2: Exception) {
-                Toast.makeText(context, "Unable to launch camera: ${e2.message}", Toast.LENGTH_SHORT).show()
+                notificationService.show("Action Failed", "Unable to launch camera: ${e2.message}", NotificationType.ERROR)
             }
         }
     }
@@ -276,7 +283,7 @@ fun ImageStudioScreen(
         if (isGranted) {
             startCameraIntent()
         } else {
-            Toast.makeText(context, "Camera permission needed to take pictures", Toast.LENGTH_SHORT).show()
+            notificationService.show("Action Failed", "Camera permission needed to take pictures", NotificationType.ERROR)
         }
     }
 
@@ -289,45 +296,6 @@ fun ImageStudioScreen(
         }
     }
 
-    // Google Drive share/backup intent
-    fun uploadItemToGoogleDrive(item: GalleryMediaItem) {
-        try {
-            val file = item.localFilePath?.let { File(it) }
-            if (file != null && file.exists()) {
-                val contentUri = FileProvider.getUriForFile(
-                    context,
-                    "${context.packageName}.fileprovider",
-                    file
-                )
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "image/jpeg"
-                    putExtra(Intent.EXTRA_STREAM, contentUri)
-                    putExtra(Intent.EXTRA_TITLE, item.title)
-                    putExtra(Intent.EXTRA_SUBJECT, "Google Drive Backup: ${item.title}")
-                    setPackage("com.google.android.apps.docs")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-
-                if (shareIntent.resolveActivity(context.packageManager) != null) {
-                    context.startActivity(shareIntent)
-                } else {
-                    val universalIntent = Intent(Intent.ACTION_SEND).apply {
-                        type = "image/jpeg"
-                        putExtra(Intent.EXTRA_STREAM, contentUri)
-                        putExtra(Intent.EXTRA_SUBJECT, "Backup to Google Drive: ${item.title}")
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    }
-                    context.startActivity(Intent.createChooser(universalIntent, "Save / Backup to Google Drive"))
-                }
-            } else {
-                Toast.makeText(context, "Local file not found for upload", Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            Toast.makeText(context, "Opening Google Drive share: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Universal share image
     fun shareImage(item: GalleryMediaItem) {
         try {
             val file = item.localFilePath?.let { File(it) }
@@ -346,7 +314,7 @@ fun ImageStudioScreen(
                 context.startActivity(Intent.createChooser(shareIntent, "Share Image"))
             }
         } catch (e: Exception) {
-            Toast.makeText(context, "Cannot share image: ${e.message}", Toast.LENGTH_SHORT).show()
+            notificationService.show("Action Failed", "Cannot share image: ${e.message}", NotificationType.ERROR)
         }
     }
 
@@ -362,7 +330,7 @@ fun ImageStudioScreen(
                 if (selectedMediaForViewer?.id == item.id) {
                     selectedMediaForViewer = null
                 }
-                Toast.makeText(context, "Image deleted", Toast.LENGTH_SHORT).show()
+                notificationService.show("Item Removed", "Image deleted", NotificationType.ALERT)
             }
         }
     }
@@ -381,8 +349,60 @@ fun ImageStudioScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
+            // Butterfly Overlay
+            val transition = rememberInfiniteTransition(label = "ButterflyFlyTransition")
+            val flightProgress by transition.animateFloat(
+                initialValue = 0f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 8000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "flightProgress"
+            )
+        
+            val flutterWing by transition.animateFloat(
+                initialValue = -15f,
+                targetValue = 15f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "flutterWing"
+            )
+        
+            val butterflies = remember {
+                listOf(
+                    Triple("🦋", 0.1f, 0.2f),
+                    Triple("🦋", 0.7f, 0.4f),
+                    Triple("🦋", 0.3f, 0.7f),
+                    Triple("🦋", 0.85f, 0.15f)
+                )
+            }
+        
+            butterflies.forEachIndexed { index, (emoji, startX, startY) ->
+                val phaseOffset = index * 0.25f
+                val currentProgress = (flightProgress + phaseOffset) % 1f
+        
+                val offsetX = (startX * 320 + kotlin.math.sin((currentProgress * 2 * Math.PI) + index) * 50).dp
+                val offsetY = (startY * 500 + kotlin.math.cos((currentProgress * 2 * Math.PI) + index) * 40 - (currentProgress * 60)).dp
+        
+                Text(
+                    text = emoji,
+                    fontSize = (20 + (index % 3) * 4).sp,
+                    modifier = Modifier
+                        .offset(x = offsetX, y = offsetY)
+                        .graphicsLayer(
+                            rotationZ = flutterWing + (if (index % 2 == 0) 10f else -10f),
+                            scaleX = if (index % 2 == 0) 1f else -1f,
+                            alpha = 0.85f
+                        )
+                )
+            }
+
             TextToImageSection(
                 promptInput = promptInput,
                 onPromptChange = { promptInput = it },
@@ -412,9 +432,9 @@ fun ImageStudioScreen(
                                 hasInputImage = referenceImageBitmap != null
                             )
                             promptInput = enhanced
-                            Toast.makeText(context, "Prompt enriched with AI ✨", Toast.LENGTH_SHORT).show()
+                            notificationService.show("Success", "Prompt enriched with AI ✨", NotificationType.SUCCESS)
                         } catch (e: Exception) {
-                            Toast.makeText(context, "AI Helper: ${e.message}", Toast.LENGTH_SHORT).show()
+                            notificationService.show("Notification", "AI Helper: ${e.message}", NotificationType.INFO)
                         } finally {
                             isEnhancingPrompt = false
                         }
@@ -424,7 +444,7 @@ fun ImageStudioScreen(
                 latestResult = latestResult,
                 onGenerate = {
                     if (promptInput.isBlank() && referenceImageBitmap == null) {
-                        Toast.makeText(context, "Please enter a prompt or attach an image", Toast.LENGTH_SHORT).show()
+                        notificationService.show("Attention", "Please enter a prompt or attach an image", NotificationType.ALERT)
                         return@TextToImageSection
                     }
                     isGenerating = true
@@ -441,23 +461,13 @@ fun ImageStudioScreen(
                             )
                             latestResult = result
                             refreshGallery()
-                            Toast.makeText(context, "Artwork generated and saved to gallery!", Toast.LENGTH_SHORT).show()
+                            notificationService.show("Success", "Artwork generated and saved to gallery!", NotificationType.SUCCESS)
                         } catch (e: Exception) {
                             errorMessage = e.message ?: "Failed to generate image"
                         } finally {
                             isGenerating = false
                         }
                     }
-                },
-                onSaveToDrive = { res ->
-                    uploadItemToGoogleDrive(
-                        GalleryMediaItem(
-                            id = res.localFilePath,
-                            title = res.prompt.take(25),
-                            source = GallerySourceType.AI_GENERATED,
-                            localFilePath = res.localFilePath
-                        )
-                    )
                 },
                 onInspect = { res ->
                     selectedMediaForViewer = GalleryMediaItem(
@@ -484,7 +494,6 @@ fun ImageStudioScreen(
             item = mediaItem,
             onDismiss = { selectedMediaForViewer = null },
             onShare = { shareImage(mediaItem) },
-            onUploadToDrive = { uploadItemToGoogleDrive(mediaItem) },
             onDelete = { deleteImageItem(mediaItem) }
         )
     }
@@ -511,7 +520,6 @@ private fun TextToImageSection(
     isGenerating: Boolean,
     latestResult: ImageGenAi.GenerationResult?,
     onGenerate: () -> Unit,
-    onSaveToDrive: (ImageGenAi.GenerationResult) -> Unit,
     onInspect: (ImageGenAi.GenerationResult) -> Unit,
     aiCreations: List<GalleryMediaItem>,
     onSelectCreation: (GalleryMediaItem) -> Unit,
@@ -646,7 +654,7 @@ private fun TextToImageSection(
                                         }
                                     }
 
-                                    // Prompt Input with Golden Border and bright visible white/gold text
+                                    // Prompt Input with Light White Background and Black text
                                     OutlinedTextField(
                                         value = promptInput,
                                         onValueChange = onPromptChange,
@@ -655,36 +663,44 @@ private fun TextToImageSection(
                                             .heightIn(min = 80.dp)
                                             .testTag("ai_image_prompt_input"),
                                         textStyle = TextStyle(
-                                            color = Color.White,
+                                            color = Color.Black, // Black fonts
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Medium
                                         ),
                                         placeholder = {
                                             Text(
                                                 "Describe anything you want to create or change in your photo...",
-                                                color = GoldLight.copy(alpha = 0.65f),
+                                                color = Color.Gray,
                                                 fontSize = 12.sp,
                                                 lineHeight = 16.sp
                                             )
                                         },
                                         trailingIcon = {
-                                            if (promptInput.isNotEmpty()) {
-                                                IconButton(onClick = { onPromptChange("") }) {
-                                                    Icon(Icons.Default.Clear, contentDescription = "Clear", tint = GoldLight)
+                                            Row {
+                                                SpeechToTextButton(
+                                                    onResult = { recognizedText ->
+                                                        onPromptChange(if (promptInput.isEmpty()) recognizedText else "$promptInput $recognizedText")
+                                                    },
+                                                    tint = Color.Gray
+                                                )
+                                                if (promptInput.isNotEmpty()) {
+                                                    IconButton(onClick = { onPromptChange("") }) {
+                                                        Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color.Gray)
+                                                    }
                                                 }
                                             }
                                         },
                                         shape = RoundedCornerShape(14.dp),
                                         colors = OutlinedTextFieldDefaults.colors(
-                                            focusedTextColor = Color.White,
-                                            unfocusedTextColor = Color.White,
+                                            focusedTextColor = Color.Black, // Black fonts
+                                            unfocusedTextColor = Color.Black,
                                             focusedBorderColor = GoldHighlight,
                                             unfocusedBorderColor = GoldAccent.copy(alpha = 0.7f),
-                                            focusedContainerColor = Color(0x66000000),
-                                            unfocusedContainerColor = Color(0x44000000),
-                                            cursorColor = GoldHighlight,
-                                            focusedPlaceholderColor = GoldLight.copy(alpha = 0.6f),
-                                            unfocusedPlaceholderColor = GoldLight.copy(alpha = 0.5f)
+                                            focusedContainerColor = Color(0xFFFAFAFA), // Light white background
+                                            unfocusedContainerColor = Color(0xFFFAFAFA), // Light white background
+                                            cursorColor = Color.Black,
+                                            focusedPlaceholderColor = Color.Gray,
+                                            unfocusedPlaceholderColor = Color.Gray
                                         )
                                     )
 
@@ -968,23 +984,7 @@ private fun TextToImageSection(
                                 contentScale = ContentScale.Fit
                             )
 
-                            Surface(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(8.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color.Black.copy(alpha = 0.75f),
-                                border = BorderStroke(0.5.dp, GoldAccent.copy(alpha = 0.4f))
-                            ) {
-                                Text(
-                                    text = res.prompt,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                    fontSize = 11.sp,
-                                    color = GoldHighlight,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
+                            
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -1002,17 +1002,6 @@ private fun TextToImageSection(
                                 Icon(Icons.Default.Fullscreen, contentDescription = null, modifier = Modifier.size(16.dp), tint = GoldLight)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Zoom", fontSize = 12.sp, color = GoldLight, fontWeight = FontWeight.Bold)
-                            }
-
-                            Button(
-                                onClick = { onSaveToDrive(res) },
-                                modifier = Modifier.weight(1.3f),
-                                shape = RoundedCornerShape(10.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5))
-                            ) {
-                                Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Google Drive", fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -1144,7 +1133,6 @@ private fun ImageLightboxDialog(
     item: GalleryMediaItem,
     onDismiss: () -> Unit,
     onShare: () -> Unit,
-    onUploadToDrive: () -> Unit,
     onDelete: () -> Unit
 ) {
     Dialog(
@@ -1180,16 +1168,6 @@ private fun ImageLightboxDialog(
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        IconButton(
-                            onClick = onUploadToDrive,
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF1E88E5))
-                        ) {
-                            Icon(Icons.Default.CloudUpload, contentDescription = "Google Drive", tint = Color.White)
-                        }
-
                         IconButton(
                             onClick = onShare,
                             modifier = Modifier
@@ -1231,53 +1209,6 @@ private fun ImageLightboxDialog(
                             .clip(RoundedCornerShape(8.dp)),
                         contentScale = ContentScale.Fit
                     )
-                }
-
-                // Bottom Details Panel
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color(0xFF1A1A1A).copy(alpha = 0.9f),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f))
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = item.title,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-
-                        if (!item.prompt.isNullOrBlank()) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Prompt: \"${item.prompt}\"",
-                                fontSize = 12.sp,
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "Studio Creation",
-                                fontSize = 11.sp,
-                                color = GoldPrimary
-                            )
-                            Text(
-                                text = "${item.displaySize} • ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(item.dateAddedMs))}",
-                                fontSize = 11.sp,
-                                color = Color.White.copy(alpha = 0.6f)
-                            )
-                        }
-                    }
                 }
             }
         }

@@ -60,6 +60,7 @@ data class DailyScheduleEntity(
     val timeSlot: String = "09:00 AM",
     val category: String = "General", // "Morning", "Work", "Personal", "Health", "Evening", "Diary" or Custom
     val notifyMe: Boolean = true,
+    val notificationSound: String = "Morning Bell",
     val notificationScheduledId: Int = 0,
     val isCompleted: Boolean = false,
     val colorHex: String = "#F59E0B"
