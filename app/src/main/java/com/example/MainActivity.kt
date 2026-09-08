@@ -44,7 +44,11 @@ class MainActivity : FragmentActivity() {
             }
         }
         // Automatically create 'My Organiser' directory structure in device local storage
-        OrganiserStorageManager.initOrganiserStorage(this)
+        try {
+            OrganiserStorageManager.initOrganiserStorage(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         setContent {
             LedgerTheme {

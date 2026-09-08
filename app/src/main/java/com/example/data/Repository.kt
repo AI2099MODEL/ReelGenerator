@@ -746,6 +746,10 @@ class LedgerRepository(
         vaultDao.deleteDocument(document)
     }
 
+    suspend fun cleanupSampleVaultDocuments() = withContext(Dispatchers.IO) {
+        vaultDao.deleteSampleDocuments()
+    }
+
     // ----------------------------------------------------
     // TASKS
     // ----------------------------------------------------
@@ -1004,52 +1008,8 @@ class LedgerRepository(
             // Empty initially per user instruction
         }
 
-        if (vaultDao.getDocumentCount() == 0) {
-            val now = System.currentTimeMillis()
-            val docs = listOf(
-                VaultDocumentEntity(
-                    title = "Passport & International ID Scan",
-                    originalFileName = "passport_scan_2026.pdf",
-                    uriString = "ledger://sample/passport_scan_2026.pdf",
-                    fileType = "PDF",
-                    category = "ID",
-                    dateAddedTimestamp = now - 1000 * 60 * 60 * 24 * 5,
-                    fileSizeBytes = 2450000L,
-                    notes = "High-resolution color scan of photo identification and visa pages."
-                ),
-                VaultDocumentEntity(
-                    title = "Residential Lease Agreement 2026",
-                    originalFileName = "lease_agreement_signed.pdf",
-                    uriString = "ledger://sample/lease_agreement_signed.pdf",
-                    fileType = "PDF",
-                    category = "Legal",
-                    dateAddedTimestamp = now - 1000 * 60 * 60 * 24 * 12,
-                    fileSizeBytes = 4120000L,
-                    notes = "Counter-signed lease contract and building tenancy rules."
-                ),
-                VaultDocumentEntity(
-                    title = "Vehicle Comprehensive Insurance Policy",
-                    originalFileName = "auto_policy_card_2026.pdf",
-                    uriString = "ledger://sample/auto_policy_card_2026.pdf",
-                    fileType = "PDF",
-                    category = "Insurance",
-                    dateAddedTimestamp = now - 1000 * 60 * 60 * 24 * 18,
-                    fileSizeBytes = 1890000L,
-                    notes = "Roadside assistance contact and proof of insurance."
-                ),
-                VaultDocumentEntity(
-                    title = "Medical Vaccination & Health Card",
-                    originalFileName = "health_card_front_back.png",
-                    uriString = "ledger://sample/health_card_front_back.png",
-                    fileType = "IMAGE",
-                    category = "Health",
-                    dateAddedTimestamp = now - 1000 * 60 * 60 * 24 * 25,
-                    fileSizeBytes = 3200000L,
-                    notes = "Primary physician info & emergency blood type record."
-                )
-            )
-            vaultDao.insertDocuments(docs)
-        }
+        // Remove all sample documents (passport, lease agreement, etc.) and keep empty initially
+        vaultDao.deleteSampleDocuments()
 
         if (taskDao.getTaskCount() == 0) {
             // Empty initially per user instruction

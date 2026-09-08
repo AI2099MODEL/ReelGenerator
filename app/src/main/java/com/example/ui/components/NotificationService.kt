@@ -21,6 +21,6 @@ class NotificationService {
     }
 }
 
-val LocalNotificationService = compositionLocalOf<NotificationService> {
-    error("No NotificationService provided")
+val LocalNotificationService = compositionLocalOf {
+    NotificationService()
 }

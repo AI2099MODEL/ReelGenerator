@@ -81,16 +81,10 @@ object OrganiserStorageManager {
     }
 
     fun getOrganiserRootDir(context: Context): File {
-        val publicDocs = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-        val dir = File(publicDocs, ROOT_FOLDER_NAME)
-        if (dir.exists() || dir.mkdirs()) {
-            return dir
-        }
-        // Fallback to app's external files dir if public Documents is restricted
         val ext = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS) ?: context.filesDir
-        val fallbackDir = File(ext, ROOT_FOLDER_NAME)
-        if (!fallbackDir.exists()) fallbackDir.mkdirs()
-        return fallbackDir
+        val dir = File(ext, ROOT_FOLDER_NAME)
+        if (!dir.exists()) dir.mkdirs()
+        return dir
     }
 
     fun getSubDir(context: Context, subDirName: String): File {

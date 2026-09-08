@@ -87,36 +87,6 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
     val musicTracks: StateFlow<List<MusicTrackEntity>>
     val downloadedVideos: StateFlow<List<DownloadedVideoEntity>>
 
-    // Biometric & Security State for Entire App
-    private val securityPrefs = application.getSharedPreferences("app_security_prefs", android.content.Context.MODE_PRIVATE)
-    val isAppLocked = MutableStateFlow(false)
-    val isBiometricEnabled = MutableStateFlow(false)
-    val appPinCode = MutableStateFlow(securityPrefs.getString("user_app_pin", "1234") ?: "1234")
-
-    fun unlockApp() {
-        isAppLocked.value = false
-    }
-
-    fun lockApp() {
-        if (isBiometricEnabled.value) {
-            isAppLocked.value = true
-        }
-    }
-
-    fun toggleBiometricSecurity(enabled: Boolean) {
-        isBiometricEnabled.value = enabled
-        if (!enabled) {
-            isAppLocked.value = false
-        }
-    }
-
-    fun setAppPin(pin: String) {
-        if (pin.length in 4..6) {
-            securityPrefs.edit().putString("user_app_pin", pin).apply()
-            appPinCode.value = pin
-        }
-    }
-
     init {
         val db = AppDatabase.getDatabase(application)
         repository = LedgerRepository(db, application)
@@ -126,6 +96,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             OrganiserStorageManager.initOrganiserStorage(application)
             repository.seedInitialDataIfNeeded()
+            repository.cleanupSampleVaultDocuments()
             repository.runAutoSyncAndArchive()
         }
 

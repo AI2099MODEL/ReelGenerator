@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.LedgerSection
 import com.example.ui.LedgerViewModel
-import com.example.ui.components.BiometricLockOverlay
 import com.example.ui.components.LedgerBinderBottomBar
 import com.example.ui.components.LedgerBinderNavRail
 import com.example.ui.components.TabBackgroundView
@@ -64,8 +63,6 @@ private fun MainLedgerScreenContent(
     val vaultDocs by viewModel.vaultDocuments.collectAsStateWithLifecycle()
     val dailySchedules by viewModel.dailySchedules.collectAsStateWithLifecycle()
     val globalSettings by viewModel.globalSettings.collectAsStateWithLifecycle()
-    val isAppLocked by viewModel.isAppLocked.collectAsStateWithLifecycle()
-    val appPinCode by viewModel.appPinCode.collectAsStateWithLifecycle()
 
     val sections = remember {
         listOf(
@@ -191,14 +188,6 @@ private fun MainLedgerScreenContent(
                     }
                 }
             }
-
-            // Biometric & PIN Security Lock Overlay for the entire app
-            BiometricLockOverlay(
-                isLocked = isAppLocked,
-                currentPin = appPinCode,
-                onUnlock = { viewModel.unlockApp() },
-                onSetNewPin = { viewModel.setAppPin(it) }
-            )
         }
 }
 

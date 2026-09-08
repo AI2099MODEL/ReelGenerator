@@ -215,6 +215,9 @@ interface VaultDao {
 
     @Query("SELECT COUNT(*) FROM vault_documents")
     suspend fun getDocumentCount(): Int
+
+    @Query("DELETE FROM vault_documents WHERE uriString LIKE 'ledger://sample/%' OR title LIKE '%Lease%' OR title LIKE '%Passport%' OR title LIKE '%Insurance%' OR title LIKE '%Vaccination%'")
+    suspend fun deleteSampleDocuments()
 }
 
 @Dao

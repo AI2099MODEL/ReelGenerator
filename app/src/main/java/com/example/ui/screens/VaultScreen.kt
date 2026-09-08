@@ -1,62 +1,56 @@
 package com.example.ui.screens
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.biometric.BiometricPrompt
-import androidx.fragment.app.FragmentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.example.R
 import com.example.data.model.VaultDocumentEntity
-import com.example.ui.components.LedgerTopHeader
-import com.example.ui.theme.*
-
 import com.example.ui.components.LocalNotificationService
 import com.example.ui.components.NotificationType
-import androidx.compose.ui.geometry.Offset
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
-
-// Vault Colors
+// Harmonized gold styling palette
 private val GoldPrimary = Color(0xFFFFD700)
-private val GoldHighlight = Color(0xFFFFF2B2)
-private val GoldAccent = Color(0xFFB8860B)
-private val GoldLight = Color(0xFFF0E68C)
-private val MetallicGoldBrush = Brush.linearGradient(
-    colors = listOf(Color(0xFFFFDF00), Color(0xFFD4AF37), Color(0xFF996515), Color(0xFFD4AF37), Color(0xFFFFDF00)),
-    start = Offset(0f, 0f),
-    end = Offset(1000f, 1000f)
-)
-private val SunsetPhoneWallpaperGradient = Brush.verticalGradient(
-    colors = listOf(Color(0xFF2C1B4D), Color(0xFF702D6C), Color(0xFFD36B5F), Color(0xFFF9C87B))
-)
+private val GoldHighlight = Color(0xFFFFF4C2)
+private val GoldAccent = Color(0xFFC59B27)
+private val GoldLight = Color(0xFFF6E7A9)
 
 @Composable
 fun VaultScreen(
@@ -67,882 +61,804 @@ fun VaultScreen(
     onMenuClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    var isLocked by remember { mutableStateOf(false) }
-
-    if (isLocked) {
-        VaultLockScreen(
-            onUnlockSuccess = { isLocked = false },
-            onHomeClick = onHomeClick,
-            onMenuClick = onMenuClick,
-            modifier = modifier
-        )
-    } else {
-        VaultContentScreen(
-            vaultDocs = vaultDocs,
-            onAddDocument = onAddDocument,
-            onDeleteDocument = onDeleteDocument,
-            onLockVault = { isLocked = true },
-            onHomeClick = onHomeClick,
-            onMenuClick = onMenuClick,
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-fun VaultLockScreen(
-    onUnlockSuccess: () -> Unit,
-    onHomeClick: (() -> Unit)? = null,
-    onMenuClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
     val context = LocalContext.current
     val notificationService = LocalNotificationService.current
-    var authErrorMsg by remember { mutableStateOf<String?>(null) }
-    var usePinFallback by remember { mutableStateOf(false) }
-    var enteredPin by remember { mutableStateOf("") }
-    val correctPin = "1234"
 
-    fun launchBiometricAuth() {
-        authErrorMsg = null
-        val activity = context as? FragmentActivity
-        if (activity != null) {
-            val executor = ContextCompat.getMainExecutor(context)
-            val biometricPrompt = BiometricPrompt(
-                activity,
-                executor,
-                object : BiometricPrompt.AuthenticationCallback() {
-                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                        super.onAuthenticationSucceeded(result)
-                        notificationService.show("Success", "Vault Unlocked", NotificationType.SUCCESS)
-                        onUnlockSuccess()
-                    }
-                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                        super.onAuthenticationError(errorCode, errString)
-                        if (errorCode != BiometricPrompt.ERROR_USER_CANCELED && errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                            authErrorMsg = "Please use PIN to unlock"
-                        }
-                    }
-                    override fun onAuthenticationFailed() {
-                        super.onAuthenticationFailed()
-                        authErrorMsg = "Not recognized. Try again or use PIN"
-                    }
-                }
-            )
-            val promptInfo = BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Unlock Vault")
-                .setSubtitle("Confirm identity to access your secured files")
-                .setNegativeButtonText("Use PIN")
-                .build()
-            try {
-                biometricPrompt.authenticate(promptInfo)
-            } catch (e: Exception) {
-                authErrorMsg = "Use PIN to unlock"
-            }
-        } else {
-            onUnlockSuccess()
-        }
-    }
+    var showUploadDialog by remember { mutableStateOf(false) }
+    var docToDelete by remember { mutableStateOf<VaultDocumentEntity?>(null) }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "vault_pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.12f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse_scale"
-    )
-
-    Scaffold(
-        topBar = {
-            LedgerTopHeader(
-                title = "Secure Vault",
-                onHomeClick = onHomeClick,
-                onMenuClick = onMenuClick,
-                actionIcon = Icons.Filled.Lock,
-                onActionClick = { launchBiometricAuth() }
-            )
-        },
-        containerColor = Color.Transparent
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
-            contentAlignment = Alignment.Center
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth(0.92f)
-                    .padding(vertical = 12.dp)
-                    .shadow(
-                        elevation = 20.dp,
-                        shape = RoundedCornerShape(32.dp),
-                        ambientColor = GoldAccent.copy(alpha = 0.5f),
-                        spotColor = GoldPrimary.copy(alpha = 0.6f)
-                    ),
-                shape = RoundedCornerShape(32.dp),
-                color = Color(0xFF0F0F14),
-                border = BorderStroke(4.dp, MetallicGoldBrush)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(3.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(SunsetPhoneWallpaperGradient)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Icon(
-                            Icons.Filled.FolderSpecial,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.9f),
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text(
-                            "Secured by Organiser",
-                            color = Color.White,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "All documents are encrypted and stored locally on your device.",
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 13.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                        Spacer(modifier = Modifier.height(48.dp))
-
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.size(120.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size((90 * pulseScale).dp)
-                                    .clip(CircleShape)
-                                    .background(GoldPrimary.copy(alpha = 0.2f))
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .size((75 * pulseScale).dp)
-                                    .clip(CircleShape)
-                                    .background(GoldPrimary.copy(alpha = 0.4f))
-                            )
-                            IconButton(
-                                onClick = { launchBiometricAuth() },
-                                modifier = Modifier
-                                    .size(65.dp)
-                                    .clip(CircleShape)
-                                    .background(GoldPrimary)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Fingerprint,
-                                    contentDescription = "Unlock Vault",
-                                    tint = Color(0xFF241400),
-                                    modifier = Modifier.size(36.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "Tap to Unlock",
-                            color = GoldHighlight,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        if (authErrorMsg != null) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Surface(
-                                color = Color(0xFFFF4D4D).copy(alpha = 0.15f),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, Color(0xFFFF4D4D).copy(alpha = 0.5f))
-                            ) {
-                                Text(
-                                    text = authErrorMsg!!,
-                                    color = Color(0xFFFF8080),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Surface(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { usePinFallback = !usePinFallback },
-                            shape = RoundedCornerShape(8.dp),
-                            color = Color(0xFF13101E),
-                            border = BorderStroke(0.8.dp, GoldAccent.copy(alpha = 0.4f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Filled.Pin,
-                                    contentDescription = null,
-                                    tint = GoldLight,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(
-                                    text = if (usePinFallback) "Hide PIN Pad" else "Enter PIN",
-                                    fontSize = 11.5.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = GoldLight
-                                )
-                            }
-                        }
-
-                        AnimatedVisibility(visible = usePinFallback) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    for (i in 0 until 4) {
-                                        val isFilled = i < enteredPin.length
-                                        Box(
-                                            modifier = Modifier
-                                                .size(14.dp)
-                                                .clip(CircleShape)
-                                                .background(if (isFilled) GoldPrimary else Color.Transparent)
-                                                .border(1.dp, GoldPrimary, CircleShape)
-                                        )
-                                    }
-                                }
-                                val keys = listOf(
-                                    listOf("1", "2", "3"),
-                                    listOf("4", "5", "6"),
-                                    listOf("7", "8", "9"),
-                                    listOf("C", "0", "<")
-                                )
-                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    keys.forEach { rowKeys ->
-                                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            rowKeys.forEach { key ->
-                                                val isAction = key == "C" || key == "<"
-                                                Surface(
-                                                    modifier = Modifier
-                                                        .size(52.dp)
-                                                        .clip(CircleShape)
-                                                        .clickable(enabled = true) {
-                                                            if (key == "C") {
-                                                                enteredPin = ""
-                                                            } else if (key == "<") {
-                                                                if (enteredPin.isNotEmpty()) enteredPin = enteredPin.dropLast(1)
-                                                            } else {
-                                                                if (enteredPin.length < 4) enteredPin += key
-                                                                if (enteredPin.length == 4) {
-                                                                    if (enteredPin == correctPin) {
-                                                                        notificationService.show("Success", "Vault Unlocked via PIN", NotificationType.SUCCESS)
-                                                                        onUnlockSuccess()
-                                                                    } else {
-                                                                        authErrorMsg = "Incorrect PIN"
-                                                                        enteredPin = ""
-                                                                    }
-                                                                }
-                                                            }
-                                                        },
-                                                    shape = CircleShape,
-                                                    color = if (isAction) Color(0xFF1E182A) else Color(0x66100D18),
-                                                    border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.2f))
-                                                ) {
-                                                    Box(contentAlignment = Alignment.Center) {
-                                                        if (key == "<") {
-                                                            Icon(Icons.Filled.Backspace, contentDescription = "Backspace", tint = GoldLight, modifier = Modifier.size(20.dp))
-                                                        } else {
-                                                            Text(
-                                                                text = key,
-                                                                color = if (isAction) GoldLight else GoldHighlight,
-                                                                fontSize = 20.sp,
-                                                                fontWeight = if (isAction) FontWeight.Medium else FontWeight.Bold
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun VaultContentScreen(
-    vaultDocs: List<VaultDocumentEntity>,
-    onAddDocument: (String, String, String, String, String, Long, String) -> Unit,
-    onDeleteDocument: (VaultDocumentEntity) -> Unit,
-    onLockVault: () -> Unit,
-    onHomeClick: (() -> Unit)? = null,
-    onMenuClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val notificationService = LocalNotificationService.current
-    val coroutineScope = rememberCoroutineScope()
-    
-    var showAddDialog by remember { mutableStateOf(false) }
+    // Form states
     var docTitle by remember { mutableStateOf("") }
-    var docCategory by remember { mutableStateOf("Passport") }
-    var docType by remember { mutableStateOf("PDF") }
-    
-    var isScanning by remember { mutableStateOf(false) }
     var docNotes by remember { mutableStateOf("") }
-    var currentCameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
-    
-    val createCameraUri = {
-        val file = java.io.File(context.cacheDir, "vault_cam_${System.currentTimeMillis()}.jpg")
-        androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    var selectedUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedFileName by remember { mutableStateOf("") }
+    var selectedFileSize by remember { mutableStateOf(0L) }
+    var selectedFileType by remember { mutableStateOf("DOCUMENT") }
+
+    val resetForm = {
+        docTitle = ""
+        docNotes = ""
+        selectedUri = null
+        selectedFileName = ""
+        selectedFileSize = 0L
+        selectedFileType = "DOCUMENT"
     }
 
-    val processOcr = { uri: android.net.Uri ->
-        coroutineScope.launch {
-            try {
-                showAddDialog = true
-                isScanning = true
-                
-                val responseText = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    val bitmap = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-                        val source = android.graphics.ImageDecoder.createSource(context.contentResolver, uri)
-                        android.graphics.ImageDecoder.decodeBitmap(source)
-                    } else {
-                        android.provider.MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                    }
-                    
-                    val generativeModel = com.google.ai.client.generativeai.GenerativeModel(
-                        modelName = "gemini-1.5-flash",
-                        apiKey = com.example.BuildConfig.GEMINI_API_KEY
-                    )
-                    val inputContent = com.google.ai.client.generativeai.type.content {
-                        image(bitmap)
-                        text("Extract the text from this ID document. Please output only the extracted text, formatted cleanly. Specifically look for Name, ID Number, and DOB.")
-                    }
-                    val response = generativeModel.generateContent(inputContent)
-                    response.text
+    // Document file picker (PDF, Doc, text, etc.)
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            if (uri != null) {
+                val (name, size) = getFileInfo(context, uri)
+                selectedUri = uri
+                selectedFileName = name
+                selectedFileSize = size
+                selectedFileType = detectFileType(context, uri, name)
+                if (docTitle.isBlank()) {
+                    docTitle = name.substringBeforeLast('.')
                 }
-                
-                docTitle = if (docCategory == "Other") "Scanned Document" else "$docCategory Scan"
-                docType = "IMAGE"
-                docNotes = responseText ?: ""
-                notificationService.show("OCR Complete", "Extracted: ${responseText?.take(40)}...", NotificationType.SUCCESS)
-            } catch (e: Exception) {
-                notificationService.show("OCR Failed", "Error: ${e.message}", NotificationType.ERROR)
-            } finally {
-                isScanning = false
-            }
-        }
-    }
-    
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { success ->
-            if (success && currentCameraUri != null) {
-                processOcr(currentCameraUri!!)
-            } else {
-                isScanning = false
             }
         }
     )
 
+    // Gallery photo picker
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             if (uri != null) {
-                processOcr(uri)
-            } else {
-                isScanning = false
+                val (name, size) = getFileInfo(context, uri)
+                selectedUri = uri
+                selectedFileName = name.ifEmpty { "image_${System.currentTimeMillis()}.jpg" }
+                selectedFileSize = size
+                selectedFileType = "IMAGE"
+                if (docTitle.isBlank()) {
+                    docTitle = selectedFileName.substringBeforeLast('.')
+                }
             }
         }
     )
 
-    var selectedTab by remember { mutableStateOf("All") }
-    val vaultTabs = listOf("All", "Passport", "Driving Licence", "Aadhaar Card", "Voter Id", "Other")
-    val filteredDocs = if (selectedTab == "All") vaultDocs else vaultDocs.filter { it.category == selectedTab }
+    val openDocument = { doc: VaultDocumentEntity ->
+        try {
+            val uri = Uri.parse(doc.uriString)
+            val fallbackMime = when (doc.fileType.uppercase(Locale.getDefault())) {
+                "PDF" -> "application/pdf"
+                "IMAGE", "PNG", "JPG", "JPEG" -> "image/*"
+                "TXT", "TEXT" -> "text/plain"
+                "DOC", "DOCX" -> "application/msword"
+                else -> "*/*"
+            }
+            val mime = try {
+                context.contentResolver.getType(uri) ?: fallbackMime
+            } catch (_: Exception) {
+                fallbackMime
+            }
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, mime)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(Intent.createChooser(intent, "Open Document"))
+        } catch (_: Exception) {
+            notificationService.show(
+                "Document Stored",
+                "Saved in local storage: ${doc.originalFileName}",
+                NotificationType.INFO
+            )
+        }
+    }
 
-    Box(modifier = modifier.fillMaxSize().background(
-        Brush.verticalGradient(
-            colors = listOf(Color(0xFF0F0B18), Color(0xFF18122B)) // Rich premium gradient
-        )
-    )) {
-        Scaffold(
-            topBar = {
-                LedgerTopHeader(
-                    title = "Secure Vault",
-                    onHomeClick = onHomeClick,
-                    onMenuClick = onMenuClick,
-                    actionIcon = Icons.Filled.Add,
-                    onActionClick = { showAddDialog = true }
-                )
-            },
-            containerColor = Color.Transparent
-        ) { padding ->
-            Column(
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Transparent)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 10.dp)
+        ) {
+            // Clean, lightweight top area (no bulky heading or "vault change" header)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.20f))
+                            .border(1.dp, GoldPrimary.copy(alpha = 0.6f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.FolderShared,
+                            contentDescription = null,
+                            tint = GoldHighlight,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "Documents",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = GoldHighlight
+                        )
+                        Text(
+                            text = if (vaultDocs.isEmpty()) "No documents stored" else "${vaultDocs.size} document${if (vaultDocs.size == 1) "" else "s"}",
+                            fontSize = 11.5.sp,
+                            color = GoldLight.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+
+                // Simple "+ Upload Document" button
+                Button(
+                    onClick = {
+                        resetForm()
+                        showUploadDialog = true
+                    },
+                    modifier = Modifier.height(38.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GoldPrimary,
+                        contentColor = Color(0xFF241400)
+                    ),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CloudUpload,
+                        contentDescription = "Upload Document",
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Upload",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Document List
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
+                    .weight(1f),
+                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 96.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Vault Security Status Banner in Gold
-                Surface(
+                items(vaultDocs, key = { it.id }) { doc ->
+                    DocumentCard(
+                        doc = doc,
+                        onClick = { openDocument(doc) },
+                        onDelete = { docToDelete = doc }
+                    )
+                }
+            }
+        }
+
+        // ==========================================
+        // UI FORM: Upload Document Dialog
+        // Crisp, light, high-contrast readable container
+        // ==========================================
+        if (showUploadDialog) {
+            Dialog(
+                onDismissRequest = {
+                    showUploadDialog = false
+                    resetForm()
+                },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color(0x771A1526),
-                    border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.4f))
+                        .fillMaxWidth(0.92f)
+                        .wrapContentHeight()
+                        .padding(vertical = 20.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.5.dp, GoldPrimary.copy(alpha = 0.55f)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFDF9)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .padding(22.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(GoldPrimary.copy(alpha = 0.2f)),
-                                contentAlignment = Alignment.Center
+                        // Form Title & Close
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(Icons.Filled.Security, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(20.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(GoldPrimary.copy(alpha = 0.18f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.CloudUpload,
+                                        contentDescription = null,
+                                        tint = Color(0xFFB45309),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Text(
+                                    text = "Upload Document",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF1E293B)
+                                )
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text("Vault is Secured", color = GoldHighlight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                                Text("Encrypted local storage", color = GoldLight.copy(alpha = 0.7f), fontSize = 10.5.sp)
+                            IconButton(
+                                onClick = {
+                                    showUploadDialog = false
+                                    resetForm()
+                                },
+                                modifier = Modifier.size(30.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Close",
+                                    tint = Color(0xFF64748B),
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         }
-                        Button(
-                            onClick = onLockVault,
-                            modifier = Modifier.height(34.dp),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = Color(0xFF241400)),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                        ) {
-                            Icon(Icons.Filled.Lock, contentDescription = "Lock", modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Lock", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
 
-                // Small elegant category chips
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    vaultTabs.forEach { tabName ->
-                        val isSelected = selectedTab == tabName
-                        Surface(
+                        HorizontalDivider(color = Color(0xFFE2E8F0), thickness = 1.dp)
+
+                        // File selection affordances (File/PDF, Camera, Gallery)
+                        Text(
+                            text = "Select File / Source:",
+                            color = Color(0xFF334155),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            // Files / PDF Picker
+                            Button(
+                                onClick = {
+                                    try {
+                                        filePickerLauncher.launch("*/*")
+                                    } catch (e: Exception) {
+                                        notificationService.show(
+                                            "File Picker Unavailable",
+                                            "Could not open file picker: ${e.localizedMessage ?: "No app available"}",
+                                            NotificationType.ALERT
+                                        )
+                                    }
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFF8F5EE),
+                                    contentColor = Color(0xFF1E293B)
+                                ),
+                                border = BorderStroke(1.dp, Color(0xFFD4A359).copy(alpha = 0.55f)),
+                                contentPadding = PaddingValues(horizontal = 10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.InsertDriveFile,
+                                    contentDescription = "Files",
+                                    tint = Color(0xFFB45309),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Files / PDF",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF1E293B)
+                                )
+                            }
+
+                            // Gallery
+                            Button(
+                                onClick = {
+                                    try {
+                                        photoPickerLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    } catch (e: Exception) {
+                                        try {
+                                            filePickerLauncher.launch("image/*")
+                                        } catch (e2: Exception) {
+                                            notificationService.show(
+                                                "Gallery Unavailable",
+                                                "Could not open photo gallery: ${e2.localizedMessage ?: "No app available"}",
+                                                NotificationType.ALERT
+                                            )
+                                        }
+                                    }
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFF8F5EE),
+                                    contentColor = Color(0xFF1E293B)
+                                ),
+                                border = BorderStroke(1.dp, Color(0xFFD4A359).copy(alpha = 0.55f)),
+                                contentPadding = PaddingValues(horizontal = 10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.PhotoLibrary,
+                                    contentDescription = "Gallery",
+                                    tint = Color(0xFFB45309),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Photos / Gallery",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF1E293B)
+                                )
+                            }
+                        }
+
+                        // Selected file badge
+                        if (selectedFileName.isNotBlank()) {
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = Color(0xFFF0FDF4),
+                                border = BorderStroke(1.dp, Color(0xFF86EFAC)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.CheckCircle,
+                                            contentDescription = null,
+                                            tint = Color(0xFF16A34A),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column {
+                                            Text(
+                                                text = selectedFileName,
+                                                fontSize = 12.sp,
+                                                color = Color(0xFF14532D),
+                                                fontWeight = FontWeight.Bold,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            if (selectedFileSize > 0) {
+                                                Text(
+                                                    text = formatFileSize(selectedFileSize),
+                                                    fontSize = 10.sp,
+                                                    color = Color(0xFF166534)
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    Text(
+                                        text = selectedFileType,
+                                        color = Color(0xFF14532D),
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Black,
+                                        modifier = Modifier
+                                            .background(
+                                                Color(0xFFDCFCE7),
+                                                RoundedCornerShape(4.dp)
+                                            )
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Document Title Input (High contrast, clearly visible font and lighter field)
+                        OutlinedTextField(
+                            value = docTitle,
+                            onValueChange = { docTitle = it },
+                            label = {
+                                Text(
+                                    "Document Name *",
+                                    color = Color(0xFF334155),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    "Enter document name",
+                                    color = Color(0xFF94A3B8)
+                                )
+                            },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color(0xFF0F172A),
+                                unfocusedTextColor = Color(0xFF1E293B),
+                                focusedBorderColor = Color(0xFFD97706),
+                                unfocusedBorderColor = Color(0xFFCBD5E1),
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color(0xFFFAF9F6),
+                                cursorColor = Color(0xFFB45309)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+
+                        // Notes / Description Input (Optional, high contrast visible font)
+                        OutlinedTextField(
+                            value = docNotes,
+                            onValueChange = { docNotes = it },
+                            label = {
+                                Text(
+                                    "Notes / Description (Optional)",
+                                    color = Color(0xFF475569),
+                                    fontWeight = FontWeight.Medium
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    "Add any notes about this document",
+                                    color = Color(0xFF94A3B8)
+                                )
+                            },
                             modifier = Modifier
-                                .clip(RoundedCornerShape(24.dp))
-                                .clickable { selectedTab = tabName },
-                            color = if (isSelected) GoldPrimary.copy(alpha = 0.15f) else Color(0x331E182A),
-                            border = BorderStroke(1.dp, if (isSelected) GoldPrimary else GoldLight.copy(alpha = 0.1f)),
-                            shape = RoundedCornerShape(24.dp)
+                                .fillMaxWidth()
+                                .heightIn(min = 72.dp),
+                            maxLines = 4,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color(0xFF0F172A),
+                                unfocusedTextColor = Color(0xFF1E293B),
+                                focusedBorderColor = Color(0xFFD97706),
+                                unfocusedBorderColor = Color(0xFFCBD5E1),
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color(0xFFFAF9F6),
+                                cursorColor = Color(0xFFB45309)
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+
+                        // Form Actions
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = tabName,
-                                color = if (isSelected) GoldPrimary else GoldLight.copy(alpha = 0.7f),
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
-                }
+                            TextButton(
+                                onClick = {
+                                    showUploadDialog = false
+                                    resetForm()
+                                }
+                            ) {
+                                Text("Cancel", color = Color(0xFF475569), fontWeight = FontWeight.SemiBold)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    if (docTitle.isNotBlank()) {
+                                        val cleanTitle = docTitle.trim()
+                                        val cleanFile = if (selectedFileName.isNotBlank()) {
+                                            selectedFileName
+                                        } else {
+                                            "${cleanTitle.replace(" ", "_")}.${selectedFileType.lowercase()}"
+                                        }
+                                        val uriStr = selectedUri?.toString() ?: "file://documents/$cleanFile"
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Documents Grid
-                if (filteredDocs.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize().padding(bottom = 80.dp), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Outlined.Inventory2, contentDescription = null, tint = GoldLight.copy(alpha = 0.3f), modifier = Modifier.size(64.dp))
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text("No Documents Found", color = GoldLight.copy(alpha = 0.5f), fontSize = 15.sp, fontWeight = FontWeight.Medium)
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text("Tap + to securely scan or add IDs.", color = GoldLight.copy(alpha = 0.4f), fontSize = 12.sp)
-                        }
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),
-                        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 96.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(filteredDocs) { doc ->
-                            VaultDocumentCard(doc = doc, onDelete = { onDeleteDocument(doc) })
+                                        onAddDocument(
+                                            cleanTitle,
+                                            cleanFile,
+                                            uriStr,
+                                            selectedFileType,
+                                            "Document",
+                                            selectedFileSize,
+                                            docNotes.trim()
+                                        )
+                                        notificationService.show(
+                                            "Upload Successful",
+                                            "Saved \"$cleanTitle\"",
+                                            NotificationType.SUCCESS
+                                        )
+                                        showUploadDialog = false
+                                        resetForm()
+                                    }
+                                },
+                                enabled = docTitle.isNotBlank(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GoldPrimary,
+                                    contentColor = Color(0xFF1F1604),
+                                    disabledContainerColor = Color(0xFFE2E8F0),
+                                    disabledContentColor = Color(0xFF94A3B8)
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Upload Document", fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
             }
         }
-        
-        // Add Document Dialog
-        if (showAddDialog) {
-            AlertDialog(
-                onDismissRequest = { showAddDialog = false },
-                containerColor = Color(0xFF1E182A),
-                titleContentColor = GoldPrimary,
-                textContentColor = GoldLight,
-                title = { Text("Add Document to Vault", fontWeight = FontWeight.Bold) },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        
+
+        // Delete Confirmation Dialog
+        if (docToDelete != null) {
+            val doc = docToDelete!!
+            Dialog(
+                onDismissRequest = { docToDelete = null },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(0.88f)
+                        .wrapContentHeight(),
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.5.dp, GoldPrimary.copy(alpha = 0.5f)),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFDF9)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "Delete Document?",
+                            color = Color(0xFF1E293B),
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Are you sure you want to remove \"${doc.title}\"? It will be backed up in My Organiser safety archive.",
+                            color = Color(0xFF475569),
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            Button(
-                                onClick = {
-                                    isScanning = true
-                                    currentCameraUri = createCameraUri()
-                                    cameraLauncher.launch(currentCameraUri!!)
-                                },
-                                modifier = Modifier.weight(1f).height(42.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A2438), contentColor = GoldPrimary)
-                            ) {
-                                if (isScanning) {
-                                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = GoldPrimary, strokeWidth = 2.dp)
-                                } else {
-                                    Icon(Icons.Filled.PhotoCamera, contentDescription = "Camera", modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Camera", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
+                            TextButton(onClick = { docToDelete = null }) {
+                                Text("Cancel", color = Color(0xFF64748B), fontWeight = FontWeight.SemiBold)
                             }
+                            Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
-                                    isScanning = true
-                                    photoPickerLauncher.launch(
-                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    onDeleteDocument(doc)
+                                    notificationService.show(
+                                        "Deleted",
+                                        "Removed ${doc.title}",
+                                        NotificationType.INFO
                                     )
+                                    docToDelete = null
                                 },
-                                modifier = Modifier.weight(1f).height(42.dp),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2A2438), contentColor = GoldPrimary)
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFDC2626),
+                                    contentColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(10.dp)
                             ) {
-                                if (isScanning) {
-                                    CircularProgressIndicator(modifier = Modifier.size(20.dp), color = GoldPrimary, strokeWidth = 2.dp)
-                                } else {
-                                    Icon(Icons.Filled.Image, contentDescription = "Gallery", modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Gallery", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                }
+                                Text("Delete", fontWeight = FontWeight.Bold)
                             }
                         }
-
-                        OutlinedTextField(
-                            value = docTitle,
-                            onValueChange = { docTitle = it },
-                            label = { Text("Document Title *", color = GoldLight.copy(alpha = 0.8f)) },
-                            placeholder = { Text("e.g. Passport Copy, House Deed", color = GoldLight.copy(alpha = 0.4f)) },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = GoldHighlight,
-                                unfocusedTextColor = GoldLight,
-                                focusedBorderColor = GoldPrimary,
-                                unfocusedBorderColor = GoldAccent.copy(alpha = 0.5f),
-                                focusedContainerColor = Color(0xFF100D18),
-                                unfocusedContainerColor = Color(0xFF161224)
-                            )
-                        )
-                        
-                        Text("Category:", color = GoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        ScrollableTabRow(
-                            selectedTabIndex = listOf("Passport", "Driving Licence", "Aadhaar Card", "Voter Id", "Other").indexOf(docCategory),
-                            containerColor = Color.Transparent,
-                            contentColor = GoldPrimary,
-                            edgePadding = 0.dp,
-                            divider = {
-                                HorizontalDivider(color = GoldAccent.copy(alpha = 0.2f))
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            listOf("Passport", "Driving Licence", "Aadhaar Card", "Voter Id", "Other").forEach { cat ->
-                                val isSel = docCategory == cat
-                                Tab(
-                                    selected = isSel,
-                                    onClick = { docCategory = cat },
-                                    text = { 
-                                        Text(
-                                            text = cat, 
-                                            color = if (isSel) GoldPrimary else GoldLight.copy(alpha = 0.7f),
-                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
-                                            fontSize = 12.sp
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                        
-                        OutlinedTextField(
-                            value = docNotes,
-                            onValueChange = { docNotes = it },
-                            label = { Text("Extracted Text / Notes", color = GoldLight.copy(alpha = 0.8f)) },
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp),
-                            maxLines = 5,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = GoldHighlight,
-                                unfocusedTextColor = GoldLight,
-                                focusedBorderColor = GoldPrimary,
-                                unfocusedBorderColor = GoldAccent.copy(alpha = 0.5f),
-                                focusedContainerColor = Color(0xFF100D18),
-                                unfocusedContainerColor = Color(0xFF161224)
-                            )
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            if (docTitle.isNotBlank()) {
-                                val filename = "${docTitle.trim().replace(" ", "_")}.${docType.lowercase()}"
-                                onAddDocument(
-                                    docTitle.trim(),
-                                    filename,
-                                    "file://vault/$filename",
-                                    docType,
-                                    docCategory,
-                                    1024L,
-                                    docNotes.trim()
-                                )
-                                notificationService.show("Success", "Saved to Documents/My Organiser/Vault", NotificationType.SUCCESS)
-                                showAddDialog = false
-                            }
-                        },
-                        enabled = docTitle.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary, contentColor = Color(0xFF241400))
-                    ) {
-                        Text("Save to Vault", fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showAddDialog = false }) {
-                        Text("Cancel", color = GoldLight)
                     }
                 }
-            )
+            }
         }
     }
 }
 
+/**
+ * Clean translucent frosted glass card for documents.
+ * Shows the background image through rather than an opaque black background!
+ */
 @Composable
-fun VaultDocumentCard(doc: VaultDocumentEntity, onDelete: () -> Unit) {
-    val fileIcon = when (doc.fileType.uppercase()) {
-        "PDF" -> Icons.Filled.PictureAsPdf
-        "IMAGE" -> Icons.Filled.Image
-        "RECEIPT" -> Icons.Filled.Receipt
-        else -> Icons.Filled.Description
-    }
-
+private fun DocumentCard(
+    doc: VaultDocumentEntity,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
     Surface(
-        modifier = Modifier.fillMaxWidth().aspectRatio(1.58f),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF1E182A), // Darker base for contrast
-        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.4f)),
-        shadowElevation = 8.dp
+        color = Color.White.copy(alpha = 0.16f), // Translucent glass, background image shows through!
+        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.45f)),
+        shadowElevation = 4.dp
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Background subtle gradient/pattern to look like a secure ID
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Document Type Icon
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                GoldPrimary.copy(alpha = 0.03f),
-                                Color.Transparent
-                            ),
-                            start = androidx.compose.ui.geometry.Offset(0f, 0f),
-                            end = androidx.compose.ui.geometry.Offset(1000f, 1000f)
-                        )
-                    )
-            )
-            
-            // Layout
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White.copy(alpha = 0.18f))
+                    .border(1.dp, GoldPrimary.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                // Left side: ID Photo placeholder
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(0.35f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF2A2438))
-                        .border(1.dp, GoldPrimary.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.Center
+                val icon = when (doc.fileType.uppercase(Locale.getDefault())) {
+                    "PDF" -> Icons.Filled.PictureAsPdf
+                    "IMAGE", "PNG", "JPG", "JPEG" -> Icons.Filled.Image
+                    "TXT", "TEXT" -> Icons.Filled.Article
+                    else -> Icons.Filled.Description
+                }
+                val iconTint = when (doc.fileType.uppercase(Locale.getDefault())) {
+                    "PDF" -> Color(0xFFFF7070)
+                    "IMAGE", "PNG", "JPG", "JPEG" -> Color(0xFF64B5F6)
+                    else -> GoldHighlight
+                }
+                Icon(
+                    imageVector = icon,
+                    contentDescription = doc.fileType,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            // Info column
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Text(
+                    text = doc.title,
+                    color = GoldHighlight,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Filled.PersonOutline,
-                            contentDescription = null,
-                            tint = GoldPrimary.copy(alpha = 0.4f),
-                            modifier = Modifier.size(48.dp)
+                    Text(
+                        text = doc.originalFileName,
+                        color = GoldLight.copy(alpha = 0.8f),
+                        fontSize = 11.5.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    if (doc.fileSizeBytes > 0) {
+                        Text(
+                            text = "•",
+                            color = GoldLight.copy(alpha = 0.5f),
+                            fontSize = 10.sp
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Icon(
-                            fileIcon,
-                            contentDescription = null,
-                            tint = GoldPrimary.copy(alpha = 0.6f),
-                            modifier = Modifier.size(20.dp)
+                        Text(
+                            text = formatFileSize(doc.fileSizeBytes),
+                            color = GoldLight.copy(alpha = 0.8f),
+                            fontSize = 11.sp
                         )
                     }
                 }
-                
-                // Right side: Data
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(0.65f),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    // Header: Category and delete button
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = doc.category.uppercase(),
-                            color = GoldPrimary,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.5.sp
-                        )
-                        IconButton(
-                            onClick = onDelete,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .offset(x = 8.dp, y = (-8).dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.DeleteOutline,
-                                contentDescription = "Delete",
-                                tint = Color(0xFFFF8080).copy(alpha = 0.8f),
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    }
-                    
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        // Title
-                        Column {
-                            Text(
-                                text = "DOCUMENT NAME",
-                                color = GoldLight.copy(alpha = 0.5f),
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = doc.title,
-                                color = GoldHighlight,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        
-                        // ID / Number (simulated from notes or just placeholder if none)
-                        if (doc.notes.isNotBlank()) {
-                            Column {
-                                Text(
-                                    text = "DETAILS / NOTES",
-                                    color = GoldLight.copy(alpha = 0.5f),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = doc.notes,
-                                    color = GoldLight,
-                                    fontSize = 12.sp,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    lineHeight = 16.sp
-                                )
-                            }
-                        } else {
-                            // Dummy lines to make it look like an ID if no notes
-                            Column {
-                                Text(
-                                    text = "DOCUMENT ID",
-                                    color = GoldLight.copy(alpha = 0.5f),
-                                    fontSize = 8.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "XXXX-XXXX-XXXX",
-                                    color = GoldLight.copy(alpha = 0.3f),
-                                    fontSize = 12.sp,
-                                    letterSpacing = 2.sp
-                                )
-                            }
-                        }
-                    }
-                    
-                    // Footer (issue date / filetype)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        Text(
-                            text = "<<<<<<<<<<<<<<<<<<<<",
-                            color = GoldPrimary.copy(alpha = 0.3f),
-                            fontSize = 10.sp,
-                            letterSpacing = 2.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Clip
-                        )
-                    }
+
+                if (doc.notes.isNotBlank()) {
+                    Text(
+                        text = doc.notes,
+                        color = GoldLight.copy(alpha = 0.7f),
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Text(
+                    text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(doc.dateAddedTimestamp)),
+                    color = GoldLight.copy(alpha = 0.55f),
+                    fontSize = 10.sp
+                )
+            }
+
+            // Delete action button
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.DeleteOutline,
+                    contentDescription = "Delete",
+                    tint = Color(0xFFFF8080).copy(alpha = 0.85f),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+    }
+}
+
+// Helpers
+private fun getFileInfo(context: Context, uri: Uri): Pair<String, Long> {
+    var displayName = "Document_${System.currentTimeMillis()}"
+    var size = 0L
+    try {
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if (cursor.moveToFirst()) {
+                if (nameIndex != -1) {
+                    cursor.getString(nameIndex)?.let { displayName = it }
+                }
+                if (sizeIndex != -1) {
+                    size = cursor.getLong(sizeIndex)
                 }
             }
         }
+    } catch (_: Exception) {
+        uri.lastPathSegment?.let { seg ->
+            displayName = seg.substringAfterLast('/')
+        }
+    }
+    return Pair(displayName, size)
+}
+
+private fun formatFileSize(bytes: Long): String {
+    if (bytes <= 0) return ""
+    return when {
+        bytes >= 1024 * 1024 -> String.format(Locale.getDefault(), "%.1f MB", bytes / (1024f * 1024f))
+        bytes >= 1024 -> String.format(Locale.getDefault(), "%.1f KB", bytes / 1024f)
+        else -> "$bytes B"
+    }
+}
+
+private fun detectFileType(context: Context, uri: Uri, fileName: String): String {
+    val ext = fileName.substringAfterLast('.', "").uppercase(Locale.getDefault())
+    if (ext.isNotBlank() && ext.length <= 5) return ext
+    val mime = try {
+        context.contentResolver.getType(uri)
+    } catch (_: Exception) {
+        null
+    }
+    return when {
+        mime?.contains("pdf", ignoreCase = true) == true -> "PDF"
+        mime?.contains("image", ignoreCase = true) == true -> "IMAGE"
+        mime?.contains("text", ignoreCase = true) == true -> "TXT"
+        mime?.contains("word", ignoreCase = true) == true -> "DOC"
+        else -> "FILE"
     }
 }
