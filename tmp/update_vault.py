@@ -1,258 +1,12 @@
-package com.example.ui.screens
+import sys
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.provider.OpenableColumns
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.example.R
-import com.example.data.model.VaultDocumentEntity
-import com.example.ui.components.LedgerTopHeader
-import com.example.ui.components.LocalNotificationService
-import com.example.ui.components.NotificationType
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlin.math.cos
-import kotlin.math.sin
+with open('app/src/main/java/com/example/ui/screens/VaultScreen.kt', 'r') as f:
+    content = f.read()
 
-// Harmonized gold styling palette
-private val GoldPrimary = Color(0xFFFFD700)
-private val GoldHighlight = Color(0xFFFFF4C2)
-private val GoldAccent = Color(0xFFC59B27)
-private val GoldLight = Color(0xFFF6E7A9)
+old_dialog_start = '        // ==========================================\n        // UI FORM: Upload Document Dialog'
+old_dialog_end = '                                Spacer(modifier = Modifier.width(6.dp))\n                                Text("Upload Document", fontWeight = FontWeight.Bold)\n                            }\n                        }\n                    }\n                }\n            }\n        }'
 
-@Composable
-fun VaultScreen(
-    vaultDocs: List<VaultDocumentEntity>,
-    onAddDocument: (String, String, String, String, String, Long, String) -> Unit,
-    onDeleteDocument: (VaultDocumentEntity) -> Unit,
-    onHomeClick: (() -> Unit)? = null,
-    onMenuClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val notificationService = LocalNotificationService.current
-
-    var showUploadDialog by remember { mutableStateOf(false) }
-    var docToDelete by remember { mutableStateOf<VaultDocumentEntity?>(null) }
-
-    // Form states (Supports up to 4 files for a single document)
-    var docTitle by remember { mutableStateOf("") }
-    var docNotes by remember { mutableStateOf("") }
-    var selectedFiles by remember { mutableStateOf<List<SelectedVaultFile>>(emptyList()) }
-
-    val resetForm = {
-        docTitle = ""
-        docNotes = ""
-        selectedFiles = emptyList()
-    }
-
-    // Unified file picker for any file type (PDF, Images, Docs, etc.) supporting multiple files (up to 4)
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents(),
-        onResult = { uris ->
-            if (!uris.isNullOrEmpty()) {
-                val newFiles = uris.map { uri ->
-                    val (name, size) = getFileInfo(context, uri)
-                    val type = detectFileType(context, uri, name)
-                    SelectedVaultFile(uri, name, size, type)
-                }
-                val combined = (selectedFiles + newFiles).distinctBy { it.uri.toString() }
-                if (combined.size > 4) {
-                    notificationService.show(
-                        "File Limit",
-                        "Maximum 4 files allowed per document. Kept first 4 files.",
-                        NotificationType.INFO
-                    )
-                }
-                selectedFiles = combined.take(4)
-                if (docTitle.isBlank() && selectedFiles.isNotEmpty()) {
-                    docTitle = selectedFiles.first().name.substringBeforeLast('.')
-                }
-            }
-        }
-    )
-
-    val openSingleUri = { uriStr: String, fileTypeHint: String, fileNameHint: String ->
-        try {
-            val uri = Uri.parse(uriStr)
-            val fallbackMime = when (fileTypeHint.uppercase(Locale.getDefault())) {
-                "PDF" -> "application/pdf"
-                "IMAGE", "PNG", "JPG", "JPEG" -> "image/*"
-                "TXT", "TEXT" -> "text/plain"
-                "DOC", "DOCX" -> "application/msword"
-                else -> "*/*"
-            }
-            val mime = try {
-                context.contentResolver.getType(uri) ?: fallbackMime
-            } catch (_: Exception) {
-                fallbackMime
-            }
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, mime)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(Intent.createChooser(intent, "Open $fileNameHint"))
-        } catch (_: Exception) {
-            try {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uriStr)).apply {
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(Intent.createChooser(intent, "Open $fileNameHint"))
-            } catch (_: Exception) {
-                notificationService.show(
-                    "Cannot Open File",
-                    "No app installed to open $fileNameHint",
-                    NotificationType.ALERT
-                )
-            }
-        }
-    }
-
-    val openDocument = { doc: VaultDocumentEntity ->
-        val firstUri = if (doc.uriString.contains("||")) {
-            doc.uriString.split("||").firstOrNull { it.isNotBlank() } ?: doc.uriString
-        } else {
-            doc.uriString
-        }
-        val firstName = if (doc.originalFileName.contains("||")) {
-            doc.originalFileName.split("||").firstOrNull { it.isNotBlank() } ?: doc.originalFileName
-        } else {
-            doc.originalFileName
-        }
-        openSingleUri(firstUri, doc.fileType, firstName)
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-    ) {
-        // Butterfly Overlay matching other pages
-        val transition = rememberInfiniteTransition(label = "ButterflyFlyTransition")
-        val flightProgress by transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 8000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "flightProgress"
-        )
-
-        val flutterWing by transition.animateFloat(
-            initialValue = -15f,
-            targetValue = 15f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "flutterWing"
-        )
-
-        val butterflies = remember {
-            listOf(
-                Triple("🦋", 0.1f, 0.2f),
-                Triple("🦋", 0.7f, 0.4f),
-                Triple("🦋", 0.3f, 0.7f),
-                Triple("🦋", 0.85f, 0.15f)
-            )
-        }
-
-        butterflies.forEachIndexed { index, (emoji, startX, startY) ->
-            val phaseOffset = index * 0.25f
-            val currentProgress = (flightProgress + phaseOffset) % 1f
-
-            val offsetX = (startX * 320 + sin((currentProgress * 2 * Math.PI) + index) * 50).dp
-            val offsetY = (startY * 500 + cos((currentProgress * 2 * Math.PI) + index) * 40 - (currentProgress * 60)).dp
-
-            Text(
-                text = emoji,
-                fontSize = (20 + (index % 3) * 4).sp,
-                modifier = Modifier
-                    .offset(x = offsetX, y = offsetY)
-                    .graphicsLayer(
-                        rotationZ = flutterWing + (if (index % 2 == 0) 10f else -10f),
-                        scaleX = if (index % 2 == 0) 1f else -1f,
-                        alpha = 0.85f
-                    )
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Transparent)
-        ) {
-            // Standard App Header: Sky & Clouds Banner with "Vault" title matching all other screens
-            LedgerTopHeader(
-                title = "Vault",
-                onHomeClick = onHomeClick,
-                onMenuClick = onMenuClick
-            )
-
-            // Document List
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 96.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(vaultDocs, key = { it.id }) { doc ->
-                    DocumentCard(
-                        doc = doc,
-                        onClick = { openDocument(doc) },
-                        onOpenFile = { uri, type, name -> openSingleUri(uri, type, name) },
-                        onDelete = { docToDelete = doc }
-                    )
-                }
-            }
-        }
-
-        // ==========================================
+new_dialog = '''        // ==========================================
         // UI FORM: Upload Document Dialog
         // Blue colored and handwriting cursive style matching Reminders plus button dialog
         // ==========================================
@@ -383,10 +137,9 @@ fun VaultScreen(
                                                 try {
                                                     filePickerLauncher.launch("*/*")
                                                 } catch (e: Exception) {
-                                                    val errMsg = e.localizedMessage ?: "No app available"
                                                     notificationService.show(
                                                         "File Picker Unavailable",
-                                                        "Could not open file picker: $errMsg",
+                                                        "Could not open file picker: ${e.localizedMessage ?: \\"No app available\\"}",
                                                         NotificationType.ALERT
                                                     )
                                                 }
@@ -638,8 +391,7 @@ fun VaultScreen(
                                                 val cleanFile = if (selectedFiles.isNotEmpty()) {
                                                     selectedFiles.joinToString("||") { it.name }
                                                 } else {
-                                                    val sanitized = cleanTitle.replace(" ", "_")
-                                                    "$sanitized.pdf"
+                                                    "${cleanTitle.replace(\\" \\", \\"_\\")}.pdf"
                                                 }
                                                 val uriStr = if (selectedFiles.isNotEmpty()) {
                                                     selectedFiles.joinToString("||") { it.uri.toString() }
@@ -665,7 +417,7 @@ fun VaultScreen(
                                                 val fileCountMsg = if (selectedFiles.size > 1) " (${selectedFiles.size} files)" else ""
                                                 notificationService.show(
                                                     "Upload Successful",
-                                                    "Saved \"$cleanTitle\"$fileCountMsg",
+                                                    "Saved \\"$cleanTitle\\"$fileCountMsg",
                                                     NotificationType.SUCCESS
                                                 )
                                                 showUploadDialog = false
@@ -711,67 +463,29 @@ fun VaultScreen(
                     }
                 }
             }
-        }
+        }'''
 
-        // Delete Confirmation Dialog
-        if (docToDelete != null) {
-            val doc = docToDelete!!
-            Dialog(
-                onDismissRequest = { docToDelete = null },
-                properties = DialogProperties(usePlatformDefaultWidth = false)
-            ) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(0.88f)
-                        .wrapContentHeight(),
-                    shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.5.dp, GoldPrimary.copy(alpha = 0.5f)),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFDF9)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "Delete Document?",
-                            color = Color(0xFF1E293B),
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Are you sure you want to remove \"${doc.title}\"? It will be backed up in My Organiser safety archive.",
-                            color = Color(0xFF475569),
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            TextButton(onClick = { docToDelete = null }) {
-                                Text("Cancel", color = Color(0xFF64748B), fontWeight = FontWeight.SemiBold)
+start_idx = content.find(old_dialog_start)
+end_idx = content.find(old_dialog_end)
+
+if start_idx == -1 or end_idx == -1:
+    print('Indices not found!', start_idx, end_idx)
+    sys.exit(1)
+
+end_idx += len(old_dialog_end)
+content = content[:start_idx] + new_dialog + content[end_idx:]
+
+old_end_marker = '''                                Text("Delete", fontWeight = FontWeight.Bold)
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    onDeleteDocument(doc)
-                                    notificationService.show(
-                                        "Deleted",
-                                        "Removed ${doc.title}",
-                                        NotificationType.INFO
-                                    )
-                                    docToDelete = null
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFDC2626),
-                                    contentColor = Color.White
-                                ),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Text("Delete", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}'''
+
+new_fab_addition = '''                                Text("Delete", fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -779,319 +493,43 @@ fun VaultScreen(
             }
         }
 
-        // Floating Action Plus Button for Upload Document (Matching the exact Pink/Rose circular plus button in user's image)
+        // Reminders-style Blue Floating Action Plus Button for Upload Document
         FloatingActionButton(
             onClick = {
                 resetForm()
                 showUploadDialog = true
             },
-            containerColor = Color(0xFFE91E63), // Vibrant Pink/Rose
+            containerColor = Color(0xFF0284C7),
             contentColor = Color.White,
             shape = CircleShape,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 16.dp, end = 16.dp)
-                .size(44.dp)
+                .padding(bottom = 24.dp, end = 20.dp)
+                .size(54.dp)
                 .shadow(
-                    elevation = 8.dp,
+                    elevation = 10.dp,
                     shape = CircleShape,
-                    ambientColor = Color(0xFFE91E63).copy(alpha = 0.5f),
-                    spotColor = Color(0xFFE91E63).copy(alpha = 0.65f)
-                )
-                .border(
-                    width = 1.dp,
-                    color = Color.White.copy(alpha = 0.35f),
-                    shape = CircleShape
+                    ambientColor = Color(0xFF0284C7).copy(alpha = 0.35f),
+                    spotColor = Color(0xFF0284C7).copy(alpha = 0.45f)
                 )
         ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Upload Document",
                 tint = Color.White,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
     }
-}
+}'''
 
-/**
- * Clean translucent frosted glass card for documents.
- * Shows the background image through rather than an opaque black background!
- */
-@Composable
-private fun DocumentCard(
-    doc: VaultDocumentEntity,
-    onClick: () -> Unit,
-    onOpenFile: (uri: String, type: String, name: String) -> Unit,
-    onDelete: () -> Unit
-) {
-    val fileUris = remember(doc.uriString) {
-        if (doc.uriString.contains("||")) {
-            doc.uriString.split("||").filter { it.isNotBlank() }
-        } else if (doc.uriString.isNotBlank()) {
-            listOf(doc.uriString)
-        } else {
-            emptyList()
-        }
-    }
-    val fileNames = remember(doc.originalFileName) {
-        if (doc.originalFileName.contains("||")) {
-            doc.originalFileName.split("||").filter { it.isNotBlank() }
-        } else if (doc.originalFileName.isNotBlank()) {
-            listOf(doc.originalFileName)
-        } else {
-            emptyList()
-        }
-    }
+if old_end_marker in content:
+    content = content.replace(old_end_marker, new_fab_addition, 1)
+    print('FAB added successfully!')
+else:
+    print('FAB marker not found!')
+    sys.exit(1)
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White.copy(alpha = 0.16f), // Translucent glass, background image shows through!
-        border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.45f)),
-        shadowElevation = 4.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Document Type Icon
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White.copy(alpha = 0.18f))
-                    .border(1.dp, GoldPrimary.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                val icon = when {
-                    fileNames.size > 1 -> Icons.Filled.FolderZip
-                    doc.fileType.uppercase(Locale.getDefault()) == "PDF" -> Icons.Filled.PictureAsPdf
-                    doc.fileType.uppercase(Locale.getDefault()) in listOf("IMAGE", "PNG", "JPG", "JPEG") -> Icons.Filled.Image
-                    doc.fileType.uppercase(Locale.getDefault()) in listOf("TXT", "TEXT") -> Icons.Filled.Article
-                    else -> Icons.Filled.Description
-                }
-                val iconTint = when {
-                    fileNames.size > 1 -> GoldPrimary
-                    doc.fileType.uppercase(Locale.getDefault()) == "PDF" -> Color(0xFFFF7070)
-                    doc.fileType.uppercase(Locale.getDefault()) in listOf("IMAGE", "PNG", "JPG", "JPEG") -> Color(0xFF64B5F6)
-                    else -> GoldHighlight
-                }
-                Icon(
-                    imageVector = icon,
-                    contentDescription = doc.fileType,
-                    tint = iconTint,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            // Info column
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                Text(
-                    text = doc.title,
-                    color = GoldHighlight,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                if (fileNames.size > 1) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = "${fileNames.size} files attached",
-                            color = GoldPrimary,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (doc.fileSizeBytes > 0) {
-                            Text(
-                                text = "•",
-                                color = GoldLight.copy(alpha = 0.5f),
-                                fontSize = 10.sp
-                            )
-                            Text(
-                                text = formatFileSize(doc.fileSizeBytes),
-                                color = GoldLight.copy(alpha = 0.8f),
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-
-                    // Multi-file clickable chips
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 2.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        fileNames.take(4).forEachIndexed { idx, fName ->
-                            val fUri = fileUris.getOrNull(idx) ?: fileUris.firstOrNull() ?: ""
-                            val fExt = fName.substringAfterLast('.', "").uppercase(Locale.getDefault())
-                            Surface(
-                                shape = RoundedCornerShape(6.dp),
-                                color = Color.White.copy(alpha = 0.22f),
-                                border = BorderStroke(0.8.dp, GoldPrimary.copy(alpha = 0.5f)),
-                                modifier = Modifier.clickable {
-                                    onOpenFile(fUri, fExt, fName)
-                                }
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    val chipIcon = when (fExt) {
-                                        "PDF" -> Icons.Filled.PictureAsPdf
-                                        "PNG", "JPG", "JPEG", "WEBP" -> Icons.Filled.Image
-                                        else -> Icons.Filled.InsertDriveFile
-                                    }
-                                    Icon(
-                                        imageVector = chipIcon,
-                                        contentDescription = null,
-                                        tint = GoldHighlight,
-                                        modifier = Modifier.size(11.dp)
-                                    )
-                                    Text(
-                                        text = fName,
-                                        fontSize = 10.sp,
-                                        color = GoldHighlight,
-                                        fontWeight = FontWeight.Medium,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.widthIn(max = 95.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(
-                            text = doc.originalFileName,
-                            color = GoldLight.copy(alpha = 0.8f),
-                            fontSize = 11.5.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-                        if (doc.fileSizeBytes > 0) {
-                            Text(
-                                text = "•",
-                                color = GoldLight.copy(alpha = 0.5f),
-                                fontSize = 10.sp
-                            )
-                            Text(
-                                text = formatFileSize(doc.fileSizeBytes),
-                                color = GoldLight.copy(alpha = 0.8f),
-                                fontSize = 11.sp
-                            )
-                        }
-                    }
-                }
-
-                if (doc.notes.isNotBlank()) {
-                    Text(
-                        text = doc.notes,
-                        color = GoldLight.copy(alpha = 0.7f),
-                        fontSize = 11.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Text(
-                    text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(doc.dateAddedTimestamp)),
-                    color = GoldLight.copy(alpha = 0.55f),
-                    fontSize = 10.sp
-                )
-            }
-
-            // Delete action button
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.DeleteOutline,
-                    contentDescription = "Delete",
-                    tint = Color(0xFFFF8080).copy(alpha = 0.85f),
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-        }
-    }
-}
-
-// Helpers
-private fun getFileInfo(context: Context, uri: Uri): Pair<String, Long> {
-    var displayName = "Document_${System.currentTimeMillis()}"
-    var size = 0L
-    try {
-        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-            if (cursor.moveToFirst()) {
-                if (nameIndex != -1) {
-                    cursor.getString(nameIndex)?.let { displayName = it }
-                }
-                if (sizeIndex != -1) {
-                    size = cursor.getLong(sizeIndex)
-                }
-            }
-        }
-    } catch (_: Exception) {
-        uri.lastPathSegment?.let { seg ->
-            displayName = seg.substringAfterLast('/')
-        }
-    }
-    return Pair(displayName, size)
-}
-
-private fun formatFileSize(bytes: Long): String {
-    if (bytes <= 0) return ""
-    return when {
-        bytes >= 1024 * 1024 -> String.format(Locale.getDefault(), "%.1f MB", bytes / (1024f * 1024f))
-        bytes >= 1024 -> String.format(Locale.getDefault(), "%.1f KB", bytes / 1024f)
-        else -> "$bytes B"
-    }
-}
-
-private fun detectFileType(context: Context, uri: Uri, fileName: String): String {
-    val ext = fileName.substringAfterLast('.', "").uppercase(Locale.getDefault())
-    if (ext.isNotBlank() && ext.length <= 5) return ext
-    val mime = try {
-        context.contentResolver.getType(uri)
-    } catch (_: Exception) {
-        null
-    }
-    return when {
-        mime?.contains("pdf", ignoreCase = true) == true -> "PDF"
-        mime?.contains("image", ignoreCase = true) == true -> "IMAGE"
-        mime?.contains("text", ignoreCase = true) == true -> "TXT"
-        mime?.contains("word", ignoreCase = true) == true -> "DOC"
-        else -> "FILE"
-    }
-}
-
-private data class SelectedVaultFile(
-    val uri: Uri,
-    val name: String,
-    val size: Long,
-    val fileType: String
-)
+with open('app/src/main/java/com/example/ui/screens/VaultScreen.kt', 'w') as f:
+    f.write(content)
+print('Done updating VaultScreen.kt!')

@@ -534,8 +534,18 @@ private fun TextToImageSection(
         contentPadding = PaddingValues(top = 8.dp, bottom = 96.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Golden Mobile Phone Mockup Device
+        // Blue Colored UI Prompt & Settings Box (Matching the dialog UI box from other pages)
         item {
+            val dialogBackgroundBrush = remember {
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFFFFFFF),
+                        Color(0xFFF8FAFC),
+                        Color(0xFFEFF6FF)
+                    )
+                )
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -543,383 +553,398 @@ private fun TextToImageSection(
                     .padding(vertical = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Outer Phone Chassis with Metallic Golden Bezel
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .shadow(
                             elevation = 20.dp,
-                            shape = RoundedCornerShape(40.dp),
-                            ambientColor = GoldAccent.copy(alpha = 0.5f),
-                            spotColor = GoldPrimary.copy(alpha = 0.6f)
+                            shape = RoundedCornerShape(26.dp),
+                            ambientColor = Color(0xFF0284C7).copy(alpha = 0.25f),
+                            spotColor = Color(0xFF0284C7).copy(alpha = 0.35f)
                         ),
-                    shape = RoundedCornerShape(40.dp),
-                    color = Color(0xFF0F0F14),
-                    border = BorderStroke(6.dp, MetallicGoldBrush)
+                    shape = RoundedCornerShape(26.dp),
+                    color = Color.White,
+                    border = BorderStroke(1.5.dp, Color(0xFFBAE6FD))
                 ) {
-                    // Inner Screen Bezel & Wallpaper Screen
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(4.dp)
-                            .clip(RoundedCornerShape(34.dp))
-                            .background(SunsetPhoneWallpaperGradient)
+                            .background(dialogBackgroundBrush)
+                            .padding(horizontal = 18.dp, vertical = 18.dp)
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-                            // Top Speaker / Dynamic Island Notch
-                            // Top subtle decorative spacer
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // Studio Content Card inside the Mobile Screen with Golden Border
-                            Surface(
+                            // Header: Title with Cursive font & AI Prompt Writer Helper Button
+                            Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(20.dp),
-                                color = Color(0x77110F18),
-                                border = BorderStroke(1.5.dp, GoldAccent.copy(alpha = 0.7f)),
-                                shadowElevation = 8.dp
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(14.dp),
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(34.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                Brush.linearGradient(
+                                                    listOf(Color(0xFFE0F2FE), Color(0xFFBAE6FD))
+                                                )
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("✨", fontSize = 16.sp)
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "Generate Image",
+                                        color = Color(0xFF0369A1),
+                                        fontSize = 22.sp,
+                                        fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                // AI Prompt Writer Helper Button
+                                Surface(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .clickable(enabled = !isEnhancingPrompt) { onAiEnhancePrompt() },
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = Color(0xFFF0F9FF),
+                                    border = BorderStroke(1.2.dp, Color(0xFFBAE6FD))
                                 ) {
-                                    // Header: Renamed as "Enter Prompt" as requested
                                     Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(28.dp)
-                                                    .clip(CircleShape)
-                                                    .background(GoldPrimary.copy(alpha = 0.2f))
-                                                    .border(1.dp, GoldPrimary.copy(alpha = 0.6f), CircleShape),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text("✍️", fontSize = 14.sp)
-                                            }
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = "Enter Prompt",
-                                                fontSize = 15.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = GoldPrimary
-                                            )
-                                        }
-
-                                        // AI Prompt Writer Helper Button
-                                        Surface(
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .clickable(enabled = !isEnhancingPrompt) { onAiEnhancePrompt() },
-                                            shape = RoundedCornerShape(8.dp),
-                                            color = GoldDeep.copy(alpha = 0.85f),
-                                            border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.7f))
-                                        ) {
-                                            Row(
-                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                            ) {
-                                                if (isEnhancingPrompt) {
-                                                    CircularProgressIndicator(
-                                                        modifier = Modifier.size(11.dp),
-                                                        color = GoldHighlight,
-                                                        strokeWidth = 1.5.dp
-                                                    )
-                                                    Text(
-                                                        text = "AI Thinking...",
-                                                        fontSize = 10.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = GoldHighlight
-                                                    )
-                                                } else {
-                                                    Text("✨", fontSize = 11.sp)
-                                                    Text(
-                                                        text = "AI Prompt Help",
-                                                        fontSize = 10.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = GoldHighlight
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Prompt Input with Light White Background and Black text
-                                    OutlinedTextField(
-                                        value = promptInput,
-                                        onValueChange = onPromptChange,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(min = 80.dp)
-                                            .testTag("ai_image_prompt_input"),
-                                        textStyle = TextStyle(
-                                            color = Color.Black, // Black fonts
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Medium
-                                        ),
-                                        placeholder = {
-                                            Text(
-                                                "Describe anything you want to create or change in your photo...",
-                                                color = Color.Gray,
-                                                fontSize = 12.sp,
-                                                lineHeight = 16.sp
-                                            )
-                                        },
-                                        trailingIcon = {
-                                            Row {
-                                                SpeechToTextButton(
-                                                    onResult = { recognizedText ->
-                                                        onPromptChange(if (promptInput.isEmpty()) recognizedText else "$promptInput $recognizedText")
-                                                    },
-                                                    tint = Color.Gray
-                                                )
-                                                if (promptInput.isNotEmpty()) {
-                                                    IconButton(onClick = { onPromptChange("") }) {
-                                                        Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color.Gray)
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        shape = RoundedCornerShape(14.dp),
-                                        colors = OutlinedTextFieldDefaults.colors(
-                                            focusedTextColor = Color.Black, // Black fonts
-                                            unfocusedTextColor = Color.Black,
-                                            focusedBorderColor = GoldHighlight,
-                                            unfocusedBorderColor = GoldAccent.copy(alpha = 0.7f),
-                                            focusedContainerColor = Color(0xFFFAFAFA), // Light white background
-                                            unfocusedContainerColor = Color(0xFFFAFAFA), // Light white background
-                                            cursorColor = Color.Black,
-                                            focusedPlaceholderColor = Color.Gray,
-                                            unfocusedPlaceholderColor = Color.Gray
-                                        )
-                                    )
-
-                                    // Upload Image or Camera Integration Row
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        OutlinedButton(
-                                            onClick = onLaunchCamera,
-                                            modifier = Modifier.weight(1f),
-                                            shape = RoundedCornerShape(10.dp),
-                                            border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.7f)),
-                                            colors = ButtonDefaults.outlinedButtonColors(
-                                                containerColor = Color(0x22D4AF37),
-                                                contentColor = GoldLight
-                                            ),
-                                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
-                                        ) {
-                                            Icon(Icons.Default.PhotoCamera, contentDescription = "Camera", modifier = Modifier.size(15.dp), tint = GoldLight)
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Camera", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                        }
-
-                                        OutlinedButton(
-                                            onClick = onLaunchUpload,
-                                            modifier = Modifier.weight(1f),
-                                            shape = RoundedCornerShape(10.dp),
-                                            border = BorderStroke(1.dp, GoldAccent.copy(alpha = 0.7f)),
-                                            colors = ButtonDefaults.outlinedButtonColors(
-                                                containerColor = Color(0x22D4AF37),
-                                                contentColor = GoldLight
-                                            ),
-                                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
-                                        ) {
-                                            Icon(Icons.Default.UploadFile, contentDescription = "Upload", modifier = Modifier.size(15.dp), tint = GoldLight)
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text("Upload Image", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                    }
-
-                                    // Reference Image Preview (if attached)
-                                    referenceImageBitmap?.let { bitmap ->
-                                        Surface(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            shape = RoundedCornerShape(12.dp),
-                                            color = Color(0x55000000),
-                                            border = BorderStroke(1.dp, GoldHighlight.copy(alpha = 0.6f))
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(6.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Image(
-                                                    bitmap = bitmap.asImageBitmap(),
-                                                    contentDescription = "Reference Photo",
-                                                    modifier = Modifier
-                                                        .size(44.dp)
-                                                        .clip(RoundedCornerShape(8.dp)),
-                                                    contentScale = ContentScale.Crop
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Text(
-                                                        text = "📷 Image Attached for Changes",
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = GoldHighlight
-                                                    )
-                                                    Text(
-                                                        text = "Style & prompt will be applied to this image",
-                                                        fontSize = 10.sp,
-                                                        color = GoldLight.copy(alpha = 0.8f)
-                                                    )
-                                                }
-                                                IconButton(
-                                                    onClick = onRemoveReferenceImage,
-                                                    modifier = Modifier.size(28.dp)
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.Close,
-                                                        contentDescription = "Remove Reference",
-                                                        tint = Color(0xFFFF8A80),
-                                                        modifier = Modifier.size(16.dp)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Visual Style Selector in Golden Words
-                                    Text(
-                                        text = "🎨 Visual Style",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = GoldLight
-                                    )
-
-                                    Row(
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        STYLE_PRESETS.forEach { (styleName, emoji) ->
-                                            val isSelected = selectedStyle == styleName
-                                            Surface(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(8.dp))
-                                                    .clickable { onStyleSelect(styleName) },
-                                                shape = RoundedCornerShape(8.dp),
-                                                color = if (isSelected) GoldAccent else Color(0x44000000),
-                                                border = BorderStroke(
-                                                    1.dp,
-                                                    if (isSelected) GoldHighlight else GoldAccent.copy(alpha = 0.4f)
-                                                )
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(text = emoji, fontSize = 14.sp)
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Aspect Ratio Selector in Golden Words
-                                    Text(
-                                        text = "📐 Aspect Ratio",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = GoldLight
-                                    )
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                    ) {
-                                        ASPECT_RATIOS.forEach { (ratio, _) ->
-                                            val isSelected = selectedAspectRatio == ratio
-                                            Surface(
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .clip(RoundedCornerShape(10.dp))
-                                                    .clickable { onAspectRatioSelect(ratio) },
-                                                shape = RoundedCornerShape(10.dp),
-                                                color = if (isSelected) GoldAccent.copy(alpha = 0.35f) else Color(0x33000000),
-                                                border = BorderStroke(
-                                                    1.dp,
-                                                    if (isSelected) GoldPrimary else GoldAccent.copy(alpha = 0.4f)
-                                                )
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.padding(vertical = 6.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally
-                                                ) {
-                                                    Text(
-                                                        text = ratio,
-                                                        fontSize = 11.sp,
-                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                        color = if (isSelected) GoldPrimary else GoldLight.copy(alpha = 0.8f)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    // Golden Shimmering Generate / Transform Button
-                                    Button(
-                                        onClick = onGenerate,
-                                        enabled = !isGenerating,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(48.dp)
-                                            .shadow(8.dp, RoundedCornerShape(14.dp), ambientColor = GoldPrimary, spotColor = GoldAccent)
-                                            .testTag("ai_generate_image_button"),
-                                        shape = RoundedCornerShape(14.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = GoldPrimary,
-                                            contentColor = Color(0xFF241400),
-                                            disabledContainerColor = GoldDark.copy(alpha = 0.5f)
-                                        )
-                                    ) {
-                                        if (isGenerating) {
+                                        if (isEnhancingPrompt) {
                                             CircularProgressIndicator(
-                                                modifier = Modifier.size(20.dp),
-                                                color = Color(0xFF241400),
-                                                strokeWidth = 2.dp
+                                                modifier = Modifier.size(12.dp),
+                                                color = Color(0xFF0284C7),
+                                                strokeWidth = 1.5.dp
                                             )
-                                            Spacer(modifier = Modifier.width(10.dp))
                                             Text(
-                                                if (referenceImageBitmap != null) "Transforming Image..." else "Generating Artwork...",
-                                                fontSize = 14.sp,
+                                                text = "AI Thinking...",
+                                                fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF241400)
+                                                color = Color(0xFF0284C7)
                                             )
                                         } else {
-                                            Icon(
-                                                if (referenceImageBitmap != null) Icons.Default.Transform else Icons.Default.AutoAwesome,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(18.dp),
-                                                tint = Color(0xFF241400)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("✍️", fontSize = 12.sp)
                                             Text(
-                                                if (referenceImageBitmap != null) "Apply AI Changes" else "Generate Image",
-                                                fontSize = 14.sp,
+                                                text = "AI Prompt Help",
+                                                fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color(0xFF241400)
+                                                color = Color(0xFF0369A1)
                                             )
                                         }
                                     }
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                            // Prompt Input Field
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(
+                                    text = "Prompt Description",
+                                    color = Color(0xFF0369A1),
+                                    fontSize = 15.sp,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                OutlinedTextField(
+                                    value = promptInput,
+                                    onValueChange = onPromptChange,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 86.dp)
+                                        .testTag("ai_image_prompt_input"),
+                                    textStyle = TextStyle(
+                                        color = Color(0xFF0F172A),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    placeholder = {
+                                        Text(
+                                            "Describe anything you want to create or change in your photo...",
+                                            color = Color(0xFF94A3B8),
+                                            fontSize = 13.sp,
+                                            lineHeight = 18.sp
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            SpeechToTextButton(
+                                                onResult = { recognizedText ->
+                                                    onPromptChange(if (promptInput.isEmpty()) recognizedText else "$promptInput $recognizedText")
+                                                },
+                                                tint = Color(0xFF0284C7)
+                                            )
+                                            if (promptInput.isNotEmpty()) {
+                                                IconButton(onClick = { onPromptChange("") }) {
+                                                    Icon(Icons.Default.Clear, contentDescription = "Clear", tint = Color(0xFF64748B))
+                                                }
+                                            }
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = Color(0xFF0F172A),
+                                        unfocusedTextColor = Color(0xFF1E293B),
+                                        focusedBorderColor = Color(0xFF0284C7),
+                                        unfocusedBorderColor = Color(0xFFBAE6FD),
+                                        focusedContainerColor = Color(0xFFF0F9FF),
+                                        unfocusedContainerColor = Color(0xFFF8FAFC),
+                                        cursorColor = Color(0xFF0284C7)
+                                    )
+                                )
+                            }
+
+                            // Upload Image or Camera Integration Row
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = onLaunchCamera,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(42.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.2.dp, Color(0xFFBAE6FD)),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = Color(0xFFF0F9FF),
+                                        contentColor = Color(0xFF0369A1)
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.PhotoCamera,
+                                        contentDescription = "Camera",
+                                        modifier = Modifier.size(16.dp),
+                                        tint = Color(0xFF0284C7)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        "Camera",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF0369A1)
+                                    )
+                                }
+
+                                OutlinedButton(
+                                    onClick = onLaunchUpload,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(42.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    border = BorderStroke(1.2.dp, Color(0xFFBAE6FD)),
+                                    colors = ButtonDefaults.outlinedButtonColors(
+                                        containerColor = Color(0xFFF0F9FF),
+                                        contentColor = Color(0xFF0369A1)
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Default.UploadFile,
+                                        contentDescription = "Upload",
+                                        modifier = Modifier.size(16.dp),
+                                        tint = Color(0xFF0284C7)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        "Upload Image",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF0369A1)
+                                    )
+                                }
+                            }
+
+                            // Reference Image Preview (if attached)
+                            referenceImageBitmap?.let { bitmap ->
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = Color(0xFFF0F9FF),
+                                    border = BorderStroke(1.2.dp, Color(0xFFBAE6FD))
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Image(
+                                            bitmap = bitmap.asImageBitmap(),
+                                            contentDescription = "Reference Photo",
+                                            modifier = Modifier
+                                                .size(48.dp)
+                                                .clip(RoundedCornerShape(8.dp)),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "📷 Image Attached for Changes",
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF0369A1)
+                                            )
+                                            Text(
+                                                text = "Style & prompt will be applied to this image",
+                                                fontSize = 11.sp,
+                                                color = Color(0xFF64748B)
+                                            )
+                                        }
+                                        IconButton(
+                                            onClick = onRemoveReferenceImage,
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Close,
+                                                contentDescription = "Remove Reference",
+                                                tint = Color(0xFFEF4444),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Visual Style Selector
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = "Visual Style",
+                                    color = Color(0xFF0369A1),
+                                    fontSize = 15.sp,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    STYLE_PRESETS.forEach { (styleName, emoji) ->
+                                        val isSelected = selectedStyle == styleName
+                                        Surface(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .clickable { onStyleSelect(styleName) },
+                                            shape = RoundedCornerShape(10.dp),
+                                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFFF0F9FF),
+                                            border = BorderStroke(
+                                                1.2.dp,
+                                                if (isSelected) Color(0xFF0284C7) else Color(0xFFBAE6FD)
+                                            )
+                                        ) {
+                                            Box(
+                                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 6.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(text = emoji, fontSize = 15.sp)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Aspect Ratio Selector
+                            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = "Aspect Ratio",
+                                    color = Color(0xFF0369A1),
+                                    fontSize = 15.sp,
+                                    fontFamily = androidx.compose.ui.text.font.FontFamily.Cursive,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    ASPECT_RATIOS.forEach { (ratio, _) ->
+                                        val isSelected = selectedAspectRatio == ratio
+                                        Surface(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .clickable { onAspectRatioSelect(ratio) },
+                                            shape = RoundedCornerShape(10.dp),
+                                            color = if (isSelected) Color(0xFF0284C7) else Color(0xFFF0F9FF),
+                                            border = BorderStroke(
+                                                1.2.dp,
+                                                if (isSelected) Color(0xFF0284C7) else Color(0xFFBAE6FD)
+                                            )
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.padding(vertical = 8.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = ratio,
+                                                    fontSize = 12.sp,
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                    color = if (isSelected) Color.White else Color(0xFF0369A1)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            // Generate / Transform Button with Blue / Sky Theme
+                            Button(
+                                onClick = onGenerate,
+                                enabled = !isGenerating,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .shadow(6.dp, RoundedCornerShape(14.dp), ambientColor = Color(0xFF0284C7).copy(alpha = 0.35f), spotColor = Color(0xFF0284C7).copy(alpha = 0.45f))
+                                    .testTag("ai_generate_image_button"),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF0284C7),
+                                    contentColor = Color.White,
+                                    disabledContainerColor = Color(0xFFBAE6FD)
+                                )
+                            ) {
+                                if (isGenerating) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        color = Color.White,
+                                        strokeWidth = 2.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        if (referenceImageBitmap != null) "Transforming Image..." else "Generating Artwork...",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                } else {
+                                    Icon(
+                                        if (referenceImageBitmap != null) Icons.Default.Transform else Icons.Default.AutoAwesome,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                        tint = Color.White
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        if (referenceImageBitmap != null) "Apply AI Changes" else "Generate Image",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
+                            }
                         }
                     }
                 }

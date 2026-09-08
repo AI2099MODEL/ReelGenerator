@@ -20,6 +20,7 @@ import com.example.ui.screens.MainLedgerScreen
 import com.example.ui.theme.LedgerTheme
 import com.example.util.NotificationHelper
 import com.example.util.OrganiserStorageManager
+import com.google.android.gms.ads.MobileAds
 
 class MainActivity : FragmentActivity() {
     private val viewModel: LedgerViewModel by viewModels()
@@ -27,6 +28,9 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Initialize Google Mobile Ads SDK on a background thread
+        MobileAds.initialize(this) {}
 
         // Initialize notification channel and enable notifications seamlessly upon install
         NotificationHelper.createNotificationChannel(this)

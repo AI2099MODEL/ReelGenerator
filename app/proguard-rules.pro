@@ -1,21 +1,61 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Google Play Release & R8 Rules for Worldwide Distribution
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Preserve SourceFile and line numbers for Google Play vitals & crash reporting
+-keepattributes SourceFile,LineNumberTable
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Room Database
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    public void <init>();
+}
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# App Data Models & Room Entities
+-keep class com.example.data.model.** { *; }
+-keep class com.example.data.dao.** { *; }
+-keep class com.example.ui.** { *; }
+
+# Moshi & JSON Parsing
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.* <methods>;
+}
+-keepclasseswithmembers class * {
+    @com.squareup.moshi.* <fields>;
+}
+-keep class com.squareup.moshi.** { *; }
+-dontwarn com.squareup.moshi.**
+
+# Retrofit & OkHttp Networking
+-keepattributes Signature, InnerClasses, EnclosingMethod
+-keepclassmembers,allowshrinking,allowobfuscation interface * {
+    @retrofit2.http.* <methods>;
+}
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn retrofit2.**
+
+# Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.coroutines.** {
+    volatile <fields>;
+}
+
+# Biometric & Camera
+-keep class androidx.biometric.** { *; }
+-keep class androidx.camera.** { *; }
+
+# ZXing QR Code
+-keep class com.google.zxing.** { *; }
+
+# Google Mobile Ads (AdMob)
+-keep public class com.google.android.gms.ads.** {
+   public *;
+}
+-keep public class com.google.ads.** {
+   public *;
+}
+-keep class com.google.android.gms.internal.ads.** { *; }
+-dontwarn com.google.android.gms.ads.**
+

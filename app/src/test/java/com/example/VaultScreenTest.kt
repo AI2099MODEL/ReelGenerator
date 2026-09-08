@@ -40,10 +40,9 @@ class VaultScreenTest {
         composeTestRule.onNodeWithText("Upload").performClick()
         composeTestRule.waitForIdle()
 
-        // Verify Dialog appears with Select File / Source
-        composeTestRule.onNodeWithText("Select File / Source:", substring = true).assertExists()
-        composeTestRule.onNodeWithText("Files / PDF").assertExists()
-        composeTestRule.onNodeWithText("Photos / Gallery").assertExists()
+        // Verify Dialog appears with single file picker button
+        composeTestRule.onNodeWithText("Attach Files (Up to 4 files):", substring = true).assertExists()
+        composeTestRule.onNodeWithText("Select Files / Photos (Up to 4)").assertExists()
     }
 
     @Test
@@ -71,5 +70,35 @@ class VaultScreenTest {
 
         composeTestRule.onNodeWithText("My Resume").assertExists()
         composeTestRule.onNodeWithText("resume.pdf").assertExists()
+    }
+
+    @Test
+    fun testVaultScreenWithMultipleFilesDocument() {
+        val multiFileDoc = VaultDocumentEntity(
+            id = 2L,
+            title = "Insurance Bundle",
+            originalFileName = "policy.pdf||card.jpg||receipt.png",
+            uriString = "content://doc/1||content://doc/2||content://doc/3",
+            fileType = "3 FILES",
+            category = "Personal",
+            dateAddedTimestamp = System.currentTimeMillis(),
+            fileSizeBytes = 204800L,
+            notes = "Health and car insurance bundle"
+        )
+
+        composeTestRule.setContent {
+            VaultScreen(
+                vaultDocs = listOf(multiFileDoc),
+                onAddDocument = { _, _, _, _, _, _, _ -> },
+                onDeleteDocument = { }
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Insurance Bundle").assertExists()
+        composeTestRule.onNodeWithText("3 files attached", substring = true).assertExists()
+        composeTestRule.onNodeWithText("policy.pdf").assertExists()
+        composeTestRule.onNodeWithText("card.jpg").assertExists()
+        composeTestRule.onNodeWithText("receipt.png").assertExists()
     }
 }

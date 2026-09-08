@@ -81,17 +81,17 @@ private val NAV_ITEMS = listOf(
         tabColor = Color(0xFF0284C7)
     ),
     NavTabItem(
-        section = LedgerSection.IMAGES,
-        label = "Text to Image",
-        selectedIcon = Icons.Filled.AutoAwesome,
-        unselectedIcon = Icons.Outlined.AutoAwesome,
-        tabColor = Color(0xFFFFD700)
-    ),
-    NavTabItem(
         section = LedgerSection.VAULT,
         label = "Vault",
         selectedIcon = Icons.Filled.Lock,
         unselectedIcon = Icons.Outlined.Lock,
+        tabColor = Color(0xFFFFD700)
+    ),
+    NavTabItem(
+        section = LedgerSection.IMAGES,
+        label = "Text to Image",
+        selectedIcon = Icons.Filled.AutoAwesome,
+        unselectedIcon = Icons.Outlined.AutoAwesome,
         tabColor = Color(0xFFFFD700)
     )
 )
@@ -1995,9 +1995,7 @@ fun LedgerBinderBottomBar(
     val lightGreyTabBg = Color.Transparent
 
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .navigationBarsPadding(),
+        modifier = modifier.fillMaxWidth(),
         color = Color.Transparent,
         border = null,
         shadowElevation = 4.dp
@@ -2009,28 +2007,22 @@ fun LedgerBinderBottomBar(
         ) {
             val rows = remember { listOf(NAV_ITEMS) }
 
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 6.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                    .padding(horizontal = 6.dp, vertical = 4.dp)
+                    .clip(RoundedCornerShape(18.dp))
             ) {
-                // Blue Water Flowing Background strictly for the tab buttons row
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(18.dp))
-                ) {
-                    TabBarWaterBackground(modifier = Modifier.matchParentSize())
+                TabBarWaterBackground(modifier = Modifier.matchParentSize())
 
-                    rows.forEachIndexed { rowIndex, rowItems ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                rows.forEachIndexed { rowIndex, rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         rowItems.forEach { item ->
                             val isSelected = currentSection == item.section
                             val icon = if (isSelected) item.selectedIcon else item.unselectedIcon
@@ -2131,8 +2123,6 @@ fun LedgerBinderBottomBar(
                                             .scale(animatedScale)
                                             .rotate(animatedRotation)
                                     )
-
-
                                 }
                             }
                         }
@@ -2141,7 +2131,6 @@ fun LedgerBinderBottomBar(
             }
         }
     }
-}
 }
 
 /**

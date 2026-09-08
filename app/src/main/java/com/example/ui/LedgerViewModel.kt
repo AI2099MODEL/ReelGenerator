@@ -1,6 +1,7 @@
 package com.example.ui
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.AppDatabase
@@ -46,7 +47,18 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     val networkState: StateFlow<NetworkState> = networkMonitor.networkState
 
-    val selectedSection = MutableStateFlow(LedgerSection.DAILY_SCHEDULE)
+    private val prefs = application.getSharedPreferences("ledger_prefs", Context.MODE_PRIVATE)
+
+    val selectedSection = MutableStateFlow(
+        run {
+            val savedName = prefs.getString("last_selected_section", LedgerSection.VAULT.name)
+            try {
+                LedgerSection.valueOf(savedName ?: LedgerSection.VAULT.name)
+            } catch (e: Exception) {
+                LedgerSection.VAULT
+            }
+        }
+    )
     val activeChatThreadKey = MutableStateFlow("family")
     val globalSettings = MutableStateFlow(GlobalSettingsState())
     val selectedSocialChannels = androidx.compose.runtime.mutableStateListOf<String>()
@@ -200,6 +212,7 @@ class LedgerViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setSection(section: LedgerSection) {
         selectedSection.value = section
+        prefs.edit().putString("last_selected_section", section.name).apply()
     }
 
     fun setActiveChatThread(threadKey: String) {
