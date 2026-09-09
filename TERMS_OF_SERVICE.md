@@ -1,32 +1,41 @@
 # Terms of Service
 
-**Effective Date:** August 28, 2026
+**Effective Date:** September 9, 2026  
+**Last Updated:** September 9, 2026
 
-Please read these Terms of Service ("Terms") carefully before using our mobile application (the "App").
+Please read these Terms of Service ("Terms") carefully before using **Lyfe / My Organiser** ("the App").
 
-By downloading or using the App, these terms will automatically apply to you. You should make sure therefore that you read them carefully before using the App. 
+By downloading, installing, or using the App, these Terms automatically apply to you.
 
-### 1. License to Use the App
-We grant you a personal, non-exclusive, non-transferable, revocable license to use the App for your personal, non-commercial use on an Android device that you own or control, in accordance with these Terms.
+---
 
-### 2. User Responsibilities
-- You are responsible for keeping your device and access to the App secure. We recommend that you do not jailbreak or root your phone, as it could compromise your phone's security features and mean the App will not work properly or at all.
-- You are responsible for backing up your data. Since the App operates entirely offline and stores data locally, if you lose your device or uninstall the App without a backup, your data cannot be recovered by us.
+### 1. License & Usage
+We grant you a personal, non-exclusive, non-transferable, revocable license to use the App for personal organization, scheduling, document storage, and daily productivity on an Android device that you own or control, in accordance with these Terms and Google Play Store policies.
 
-### 3. AI Generation Services
-The App includes an "Image Studio" feature powered by Pollinations AI. 
-- You agree not to use the Image Studio to generate illegal, harmful, or highly inappropriate content. 
-- The images generated are provided "as is" and rely on third-party uptime and availability. We do not guarantee the constant availability of the AI generation service.
+### 2. User Responsibilities & Data Backups
+- **Device Security:** You are responsible for maintaining the physical and digital security of your device, PIN/biometrics, and application access.
+- **Local Data Management:** Because the App operates on a local-first, offline architecture, all your data is stored directly on your device. You are responsible for creating periodic backups using the in-app backup/export tools. We cannot recover data lost due to device loss, factory reset, or unbacked-up uninstallation.
 
-### 4. Intellectual Property
-The App itself, and all the trademarks, copyright, database rights, and other intellectual property rights related to it, belong to the developer. You are not allowed to copy or modify the App, any part of the App, or our trademarks in any way. You are not allowed to attempt to extract the source code of the App.
+### 3. AI Features & Third-Party Services
+- The App provides optional AI tools (such as Image Studio and generative assistance) powered by external APIs (such as Pollinations AI and Google Gemini).
+- You agree not to use AI generation tools to produce unlawful, infringing, abusive, or harmful content.
+- Third-party AI and advertisement services are provided "as is" subject to network availability and third-party terms.
 
-### 5. Limitation of Liability
-The App is provided on an "as is" and "as available" basis. We make no warranties, expressed or implied, regarding the App. We will not be liable for any direct, indirect, incidental, or consequential damages resulting from your use of or inability to use the App, including but not limited to loss of locally stored data.
+### 4. Advertisements & Monetization
+The App may display advertisements provided via Google Mobile Ads (AdMob). In applicable regions (such as the EEA/UK), you will be presented with a consent form (Google UMP) allowing you to manage ad personalization preferences.
 
-### 6. Changes to These Terms
-We may update our Terms of Service from time to time. We will notify you of any changes by posting the new Terms of Service on this page.
+### 5. Intellectual Property
+All design assets, user interfaces, branding, compiled code, and intellectual property rights associated with the App belong to the developer. You may not reverse engineer, decompile, or create unauthorized derivative works of the App.
 
-### 7. Contact Us
-If you have any questions or suggestions about our Terms of Service, do not hesitate to contact us.
-*(Developer: Please provide a contact email address here before publishing)*
+### 6. Limitation of Liability & Disclaimer of Warranties
+The App is provided on an "AS IS" and "AS AVAILABLE" basis without warranties of any kind. To the fullest extent permitted by applicable law, the developer shall not be liable for any direct, indirect, incidental, or consequential damages resulting from your use of the App or loss of locally stored data.
+
+### 7. Changes to These Terms
+We may update our Terms of Service from time to time to reflect feature enhancements or regulatory requirements. Continued use of the App following any changes indicates your acceptance of the revised Terms.
+
+---
+
+### 8. Contact Information
+For questions or inquiries regarding these Terms, please contact:
+- **Application:** Lyfe / My Organiser for Android
+- **Developer Support:** `anuakku20138@gmail.com`

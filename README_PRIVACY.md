@@ -1,65 +1,63 @@
-# MyLyfe Privacy Policy & Data Protection Overview
+# My Organiser / Lyfe - Privacy & Policy Documentation
 
-*Last updated: August 2026*
+*Last updated: September 2026*
 
-This Privacy Policy explains how **MyLyfe** collects, uses, and safeguards user data. MyLyfe is engineered as an on-device personal communication ledger, encrypted vault, task organizer, and diary application built around privacy-by-design principles.
-
----
-
-## 1. Core Privacy Architecture: On-Device & Local-First
-
-- **Zero Remote Telemetry & Tracking**: MyLyfe does not maintain central servers that harvest, track, profile, or sell user chat transcripts, contact lists, notes, or uploaded documents.
-- **Local Sandbox Storage**: All chat messages, vaulted files, phone contacts, events, and personal notes are stored locally in an encrypted/sandboxed SQLite (Room) database on your Android device.
-- **Offline Operations**: All features—including search, category filtering, message archiving, and directory management—function 100% offline without requiring continuous internet access.
+This document provides a concise developer and compliance summary of **Lyfe / My Organiser**, its on-device architecture, permissions model, Google Play Store compliance, and Data Safety requirements.
 
 ---
 
-## 2. Regulatory Compliance (GDPR, CCPA/CPRA, & Local Data Protection Acts)
+## 1. Architectural Highlights
 
-- **Right to Access & Portability (GDPR Art. 20, CCPA § 1798.100)**: Users can export their complete database into a standardized, unencrypted or password-secured JSON backup file at any time.
-- **Right to Erasure / "Right to be Forgotten" (GDPR Art. 17, CCPA § 1798.105)**: Users can permanently delete individual messages, entire conversation categories, vault documents, contacts, or wipe their entire dataset using the in-app backup/restore tools.
-- **Data Minimization & Auto-Archiving (GDPR Art. 5(1)(c))**: An automatic 5-day chat archiver moves messages older than 5 days out of active chat views into a protected hidden Vault section, preventing unwanted message buildup.
-
----
-
-## 3. Communication Limits, Storage Rules, & File Uploads
-
-To maintain device responsiveness, prevent database memory bloat, and protect system resources, MyLyfe enforces transparent operational boundaries:
-
-### A. Four Core Categories & Custom Naming
-- MyLyfe maintains **4 core organizational categories** (by default: *Family*, *Work*, *Personal*, and *Utility*).
-- Users have full autonomy to rename any category (and customize thread names and emojis) to suit their personal workflow.
-
-### B. Directory Limit (10 Numbers per Category)
-- Each category supports up to **10 contact numbers** in this release (maximum 40 total categorized speed-dial entries).
-- This prevents contact database fragmentation and keeps quick-dial drawers fast and accessible.
-
-### C. Chat Attachment & File Upload Limits
-Attachments can be shared directly into any chat thread subject to the following standard limits:
-- **Images (JPG, PNG, WEBP, GIF)**: Up to **25 MB** per file.
-- **Videos (MP4, MKV, 3GP, MOV)**: Up to **100 MB** per file (in line with modern private messenger standards such as Signal/Messenger).
-- **Documents & Audio (PDF, DOCX, TXT, MP3, WAV)**: Up to **50 MB** per file.
-- **Max Aggregate File Size per Attachment**: **100 MB**.
+- **Local-First & Offline-Ready:** All primary data (daily schedules, reminder notes, contact cards, private vault documents, notes, and OCR scans) are stored in local SQLite/Room tables and internal sandbox directories.
+- **Privacy-by-Design:** No GPS tracking, no remote database synchronization, user profiling, or background tracking servers.
+- **Biometric Security:** Vault authentication is delegated to Android's `BiometricPrompt` framework and hardware security module (TEE).
 
 ---
 
-## 4. Permissions & Device Capabilities
+## 2. Permissions Justification (Google Play Store Review)
 
-MyLyfe only requests permissions strictly necessary for user-initiated actions:
-1. **Camera (`android.permission.CAMERA`)**: Used exclusively when you open the QR Scanner to scan contact cards (`MECARD`, `VCARD`) or documents. No video or viewfinder frames are ever recorded or transmitted.
-2. **Storage / Photo Picker (`ACTION_GET_CONTENT` / SAF)**: Used solely to select photos, videos, documents, or JSON backups from your local file system.
-3. **Phone Dialer (`Intent.ACTION_DIAL`)**: Opens the native Android dialer with the phone number pre-filled. MyLyfe never initiates unauthorized background phone calls.
-4. **Network State (`ACCESS_NETWORK_STATE`)**: Used to detect whether your device has cellular signal or Wi-Fi to synchronize locally queued offline messages.
-
----
-
-## 5. Security & Backups
-
-- **Encrypted Local Storage**: Data is protected by Android's application sandbox and Linux user isolation.
-- **User-Controlled Google Drive / Local Backups**: Backups are only generated when explicitly requested by the user and can be shared to Google Drive or local storage using the Android system share sheet.
+| Manifest Permission | Justification & Usage |
+| :--- | :--- |
+| `android.permission.INTERNET` | Required for Google Mobile Ads delivery, consent updates via UMP, and optional AI Image Studio generation. |
+| `android.permission.ACCESS_NETWORK_STATE` | Allows the app to detect connectivity before making external API or ad calls. |
+| `android.permission.CAMERA` | Used solely for QR code scanning and document/receipt photography for the secure Vault. Viewfinder frames are never retained. |
+| `android.permission.RECORD_AUDIO` | Used only for on-device voice-to-text prompt transcription when the user presses the microphone icon. |
+| `android.permission.POST_NOTIFICATIONS` | Delivers user-requested notifications and music playback controls. |
+| `android.permission.RECEIVE_BOOT_COMPLETED` | Automatically re-registers app services and notifications after device restart. |
+| `android.permission.VIBRATE` | Provides haptic feedback during user interactions. |
+| `android.permission.WRITE_SETTINGS` | System intent allowing users to set custom ringtones if desired. |
 
 ---
 
-## 6. Contact & Support
+## 3. Google Play Data Safety Compliance Matrix
 
-For privacy inquiries, audit questions, or feature requests, contact the development team or refer to the project documentation within the app settings.
+When completing the **Data Safety form in Google Play Console**, use the following mappings:
+
+1. **Location**:
+   - **No Data Collected**: The app does not request or collect GPS or location data.
+2. **Personal Info**:
+   - *Name & Phone Number*: Collected as entered in local contacts/ledger. Stored locally only. Not shared. User can delete anytime.
+3. **Photos & Videos**:
+   - *Photos*: User-selected Vault/OCR images. Stored locally only. User can delete anytime.
+4. **Audio Files**:
+   - *Voice recordings / prompts*: Ephemeral speech-to-text processing. Not stored or shared.
+5. **Files & Documents**:
+   - *PDFs & Notes*: Stored locally in encrypted Vault. Not shared. User can delete anytime.
+6. **Device or Other IDs**:
+   - *Advertising ID (AAID)*: Collected by Google Mobile Ads SDK for ad delivery and fraud prevention. Handled under Google Play Services policies with TLS 1.3 encryption.
+
+---
+
+## 4. Legal & Regulatory Compliance
+
+- **GDPR / UK GDPR (EU/UK):** Full data subject rights supported (Access, Rectification, Erasure, Data Portability, and UMP Consent Management).
+- **CCPA / CPRA (US):** No sale of personal data; user-controlled deletion and correction directly in the app.
+- **COPPA:** General audience app, not directed to children under 13.
+- **Data Deletion Policy:** Complete in-app item deletion and device-level storage clearing capabilities.
+
+---
+
+## 5. Contact & Support
+
+- **Support Email:** `anuakku20138@gmail.com`
+- **Application:** Lyfe / My Organiser for Android

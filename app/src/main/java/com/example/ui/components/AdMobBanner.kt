@@ -47,7 +47,9 @@ fun AdMobBanner(
                 AdView(context).apply {
                     setAdSize(AdSize.BANNER)
                     this.adUnitId = adUnitId
-                    loadAd(AdRequest.Builder().build())
+                    if (com.example.util.ConsentManager.canRequestAds(context)) {
+                        loadAd(AdRequest.Builder().build())
+                    }
                 }
             }
         )

@@ -290,7 +290,7 @@ private fun MainLedgerScreenContent(
             },
             title = {
                 Text(
-                    text = "Unlock AI Image & Video Studio",
+                    text = "Unlock AI Image Studio",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -303,7 +303,7 @@ private fun MainLedgerScreenContent(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "Watch a short sponsored video to unlock instant access to Text to Image & Video prompts generation!",
+                        text = "Watch a short sponsored video to unlock instant access to Text to Image prompts generation!",
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -529,14 +529,14 @@ private fun ImageStudioLockedPlaceholder(
                 }
 
                 Text(
-                    text = "Text to Image & Video Studio",
+                    text = "Text to Image Studio",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
-                    text = "To access the AI Text to Image & Video creation tools, please watch a short sponsored video reward. You will receive immediate full access for this session.",
+                    text = "To access the AI Text to Image creation tools, please watch a short sponsored video reward. You will receive immediate full access for this session.",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

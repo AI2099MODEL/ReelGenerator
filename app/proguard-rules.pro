@@ -49,7 +49,7 @@
 # ZXing QR Code
 -keep class com.google.zxing.** { *; }
 
-# Google Mobile Ads (AdMob)
+# Google Mobile Ads (AdMob) & Consent SDK
 -keep public class com.google.android.gms.ads.** {
    public *;
 }
@@ -58,4 +58,10 @@
 }
 -keep class com.google.android.gms.internal.ads.** { *; }
 -dontwarn com.google.android.gms.ads.**
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.android.ump.** { *; }
+
+# Google Generative AI (Gemini SDK)
+-keep class com.google.ai.client.generativeai.** { *; }
+-dontwarn com.google.ai.client.generativeai.**
 

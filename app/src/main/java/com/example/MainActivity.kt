@@ -29,8 +29,12 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Initialize Google Mobile Ads SDK on a background thread
-        MobileAds.initialize(this) {}
+        // Initialize Google UMP Consent for GDPR / EMEA & Mobile Ads SDK
+        com.example.util.ConsentManager.requestConsent(this) { canRequestAds ->
+            if (canRequestAds) {
+                MobileAds.initialize(this) {}
+            }
+        }
 
         // Initialize notification channel and enable notifications seamlessly upon install
         NotificationHelper.createNotificationChannel(this)

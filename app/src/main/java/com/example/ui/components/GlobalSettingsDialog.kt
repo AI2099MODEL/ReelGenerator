@@ -89,18 +89,6 @@ fun GlobalSettingsDialog(
     var testTranslationInput by remember { mutableStateOf("Welcome to Ledger Archive! Manage notes, tasks, & events.") }
     var testTranslationOutput by remember { mutableStateOf("") }
 
-    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val fineGranted = permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-        val coarseGranted = permissions[android.Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-        if (fineGranted || coarseGranted || com.example.util.GpsLocationTracker.hasLocationPermission(context)) {
-            com.example.util.GpsLocationTracker.getCurrentGpsLocation(context) { res ->
-                onSetLocation(res.locationName, res.latitude, res.longitude, true)
-            }
-        }
-    }
-
     // Auto-update sample output when input or language changes
     LaunchedEffect(testTranslationInput, settings.targetLanguageCode) {
         val targetLang = SUPPORTED_LANGUAGES.find { it.code == settings.targetLanguageCode }
@@ -384,46 +372,7 @@ fun GlobalSettingsDialog(
                                 }
                             }
 
-                            // Auto Detect Button
-                            Button(
-                                onClick = {
-                                    if (com.example.util.GpsLocationTracker.hasLocationPermission(context)) {
-                                        com.example.util.GpsLocationTracker.getCurrentGpsLocation(context) { res ->
-                                            onSetLocation(res.locationName, res.latitude, res.longitude, true)
-                                        }
-                                    } else {
-                                        permissionLauncher.launch(
-                                            arrayOf(
-                                                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                                android.Manifest.permission.ACCESS_COARSE_LOCATION
-                                            )
-                                        )
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = RoseQuartzPrimaryContainer,
-                                    contentColor = RoseQuartzPrimary
-                                ),
-                                border = BorderStroke(1.dp, RoseQuartzPrimary.copy(alpha = 0.3f))
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.GpsFixed,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Text(
-                                        text = "Auto-Detect Current GPS Location",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp
-                                    )
-                                }
-                            }
+
 
                             // Manual Search TextField
                             OutlinedTextField(
